@@ -1,0 +1,84 @@
+# Ignore compiled Python files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore Python virtual environment folder & files
+pyvenv.cfg
+venv/
+.venv/
+pip-selfcheck.json
+
+# Ignore Django migration files
+**/migrations/
+
+# Ignore database files
+*.db
+*.sqlite3
+
+# Ignore static files collected by Django
+static/
+
+# Ignore media files uploaded by users
+media/
+
+# Ignore environment-specific settings files
+.env
+*.env
+
+# Ignore the Django secret key
+secret_key.txt
+
+# Ignore log files
+*.log
+
+# Ignore generated documentation
+docs/
+
+# Ignore package installation files
+*.egg-info/
+dist/
+build/
+
+# Ignore cache and temporary files
+*.pyc
+*.swp
+*.swo
+*~
+
+# Ignore editor-specific files
+*.[oa]
+*.pyc
+
+# Ignore local development configuration files
+local_settings.py
+
+# Ignore backup files
+*~
+*.bak
+
+# Ignore generated coverage reports
+htmlcov/
+
+
+# Ignore system and editor files on macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+
+# Ignore IDE and Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.swp
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.bak
+*.vspscc
+*.vssscc
+*.sln.docstates
