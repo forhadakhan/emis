@@ -1,0 +1,7 @@
+# Ignore files from emis_backend folder
+emis_backend/
+
+# Ignore files from emis_frontend folder
+emis_frontend/
+
+
