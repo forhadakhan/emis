@@ -1,7 +1,5 @@
-# Ignore files from emis_backend folder
-emis_backend/
+# Include rules from emis_backend/.gitignore
+include emis_backend/.gitignore
 
-# Ignore files from emis_frontend folder
-emis_frontend/
-
-
+# Include rules from emis_frontend/.gitignore
+include emis_frontend/.gitignore
