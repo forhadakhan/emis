@@ -1,0 +1,43 @@
+import React from 'react';
+import AddStaffForm from './AddStaffForm';
+
+const AddStaff = ({ setActiveComponent }) => {
+    const formFields = {
+        user: {
+            username: '',
+            password: '',
+            email: '',
+            first_name: '',
+            middle_name: '',
+            last_name: '',
+        },
+        gender: '',
+        nid: '',
+        phone: '',
+        birth_date: '',
+        father_name: '',
+        mother_name: '',
+        permanent_address: '',
+        present_address: '',
+        photo: null,
+    }
+    return (
+        <div>
+            <a className="icon-link icon-link-hover" href="#" onClick={() => setActiveComponent('main')}>
+                <i className="bi bi-arrow-bar-left"></i> Back to activity panel
+            </a>
+
+            <h3 className="pb-2 border-bottom">
+                <div className="icon-square mt-4 text-beige bg-darkblue d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+                    <i className="bi bi-shield-plus"></i>
+                </div>
+                Add Staff
+            </h3>
+
+            <AddStaffForm formFields={formFields} setActiveComponent={setActiveComponent} />
+
+        </div>
+    );
+};
+
+export default AddStaff;
