@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
     
 ]
 
@@ -191,6 +192,20 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=2),
 }
 
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5173',  # React frontend's URL
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_CREDENTIALS = True
 
 """""""""""""""""""""""""""""""""""""""""
 """""""""""""""""""""""""""""""""""""""""
