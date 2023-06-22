@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'social_django',
     
+    # internal apps 
+    'authentication',
 ]
 
 MIDDLEWARE = [
