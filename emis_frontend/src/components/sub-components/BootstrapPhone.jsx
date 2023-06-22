@@ -33,7 +33,7 @@ import {
 import 'react-international-phone/style.css';
 
 
-const BootstrapPhone = ({ value, onChange, defaultCountry, hideDropdown, prefix, disabled, ...restProps }) => {
+const BootstrapPhone = ({ value, onChange, defaultCountry, hideDropdown, prefix, required, disabled, ...restProps }) => {
     const { phone, handlePhoneValueChange, inputRef, country, setCountry } = usePhoneInput({
         value,
         disabled: disabled || false,
@@ -88,6 +88,7 @@ const BootstrapPhone = ({ value, onChange, defaultCountry, hideDropdown, prefix,
                 onChange={handlePhoneValueChange}
                 ref={inputRef}
                 {...restProps}
+                required
             />
         </div>
     );
