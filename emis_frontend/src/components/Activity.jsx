@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import {getUserRole} from '../auth.js'; 
 import AddUser from './add-user/AddUser';
 import AddAdministrator from './add-user/AddAdministrator';
 import AddStaff from './add-user/AddStaff';
 import AddTeacher from './add-user/AddTeacher';
 import AddStudent from './add-user/AddStudent';
 import ManageUser from './manage-user/ManageUser';
-import ManageAdministrator from './manage-user/ManageAdministrator';
-import ManageStaff from './manage-user/ManageStaff';
-import ManageTeacher from './manage-user/ManageTeacher';
-import ManageStudent from './manage-user/ManageStudent';
+import ManageAdministrator from './manage-user/manage-administrator-&-staff/ManageAdministrator';
+import ManageStaff from './manage-user/manage-administrator-&-staff/ManageStaff';
+import ManageProfile from './manage-user/manage-administrator-&-staff/ManageProfile';
+import ManageTeacher from './manage-user/manage-teacher/ManageTeacher';
+import ManageStudent from './manage-user/manage-student/ManageStudent';
 
 
 const ActivityComponent = () => {
     const [activeComponent, setActiveComponent] = useState('main');
+    const [reference, setReference] = useState(null); 
+    const [userType, setUserType] = useState(``);
+    const user_role = getUserRole();
 
     const renderComponent = () => {
         switch (activeComponent) {
@@ -27,13 +32,15 @@ const ActivityComponent = () => {
             case 'AddStudent':
                 return <AddStudent setActiveComponent={setActiveComponent} />;
             case 'ManageAdministrator':
-                return <ManageAdministrator setActiveComponent={setActiveComponent} />;
+                return <ManageAdministrator setActiveComponent={setActiveComponent} setReference={setReference}  setUserType={setUserType} />;
             case 'ManageStaff':
-                return <ManageStaff setActiveComponent={setActiveComponent} />;
+                return <ManageStaff setActiveComponent={setActiveComponent} setReference={setReference}  setUserType={setUserType} />;
             case 'ManageTeacher':
                 return <ManageTeacher setActiveComponent={setActiveComponent} />;
             case 'ManageStudent':
                 return <ManageStudent setActiveComponent={setActiveComponent} />;
+            case 'ManageProfile':
+                return <ManageProfile setActiveComponent={setActiveComponent} reference={reference} userType={userType} />;
             default:
                 return (
                     <div>Looks like the rendering component in "activity" is having a wild party and forgot its job description!</div>
@@ -41,6 +48,7 @@ const ActivityComponent = () => {
         }
     };
 
+    
     return (
         <div>
             <div className="container">
