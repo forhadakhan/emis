@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     
     # internal apps 
     'authentication',
+    'administrator',
 ]
 
 MIDDLEWARE = [
