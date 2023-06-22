@@ -4,7 +4,7 @@ import * as bootstrap from 'bootstrap'
 import API_BASE_URL from '../config';
 import Logo64 from '../assets/logos/emis-64x64.png';
 import HomeComponent from './home';
-import ActivityComponent from './activity';
+import ActivityComponent from './Activity';
 import SettingsComponent from './settings';
 import ProfileComponent from './profile';
 import AcademicCalendar from './fullCalendar';
@@ -17,17 +17,12 @@ const LandingComponent = ({ user: response, onLogoutSuccess }) => {
 
     const handleSignOut = async (e) => {
         e.preventDefault();
-
-        // Get the refresh token from wherever you have stored it
+        // Get the refresh token and send it to backend for blacklisting. 
         const refreshToken = getRefreshToken();
         try {
             const response = await axios.post(`${API_BASE_URL}/logout/`, {
                 refresh_token: refreshToken,
             });
-
-            // Handle successful logout
-            console.log(response.data);
-            console.log('Sign-out successful');
 
             // Logout from frontend by removing access_token from local storage
             logout();
@@ -119,7 +114,7 @@ const LandingComponent = ({ user: response, onLogoutSuccess }) => {
                 {activeComponent === 'home' && <HomeComponent componentController={componentController} />}
                 {activeComponent === 'actions' && <ActivityComponent />}
                 {activeComponent === 'settings' && <SettingsComponent />}
-                {activeComponent === 'profile' && <ProfileComponent />}
+                {activeComponent === 'profile' && <ProfileComponent componentController={componentController} />}
                 {activeComponent === 'academic_calendar' && <AcademicCalendar />}
                 {activeComponent === 'test' && <Test />}
             </section>
