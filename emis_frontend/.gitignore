@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# dummy files
+test.jsx
+auth0.js
+auth2.js 
