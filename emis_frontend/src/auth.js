@@ -45,14 +45,6 @@ const decryptData = (encryptedData, encryptionKey) => {
     }
 };
 
-function extractUserIdFromToken(token) {
-    const { payloadObj } = KJUR.jws.JWS.parse(token);
-    const userId = payloadObj.id; // Assuming the user ID is stored as "userId" claim in the token
-
-    return userId;
-}
-
-
 
 // Function to save the access token in localStorage
 export const setAccessToken = (token) => {
@@ -92,6 +84,12 @@ export const setUserData = (user) => {
     localStorage.setItem('user', encryptedUser);
 };
 
+// Function to save the user profile data in localStorage
+export const setProfileData = (profile) => {
+    const encryptedUser = encryptData(JSON.stringify(profile));
+    localStorage.setItem('profile', encryptedUser);
+};
+
 // Function to get the user data from localStorage
 export const getUserData = () => {
     const encryptedUser = localStorage.getItem('user');
@@ -102,8 +100,19 @@ export const getUserData = () => {
     return null;
 };
 
+// Function to get the user profile data from localStorage
+export const getProfileData = () => {
+    const encryptedUser = localStorage.getItem('profile');
+    if (encryptedUser) {
+        const user = JSON.parse(decryptData(encryptedUser));
+        return user;
+    }
+    return null;
+};
+
 // Function to save the login response data
 export const saveLoginResponse = (data) => {
+    // console.log(data);
     // Save the access token in localStorage
     const { access } = data;
     setAccessToken(access);
@@ -115,6 +124,15 @@ export const saveLoginResponse = (data) => {
     // Save the user data (if needed)
     const { user } = data;
     setUserData(user);
+
+    // Save the user data (if needed)
+    if (data.profile) {
+        const { profile } = data;
+        setProfileData(profile);
+    } else {
+        const profile = '';
+        setProfileData(profile);
+    }
 };
 
 // Function to get the user's role from the access token
@@ -202,3 +220,11 @@ export const refreshTokens = async () => {
     return null;
 };
 
+
+export const getFileLink = (file_id) => {
+    return `https://drive.google.com/uc?export=view&id=${file_id}`
+}
+
+export const getFileLink2 = (file_id) => {
+    return `https://drive.google.com/file/d/${file_id}/view`
+}
