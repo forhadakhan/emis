@@ -1,7 +1,15 @@
+/**
+ * Calling From: AddUser.jsx
+ * Calling To: AddForm-Staff&Admin.jsx
+ */
+
 import React from 'react';
-import AddStaffForm from './AddStaffForm';
+import AddForm from './AddForm-Staff&Admin';
+import API_BASE_URL from '../../config';
+
 
 const AddStaff = ({ setActiveComponent }) => {
+    const url = `${API_BASE_URL}/staff/`;
     const formFields = {
         user: {
             username: '',
@@ -19,8 +27,9 @@ const AddStaff = ({ setActiveComponent }) => {
         mother_name: '',
         permanent_address: '',
         present_address: '',
-        photo: null,
+        photo_id: '',
     }
+
     return (
         <div>
             <a className="icon-link icon-link-hover" href="#" onClick={() => setActiveComponent('main')}>
@@ -34,7 +43,7 @@ const AddStaff = ({ setActiveComponent }) => {
                 Add Staff
             </h3>
 
-            <AddStaffForm formFields={formFields} setActiveComponent={setActiveComponent} />
+            <AddForm formFields={formFields} url={url} />
 
         </div>
     );
