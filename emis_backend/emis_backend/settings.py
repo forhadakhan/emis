@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'authentication',
     'administrator',
     'staff',
+    'file_handler',
 ]
 
 MIDDLEWARE = [
