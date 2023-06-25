@@ -1,11 +1,14 @@
 import React from 'react';
-import { getUserData, getProfileData } from '../auth';
+import { getUserData, getProfileData, getUserRole } from '../utils/auth';
 import ViewProfile from './profile/ViewProfile';
 
 const ProfileComponent = ({ componentController }) => {
 
     const user = getUserData();
     const profile = getProfileData();
+    const role = getUserRole();
+
+    
 
     return (
         <div>

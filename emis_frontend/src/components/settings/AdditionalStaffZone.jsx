@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { getProfileData, getFileLink, getUserId, getAccessToken, setProfileData } from '../../auth';
+import { getProfileData, getFileLink, getUserId, getAccessToken, setProfileData, getUserRole } from '../../utils/auth';
 import BootstrapPhone from '../sub-components/BootstrapPhone';
 import FileUploadForm from '../file-handler/FileUploadForm';
 import { deleteFile } from '../file-handler/fileUtils';
-import API_BASE_URL from '../../config';
+import API_BASE_URL from '../../utils/config';
 import axios from 'axios';
 
 
 const AdditionalStaffZone = () => {
     const initProfile = getProfileData();
+    const role = getUserRole();
     const [profile, setProfile] = useState(initProfile);
     const [updatedProfile, setUpdatedProfile] = useState(profile);
     const [phoneError, setPhoneError] = useState(false);
@@ -152,7 +153,7 @@ const AdditionalStaffZone = () => {
         formDataToSend.delete('updated_at');
         // console.log([...formDataToSend]);
         axios
-            .patch(`${API_BASE_URL}/staff/update-partial/${profile.id}/`, formDataToSend, {
+            .patch(`${API_BASE_URL}/${role}/update-partial/${profile.id}/`, formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${accessToken}`,
@@ -279,8 +280,16 @@ const AdditionalStaffZone = () => {
                             </div>
 
                             <div className="mt-5 text-center my-3">
-                                {showUpdateSuccess && <div className="alert alert-info text-center fw-bold"><i className="bi bi-check2-circle"></i> Updated Successfully</div>}
-                                {showUpdateFailed && <div className="alert alert-warning text-center fw-bold"><i className="bi bi-x-octagon"></i> Update Failed</div>} 
+                                {showUpdateSuccess &&
+                                    <div className="alert alert-info fw-bold text-darkblue alert-dismissible fade show" role="alert">
+                                        <i className="bi bi-check2-circle"></i> Updated Successfully
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>}
+                                {showUpdateFailed &&
+                                    <div className="alert alert-info fw-bold alert-dismissible fade show" role="alert">
+                                        <i className="bi bi-x-octagon"></i> Update Failed
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>}
                                 <div className="d-grid gap-2">
                                     <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">Update</button>
                                     <button onClick={cancelUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">Cancel</button>

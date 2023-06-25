@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { getUserId, getAccessToken, getRefreshToken, logout } from '../../auth';
-import API_BASE_URL from '../../config';
+import { getUserId, getAccessToken, getRefreshToken, logout } from '../../utils/auth';
+import API_BASE_URL from '../../utils/config';
 import axios from 'axios';
 
 
@@ -182,7 +182,8 @@ const DangerZone = () => {
                                         name="password"
                                         value={password}
                                         onChange={handlePasswordChange}
-                                        onBlur={matchPassword}
+                                        onBlur={() => setTimeout(() => matchPassword(), 0)}
+                                        required
                                     />
                                 </div>
                                 <div className="col-md-6">
@@ -194,14 +195,16 @@ const DangerZone = () => {
                                         name="re_password"
                                         value={rePassword}
                                         onChange={handleRePasswordChange}
-                                        onBlur={matchPassword}
+                                        onBlur={() => setTimeout(() => matchPassword(), 0)}
+                                        required
                                     />
                                 </div>
                             </div>
                             {!passwordMatch && (
                                 <div className="text-danger alert alert-warning">Passwords do not match!</div>
                             )}
-                            <div className="alert alert-light text-info">
+
+                            <div className="alert alert-warning text-darkblue alert-dismissible fade show" role="alert">
                                 {passwordResponseMsg === '' ? (
                                     <ul>
                                         <li>Passwords must be between eight to twenty characters.</li>
@@ -210,11 +213,12 @@ const DangerZone = () => {
                                     </ul>
                                 ) : (
                                     <span>
-                                        <i className="bi bi-info-square-fill"> </i> {passwordResponseMsg}
+                                        <i className="bi bi-info-square-fill"></i> {passwordResponseMsg}
                                     </span>
-
                                 )}
+                                <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
+
                             <div className="mt-5 text-center my-3">
                                 <div className="d-grid gap-2">
                                     <button

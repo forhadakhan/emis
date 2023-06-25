@@ -1,5 +1,10 @@
+/**
+ * Calling from: profile.jsx
+ * Calling to: 
+ */
+
 import React from 'react';
-import {getFileLink} from '../../auth';
+import {getFileLink, getUserId, getUserRole} from '../../utils/auth';
 
 const ViewProfile = ({ componentController, user, profile }) => {
 
@@ -17,6 +22,11 @@ const ViewProfile = ({ componentController, user, profile }) => {
         justifyContent: 'center',
         alignItems: 'center',
     };
+
+    const user_id = getUserId();
+    const user_role = getUserRole();
+
+    
 
 
     const iconHTML = '<i className="bi bi-person-bounding-box"></i>'; // Bootstrap icon HTML string

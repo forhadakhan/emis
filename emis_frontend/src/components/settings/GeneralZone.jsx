@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import { getUserData, getUserId, getAccessToken, setUserData } from '../../auth';
-import API_BASE_URL from '../../config';
+import { getUserData, getUserId, getAccessToken, setUserData } from '../../utils/auth';
+import API_BASE_URL from '../../utils/config';
 import axios from 'axios';
 
 
@@ -133,8 +133,16 @@ const GeneralZone = () => {
                     </div>
 
                     <div className="mt-5 text-center my-3">
-                                {showUpdateSuccess && <div className="alert alert-info text-center fw-bold"><i className="bi bi-check2-circle"></i> Updated Successfully</div>}
-                                {showUpdateFailed && <div className="alert alert-warning text-center fw-bold"><i className="bi bi-x-octagon"></i> Update Failed</div>} 
+                                {showUpdateSuccess &&
+                                    <div className="alert alert-info fw-bold text-darkblue alert-dismissible fade show" role="alert">
+                                        <i className="bi bi-check2-circle"></i> Updated Successfully
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>}
+                                {showUpdateFailed &&
+                                    <div className="alert alert-info fw-bold alert-dismissible fade show" role="alert">
+                                        <i className="bi bi-x-octagon"></i> Update Failed
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>} 
                         <div className="d-grid gap-2">
                             <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">Update</button>
                             <button onClick={handleCancel} className="btn btn-darkblue pt-1 profile-button" type="button">Cancel</button>
