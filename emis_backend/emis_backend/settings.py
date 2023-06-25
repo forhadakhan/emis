@@ -35,7 +35,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,15 +43,22 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',   
     
+    
+    #  Installed Packages:
+    
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'social_django',
     
+    
+    #  Internal Apps:
+    
     'authentication',
     'administrator',
     'staff',
+    'teacher',
     'file_handler',
     'email_handler',
     'miscellaneous',
