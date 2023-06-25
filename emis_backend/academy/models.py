@@ -62,6 +62,22 @@ class TermChoices(models.Model):
 #####################################################################
 
 
+#####################################################################
+##################### Semester:
+#####################   - dependent on: TermChoices, Department
+class Semester(models.Model):
+    term = models.ForeignKey(TermChoices, on_delete=models.CASCADE)
+    year = models.IntegerField()
+    code = models.IntegerField()
+    is_open = models.BooleanField(default=True)
+    is_finished = models.BooleanField(default=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.term.name} {self.year}'
+#####################################################################
+
+
 
 
 #####################################################################
