@@ -5,4 +5,3 @@ class StaffSerializer(serializers.ModelSerializer):
     class Meta:
         model = Staff
         fields = "__all__" 
-        # exclude = ('user',)  # Exclude the 'user' field from serialization
