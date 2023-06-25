@@ -1,6 +1,8 @@
 # academy/models.py
 
 from django.db import models
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
 
 
 #####################################################################
@@ -48,7 +50,7 @@ class Department(models.Model):
 #####################################################################
 ##################### TermChoices:
 #####################   independent.  
-#####################   linked with:   
+#####################   linked with: create_term_choices().  
 class TermChoices(models.Model):
     name = models.CharField(max_length=100)
     start = models.CharField(max_length=24, blank=True)
@@ -67,6 +69,50 @@ class TermChoices(models.Model):
 ##################### Model:
 #####################   - in/dependent 
 
+#####################################################################
+
+
+
+
+
+
+
+#####################################################################
+##################### create_term_choices:
+#####################   - dependent on:  TermChoices
+@receiver(post_migrate)
+def create_term_choices(sender, **kwargs):
+    if kwargs.get('app').__name__ == 'academy.models':
+        term_choices_data = [
+            {
+                'name': 'Fall',
+                'start': 'August',
+                'end': 'December'
+            },
+            {
+                'name': 'Autumn',
+                'start': 'September',
+                'end': 'December'
+            },
+            {
+                'name': 'Spring',
+                'start': 'January',
+                'end': 'May'
+            },
+            {
+                'name': 'Winter',
+                'start': 'January',
+                'end': 'April'
+            },
+            {
+                'name': 'Summer',
+                'start': 'May',
+                'end': 'August'
+            },
+        ]
+
+        for term_data in term_choices_data:
+            TermChoices.objects.get_or_create(**term_data)
 #####################################################################
 
 
