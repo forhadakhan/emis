@@ -8,6 +8,7 @@ from django.dispatch import receiver
 #####################################################################
 ##################### Designation:
 #####################   - independent. 
+#####################   linked with: create_designations().  
 class Designation(models.Model):
     name = models.CharField(max_length=64)
     
@@ -59,8 +60,6 @@ class TermChoices(models.Model):
     def __str__(self):
         return self.name
 #####################################################################
-
-
 
 
 
