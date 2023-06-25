@@ -94,3 +94,17 @@ class GetStudentView(APIView):
             return HttpResponse(serialized_data, content_type='application/json')
         except Student.DoesNotExist:
             return JsonResponse({'error': 'Student not found'}, status=404)
+
+
+
+class StudentPartialUpdate(generics.UpdateAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    lookup_field = 'pk'
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
