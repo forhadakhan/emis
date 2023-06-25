@@ -53,3 +53,44 @@ class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
         if isinstance(obj, date):
             return obj.isoformat()
         return super().default(obj)
+
+
+
+class GetStudentView(APIView):
+    def get(self, request):
+        user_id = request.GET.get('reference')
+        try:
+            student = Student.objects.get(user_id=user_id)
+            user = User.objects.select_related('student').values(
+                'last_login', 'username', 'first_name', 'last_name',
+                'email', 'is_staff', 'is_active', 'date_joined', 'role', 'middle_name', 'id'
+            ).get(student=student)
+            user_added_by = student.added_by.username
+            user_updated_by = ''
+            if student.updated_by:
+                user_updated_by = student.updated_by.username
+
+            student_data = serializers.serialize('python', [student])
+            user_data = {
+                'username': user['username'],
+                'first_name': user['first_name'],
+                'middle_name': user['middle_name'],
+                'last_name': user['last_name'],
+                'email': user['email'],
+                'role': user['role'],
+                'is_staff': user['is_staff'],
+                'is_active': user['is_active'],
+                'date_joined': user['date_joined'],
+                'last_login': user['last_login'],
+                'id': user['id'],
+            }
+
+            combined_data = student_data[0]
+            combined_data['fields']['added_by'] = user_added_by
+            combined_data['fields']['updated_by'] = user_updated_by
+            combined_data['fields']['user'] = user_data
+
+            serialized_data = json.dumps(combined_data, cls=CustomJSONEncoder)
+            return HttpResponse(serialized_data, content_type='application/json')
+        except Student.DoesNotExist:
+            return JsonResponse({'error': 'Student not found'}, status=404)
