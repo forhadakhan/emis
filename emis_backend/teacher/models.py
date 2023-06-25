@@ -2,11 +2,6 @@
 
 from django.db import models
 from authentication.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.db.models.signals import post_migrate
-from django.dispatch import receiver
-from teacher.models import Designation
 
 
 #####################################################################
