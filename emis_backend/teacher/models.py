@@ -27,10 +27,11 @@ class Teacher(models.Model):
     updated_by = models.ForeignKey(User, related_name='teacher_updated_by', on_delete=models.SET_NULL, blank=True, null=True)
     added_by = models.ForeignKey(User, related_name='teacher_added_by', on_delete=models.SET_NULL, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    acronym = models.CharField(max_length=16, unique=True)
     history = models.JSONField(blank=True, null=True)
     
     def __str__(self):
-        return self.user.username if self.user else 'Teacher'
+        return self.acronym
 #####################################################################
 
 
