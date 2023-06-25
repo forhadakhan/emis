@@ -47,3 +47,9 @@ class StudentUsersView(APIView):
         return HttpResponse(serialized_users, content_type='application/json')
 
 
+
+class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, date):
+            return obj.isoformat()
+        return super().default(obj)
