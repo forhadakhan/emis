@@ -2,8 +2,6 @@
 
 from django.db import models
 from authentication.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 class Administrator(models.Model):
     GENDER_CHOICES = (
