@@ -38,3 +38,12 @@ class StudentViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+
+class StudentUsersView(APIView):
+    def get(self, request):
+        student_users = User.objects.filter(role='student')
+        serialized_users = serializers.serialize('json', student_users, fields=('username', 'first_name', 'last_name', 'email', 'is_active'))
+        return HttpResponse(serialized_users, content_type='application/json')
+
+
