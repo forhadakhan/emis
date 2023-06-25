@@ -78,6 +78,22 @@ class Semester(models.Model):
 #####################################################################
 
 
+#####################################################################
+##################### Course:
+#####################   - dependent on: Department.
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    acronym = models.CharField(max_length=16)
+    code = models.IntegerField()
+    credit = models.IntegerField()
+    prerequisites = models.ManyToManyField('self', blank=True)
+    departments = models.ManyToManyField('Department')
+
+    def __str__(self):
+        return self.name
+#####################################################################
+
+
 
 
 #####################################################################
