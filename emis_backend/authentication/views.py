@@ -13,32 +13,21 @@ from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyMod
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from staff.models import Staff     
+from administrator.models import Administrator     
 from staff.serializers import StaffSerializer    
+from administrator.serializers import AdministratorSerializer    
 from django.contrib.auth.hashers import check_password 
 from rest_framework.views import APIView
 from django.conf import settings
 from rest_framework.authtoken.models import Token
-    
-    
-# class LoginView(APIView):
-#     # Sign in or Login control
-#     def post(self, request):
-#         username = request.data.get('username')
-#         password = request.data.get('password')
+from django.core.exceptions import PermissionDenied
 
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             login(request, user)
-#             refresh = RefreshToken.for_user(user)
+    
 
-#             return Response({
-#                 'message': 'Login successful',
-#                 'refresh': str(refresh),
-#                 'access': str(refresh.access_token),
-#                 'user': UserSerializer(user).data
-#             }, status=status.HTTP_200_OK)
-#         else:
-#             return Response({'message': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class LoginView(APIView):
@@ -49,35 +38,49 @@ class LoginView(APIView):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-            refresh = RefreshToken.for_user(user)
+            if user.email_verified:
+                login(request, user)
+                refresh = RefreshToken.for_user(user)
 
-            user_data = {
-                'message': 'Login successful',
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                'user': UserSerializer(user).data
-            }
+                user_data = {
+                    'message': 'Login successful',
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'user': UserSerializer(user).data
+                }
 
-            if user.role == 'administrator' or user.role == 'staff':
-                staff = Staff.objects.filter(user=user).first()
-                if staff is not None:
-                    # Add staff data to the user_data
-                    user_data['profile'] = StaffSerializer(staff).data
+                if user.role == 'administrator':
+                    administrator = Administrator.objects.filter(user=user).first()
+                    if administrator is not None:
+                        # Add administrator data to the user_data
+                        user_data['profile'] = AdministratorSerializer(administrator).data
 
-            # elif user.role == 'teacher':
-            #     teacher = Teacher.objects.filter(user=user).first()
-            #     if teacher is not None:
-            #         # Add teacher data to the user_data
-            #         user_data['profile'] = TeacherSerializer(teacher).data
+                if user.role == 'staff':
+                    staff = Staff.objects.filter(user=user).first()
+                    if staff is not None:
+                        # Add staff data to the user_data
+                        user_data['profile'] = StaffSerializer(staff).data
 
-            # elif user.role == 'student':
-            #     student = Student.objects.filter(user=user).first()
-            #     if student is not None:
-            #         # Add student data to the user_data
-            #         user_data['profile'] = StudentSerializer(student).data
+                # elif user.role == 'teacher':
+                #     teacher = Teacher.objects.filter(user=user).first()
+                #     if teacher is not None:
+                #         # Add teacher data to the user_data
+                #         user_data['profile'] = TeacherSerializer(teacher).data
 
-            return Response(user_data, status=status.HTTP_200_OK)
+                # elif user.role == 'student':
+                #     student = Student.objects.filter(user=user).first()
+                #     if student is not None:
+                #         # Add student data to the user_data
+                #         user_data['profile'] = StudentSerializer(student).data
+
+                return Response(user_data, status=status.HTTP_200_OK)
+            else:
+                # Add email verification information to response data
+                user_data = {
+                    'message': 'Email not verified',
+                    'email_verified': False
+                }
+                return Response(user_data, status=status.HTTP_403_FORBIDDEN)         
         else:
             return Response({'message': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -95,12 +98,6 @@ class LogoutView(GenericAPIView, CreateModelMixin):
                 return Response({'message': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class UserDeleteView(DestroyModelMixin, GenericAPIView):
@@ -159,7 +156,6 @@ class ChangePasswordView(APIView):
 class ChangePasswordUserView(APIView):
     # Change password
     def post(self, request):
-        print(request.data);
         user_id = request.data.get('user_id')
         old_password = request.data.get('old_password')
         new_password = request.data.get('new_password')
@@ -176,6 +172,24 @@ class ChangePasswordUserView(APIView):
             return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+
+class ResetPasswordUserView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        new_password = request.data.get('new_password')
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'message': 'Invalid username'}, status=status.HTTP_404_NOT_FOUND)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+
 
 
 class DeactivateUserView(APIView):
