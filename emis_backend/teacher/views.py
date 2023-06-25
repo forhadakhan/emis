@@ -39,11 +39,13 @@ class TeacherViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+
 class TeacherUsersView(APIView):
     def get(self, request):
         teacher_users = User.objects.filter(role='teacher')
         serialized_users = serializers.serialize('json', teacher_users, fields=('username', 'first_name', 'last_name', 'email', 'is_active'))
         return HttpResponse(serialized_users, content_type='application/json')
+
 
 
 class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
@@ -92,5 +94,20 @@ class GetTeacherView(APIView):
             return HttpResponse(serialized_data, content_type='application/json')
         except Teacher.DoesNotExist:
             return JsonResponse({'error': 'Teacher not found'}, status=404)
+
+
+
+class TeacherPartialUpdate(generics.UpdateAPIView):
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherSerializer
+    lookup_field = 'pk'
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
 
 
