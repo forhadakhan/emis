@@ -108,3 +108,21 @@ class StudentPartialUpdate(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+
+
+class StudentDeleteView(DestroyModelMixin, GenericAPIView):
+    queryset = Student.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.user:
+            user_id = instance.user.id
+            user_delete_view = UserDeleteView()
+            response = user_delete_view.delete(request, user_id)
+            if response.status_code != 204:
+                return response
+        return self.destroy(request, *args, **kwargs)
+
+
