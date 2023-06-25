@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'administrator',
     'staff',
     'file_handler',
+    'email_handler',
+    'miscellaneous',
 ]
 
 MIDDLEWARE = [
