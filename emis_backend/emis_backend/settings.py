@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'administrator',
     'staff',
     'teacher',
+    'student',
     'file_handler',
     'email_handler',
     'miscellaneous',
