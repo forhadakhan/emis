@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'file_handler',
     'email_handler',
     'miscellaneous',
+    'academy',
 ]
 
 MIDDLEWARE = [
