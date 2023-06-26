@@ -1,6 +1,6 @@
 // fileUtils.js
 
-import { API_BASE_URL } from '../../config';
+import { API_BASE_URL } from '../../utils/config';
 import axios from 'axios';
 
 
