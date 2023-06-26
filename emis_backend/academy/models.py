@@ -103,7 +103,7 @@ class Course(models.Model):
 class TeacherEnrollment(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     designations = models.ManyToManyField(Designation)
-    departments = models.ManyToManyField(Department, on_delete=models.CASCADE)
+    departments = models.ManyToManyField(Department)
     enrolled_by = models.ForeignKey(User, related_name='teacher_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
     on_duty = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
