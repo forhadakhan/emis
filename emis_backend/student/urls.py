@@ -1,5 +1,7 @@
 # student/urls.py
 
+app_name = 'student'
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from .views import StudentViewSet, StudentUsersView, StudentPartialUpdate, StudentDeleteView, GetStudentView

@@ -1,5 +1,7 @@
 # email_handler/urls.py
 
+app_name = 'email_handler'
+
 from django.urls import include, path
 from .views import EmailVerificationView, EmailVerificationConfirmView, ResendEmailVerificationView, PasswordResetView
 

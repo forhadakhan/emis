@@ -1,5 +1,7 @@
 # administrator/urls.py
 
+app_name = 'administrator'
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from .views import AdministratorViewSet, AdministratorUsersView, AdministratorPartialUpdate, AdministratorDeleteView, GetAdministratorView

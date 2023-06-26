@@ -1,3 +1,7 @@
+# miscellaneous/urls.py 
+
+app_name = 'miscellaneous'
+
 from django.urls import path
 from .views import ContactView
 
