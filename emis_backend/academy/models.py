@@ -181,7 +181,7 @@ class CourseEnrollment(models.Model):
 ##################### Attendance:
 #####################   - dependent: CourseOffer, Student
 class Attendance(models.Model):
-    course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
+    course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
     date = models.DateField()
     present_students = models.ManyToManyField(Student, blank=True)
     remarks = models.TextField(blank=True)
@@ -195,7 +195,7 @@ class Attendance(models.Model):
 ##################### Assignment and AssignmentSubmission:
 #####################   - dependent on: CourseOffer, Assignment, Student. 
 class Assignment(models.Model):
-    course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
+    course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     assign_date = models.DateField(blank=True)
