@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/administrator/', include('administrator.urls')),
     path('api/staff/', include('staff.urls')),
     path('api/teacher/', include('teacher.urls')),
+    path('api/student/', include('student.urls')),
     path('api/file/', include('file_handler.urls')),
     path('api/email/', include('email_handler.urls')),
     path('api/', include('miscellaneous.urls')),
