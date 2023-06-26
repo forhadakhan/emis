@@ -5,6 +5,7 @@ from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from authentication.models import User
 from teacher.models import Teacher
+from student.models import Student
 
 
 #####################################################################
