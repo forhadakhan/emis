@@ -133,6 +133,19 @@ class BatchAndSection(models.Model):
 #####################################################################
 
 
+#####################################################################
+##################### CourseOffer:
+#####################   - dependent on: Semester, Course, Teacher
+class CourseOffer(models.Model):
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
+    capacity = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.course} - {self.semester} - {self.teacher}'
+#####################################################################
+
 
 #####################################################################
 ##################### Model:
