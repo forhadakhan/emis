@@ -5,7 +5,7 @@
 
 import React from 'react';
 import AddForm from './AddForm-Staff&Admin';
-import API_BASE_URL from '../../config';
+import API_BASE_URL from '../../utils/config';
 
 
 const AddStaff = ({ setActiveComponent }) => {

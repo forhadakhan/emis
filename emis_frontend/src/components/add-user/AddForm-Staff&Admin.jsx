@@ -5,11 +5,11 @@
 
 import React, { useState, useEffect } from 'react';
 import 'react-international-phone/style.css';
-import { getFileLink } from '../../auth';
+import { getFileLink } from '../../utils/auth';
 import BootstrapPhone from '../sub-components/BootstrapPhone';
 import FileUploadForm from '../file-handler/FileUploadForm';
 import { deleteFile } from '../file-handler/fileUtils';
-import { getAccessToken, getUserId } from '../../auth';
+import { getAccessToken, getUserId } from '../../utils/auth';
 import axios from 'axios';
 
 
@@ -21,12 +21,13 @@ const AddForm = ({ formFields, url }) => {
     const [phoneError, setPhoneError] = useState(false);
     const [editStatus, setEditStatus] = useState(true);
     const [nidError, setNidError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [uploadedFileId, setUploadedFileId] = useState('');
     const [uploadedFileLink, setUploadedFileLink] = useState('');
 
-    
+
     useEffect(() => {
         setFormData((prevFormData) => ({
             ...prevFormData,
@@ -106,7 +107,7 @@ const AddForm = ({ formFields, url }) => {
         const allValid = passwordError === '' && !nidError && !phoneError;
         if (!allValid) { return }
 
-        console.log(formData);
+        // console.log(formData);
 
         setEditStatus(false);
     };
@@ -143,14 +144,15 @@ const AddForm = ({ formFields, url }) => {
     const handleAddAnother = () => {
         handleEdit();
         handleReset();
-        setSubmitSuccess(false)
+        setSubmitSuccess(false);
+        setIsLoading(false);
     };
 
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const accessToken = getAccessToken();        
+        const accessToken = getAccessToken();
         const formDataToSend = new FormData();
         for (const key in formData) {
             if (key === 'user') {
@@ -162,7 +164,7 @@ const AddForm = ({ formFields, url }) => {
 
         const added_by = getUserId();
         formDataToSend.append('added_by', added_by);
-        if(uploadedFileId) {
+        if (uploadedFileId) {
             formDataToSend.set('photo_id', uploadedFileId);
         }
 
@@ -172,7 +174,7 @@ const AddForm = ({ formFields, url }) => {
                 'Content-Type': 'multipart/form-data',
             },
         };
-
+        setIsLoading(true);
         axios
             .post(url, formDataToSend, config)
             .then((response) => {
@@ -183,6 +185,7 @@ const AddForm = ({ formFields, url }) => {
             })
             .catch((error) => {
                 console.error(error);
+                setIsLoading(false);
                 setAlertMessage('Failed to submit data. Please try again.');
             });
     };
@@ -357,7 +360,7 @@ const AddForm = ({ formFields, url }) => {
                                         <td className="text-uppercase text-end fw-bold">{key.replace(/_/g, ' ')}</td>
                                         <td className="fs-5">
                                             {key === 'photo_id' && value ? (
-                                                
+
                                                 <img
                                                     src={getFileLink(uploadedFileId)}
                                                     alt="Photo"
@@ -387,7 +390,12 @@ const AddForm = ({ formFields, url }) => {
                                     <i className="bi bi-pencil-square"></i> Edit
                                 </button>
                                 <button type="submit" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleSubmit}>
-                                    <i className="bi bi-person-bounding-box"></i> Save
+                                    {isLoading ? (
+                                        <div class="d-flex justify-content-center">
+                                            <div class="spinner-border" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        </div>) : (<div><i className="bi bi-person-bounding-box"></i> Save</div>)}
                                 </button>
                             </>
                         )}

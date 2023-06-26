@@ -1,5 +1,5 @@
 import React from 'react';
-import {getUserRole} from '../../auth.js'; 
+import {getUserRole} from '../../utils/auth.js'; 
 
 const AddUser = ({ setActiveComponent }) => {
     const user_role = getUserRole();
