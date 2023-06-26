@@ -269,7 +269,8 @@ class Result(models.Model):
 #####################   - dependent on:  TermChoices.
 @receiver(post_migrate)
 def create_term_choices(sender, **kwargs):
-    if kwargs.get('app').__name__ == 'academy.models':
+    app = kwargs.get('app')
+    if app and app.__name__ == 'academy.models':
         term_choices_data = [
             {
                 'name': 'Fall',
@@ -308,7 +309,8 @@ def create_term_choices(sender, **kwargs):
 #####################   - dependent on: Designation.
 @receiver(post_migrate)
 def create_designations(sender, **kwargs):
-    if kwargs.get('app').__name__ == 'academy.models':
+    app = kwargs.get('app')
+    if app and app.__name__ == 'academy.models':
         designations_data = [
             'New Recruit',
             'Teaching Assistant',
