@@ -4,8 +4,8 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../../config';
-import { getAccessToken, getUserId } from '../../../auth';
+import API_BASE_URL from '../../../utils/config';
+import { getAccessToken, getUserId } from '../../../utils/auth';
 
 
 const ManageProfileUserForm = ({ data, related_to, status }) => {
@@ -13,9 +13,13 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
     function convertDate(dateString) {
-        const date = new Date(dateString);
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
+        if (dateString) {
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        } else {
+            return '';
+        }
     }
     const [source, setSource] = useState({
         username: data.username,
@@ -54,7 +58,7 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
                 formDataToSend.append(key, value);
             }
         });
-        console.log([...formDataToSend]);
+        // console.log([...formDataToSend]);
 
         axios.patch(`${API_BASE_URL}/user/update-partial/${data.id}/`, formDataToSend, {
             headers: {
@@ -133,13 +137,13 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
                     />
                 </div>
 
-                <div className="mb-3">
+                {/* <div className="mb-3">
                     <label className="form-label h6 me-4" >Role</label>
                     <select className="form-select" name="role" onChange={handleChange} disabled={isReadonly} aria-label="role-select">
                         <option selected={formData.role === "staff"} value="staff">Staff</option>
                         <option selected={formData.role === "administrator"} value="administrator">Administrator</option>
                     </select>
-                </div>
+                </div> */}
 
                 <div className="my-4 input-group form-check-reverse form-switch text-start">
                     <label className="form-check-label form-label h6 me-4" htmlFor="flexStaffSwitchCheckChecked">

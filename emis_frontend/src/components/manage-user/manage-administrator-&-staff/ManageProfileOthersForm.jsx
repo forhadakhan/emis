@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../../config';
-import { getAccessToken, getUserId, getFileLink } from '../../../auth';
+import API_BASE_URL from '../../../utils/config';
+import { getAccessToken, getUserId, getFileLink } from '../../../utils/auth';
 import { deleteFile } from '../../file-handler/fileUtils';
 import BootstrapPhone from '../../sub-components/BootstrapPhone'
 import FileUploadForm from '../../file-handler/FileUploadForm'

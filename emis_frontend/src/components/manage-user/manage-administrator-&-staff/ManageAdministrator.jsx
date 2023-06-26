@@ -5,8 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../../config';
-import { getAccessToken, getUserId } from '../../../auth';
+import API_BASE_URL from '../../../utils/config';
+import { getAccessToken, getUserId } from '../../../utils/auth';
 import DataTableList from './DataTableList-Administrator&Staff';
 
 

@@ -6,8 +6,8 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../../config';
-import { getAccessToken, getUserRole } from '../../../auth';
+import API_BASE_URL from '../../../utils/config';
+import { getAccessToken, getUserRole } from '../../../utils/auth';
 import ManageProfileUserForm from './ManageProfileUserForm';
 import ManageProfileOthersForm from './ManageProfileOthersForm';
 
@@ -28,6 +28,13 @@ const ManageProfile = ({ setActiveComponent, reference, userType }) => {
     const accessToken = getAccessToken();
     const url = `${API_BASE_URL}/${userType}/profile`;
     
+    const setComp = {
+        administrator: "ManageAdministrator",
+        staff: "ManageStaff",
+        student: "ManageStudent",
+        teacher: "ManageTeacher",
+    }
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -184,7 +191,7 @@ const ManageProfile = ({ setActiveComponent, reference, userType }) => {
                             <div className="modal-content bg-darkblue border border-beige text-beige">
                                 <div className="modal-header">
                                     <h5 className="modal-title fs-4"><i className="bi bi-check-circle-fill"></i> Saved </h5>
-                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={setActiveComponent("ManageStaff")}> 
+                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={setActiveComponent(setComp[viewedUserRole])}> 
                                         <i className="bi bi-x-lg"></i>
                                     </button>
                                 </div>
