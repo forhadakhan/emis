@@ -121,7 +121,7 @@ class StaffDeleteView(DestroyModelMixin, GenericAPIView):
         return self.destroy(request, *args, **kwargs)
 
 
-class StaffAllPermissionsView(View):
+class StaffAllPermissionsView(APIView):
     def get(self, request):
         username = request.GET.get('username')
         if username:
@@ -138,7 +138,7 @@ class StaffAllPermissionsView(View):
             return JsonResponse({'error': 'Missing username parameter.'}, status=400)
 
 
-class StaffHasPermissionView(View):
+class StaffHasPermissionView(APIView):
     def get(self, request):
         username = request.GET.get('username')
         permission_codename = request.GET.get('permission_codename')
