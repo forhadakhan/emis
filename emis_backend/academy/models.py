@@ -165,6 +165,19 @@ class CourseOffer(models.Model):
 
 
 #####################################################################
+##################### CourseEnrollment:
+#####################   - dependent on: CourseOffer, StudentEnrollment.
+class CourseEnrollment(models.Model):
+    course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
+    student = models.ForeignKey(StudentEnrollment, on_delete=models.CASCADE)
+    is_complete = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Course Enrollment: {self.course_offer} - {self.student}'
+#####################################################################
+
+
+#####################################################################
 ##################### Attendance:
 #####################   - dependent: CourseOffer, Student
 class Attendance(models.Model):
