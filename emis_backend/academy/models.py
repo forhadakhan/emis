@@ -148,6 +148,20 @@ class CourseOffer(models.Model):
 
 
 #####################################################################
+##################### Attendance:
+#####################   - dependent: CourseOffer, Student
+class Attendance(models.Model):
+    course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
+    date = models.DateField()
+    present_students = models.ManyToManyField(Student, blank=True)
+    remarks = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'Attendance for {self.course_offer} on {self.date}'
+#####################################################################
+
+
+#####################################################################
 ##################### Model:
 #####################   - in/dependent 
 
