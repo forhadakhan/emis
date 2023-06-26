@@ -135,6 +135,22 @@ class BatchAndSection(models.Model):
 
 
 #####################################################################
+##################### StudentEnrollment:
+#####################   - dependent on: Student, Department, BatchAndSection, User 
+class StudentEnrollment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    batch = models.ForeignKey(BatchAndSection, on_delete=models.CASCADE)
+    enrolled_by = models.ForeignKey(User, related_name='student_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Student Enrollment: {self.student} - {self.department} ({self.batch})'
+#####################################################################
+
+
+#####################################################################
 ##################### CourseOffer:
 #####################   - dependent on: Semester, Course, Teacher
 class CourseOffer(models.Model):
