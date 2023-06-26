@@ -156,3 +156,4 @@ class StaffHasPermissionView(View):
                 return JsonResponse({'error': 'Staff not found.'}, status=404)
         else:
             return JsonResponse({'error': 'Missing username or permission_codename parameter.'}, status=400)
+        
