@@ -13,5 +13,6 @@ urlpatterns = [
     path('api/file/', include('file_handler.urls', namespace='file_handler')),
     path('api/email/', include('email_handler.urls', namespace='email_handler')),
     path('api/', include('miscellaneous.urls', namespace='miscellaneous')),
+    path('api/core/', include('core.urls', namespace='core')),
 ]
 
