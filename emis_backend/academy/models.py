@@ -179,7 +179,7 @@ class CourseEnrollment(models.Model):
 
 #####################################################################
 ##################### Attendance:
-#####################   - dependent: CourseOffer, Student
+#####################   - dependent: CourseEnrollment, Student
 class Attendance(models.Model):
     course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
     date = models.DateField()
@@ -193,7 +193,7 @@ class Attendance(models.Model):
 
 #####################################################################
 ##################### Assignment and AssignmentSubmission:
-#####################   - dependent on: CourseOffer, Assignment, Student. 
+#####################   - dependent on: CourseEnrollment, Assignment, Student. 
 class Assignment(models.Model):
     course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
@@ -220,8 +220,41 @@ class AssignmentSubmission(models.Model):
 
 
 #####################################################################
-##################### Model:
-#####################   - in/dependent 
+##################### Exam:
+#####################   - dependent on: CourseEnrollment. 
+class Exam(models.Model):
+    course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    date = models.DateField(null=True, blank=True)
+    duration = models.DurationField(null=True, blank=True)
+    max_marks = models.PositiveIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Exam: {self.title} ({self.course})'
+#####################################################################
+
+
+#####################################################################
+##################### Result:
+#####################   - dependent on: CourseEnrollment.
+class Result(models.Model):
+    STATUS_CHOICES = [
+        ('ongoing', 'Ongoing'),
+        ('pass', 'Pass'),
+        ('fail', 'Fail'),
+        ('retake', 'Retake'),
+        ('supplementary', 'Supplementary'),
+    ]
+
+    course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
+    total_marks = models.PositiveIntegerField()
+    max_marks = models.PositiveIntegerField()
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
+    is_published = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Result for {self.course_enrollment}'
 
 #####################################################################
 
