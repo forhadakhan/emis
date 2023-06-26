@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {getUserRole} from '../auth.js'; 
+import {getUserRole} from '../utils/auth.js'; 
 import AddUser from './add-user/AddUser';
 import AddAdministrator from './add-user/AddAdministrator';
 import AddStaff from './add-user/AddStaff';
