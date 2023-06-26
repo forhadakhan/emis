@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as bootstrap from 'bootstrap'
-import API_BASE_URL from '../config';
+import API_BASE_URL from '../utils/config';
 import Logo64 from '../assets/logos/emis-64x64.png';
 import HomeComponent from './home';
 import ActivityComponent from './Activity';
@@ -9,11 +9,12 @@ import SettingsComponent from './settings';
 import ProfileComponent from './profile';
 import AcademicCalendar from './fullCalendar';
 import Test from '../test';
-import { logout, getRefreshToken, getUserRole } from '../auth.js';
+import { logout, getRefreshToken, getUserRole, getUserData } from '../utils/auth.js';
 
 
-const LandingComponent = ({ user: response, onLogoutSuccess }) => {
+const LandingComponent = ({ onLogoutSuccess }) => {
     // console.log(response);
+    // const user = getUserData();
 
     const handleSignOut = async (e) => {
         e.preventDefault();
@@ -47,7 +48,7 @@ const LandingComponent = ({ user: response, onLogoutSuccess }) => {
     return (
         <div className='text-light'>
 
-            <header>
+            <header className="mt-3">
                 <div className="px-3 py-2">
                     <div className="container">
                         <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
@@ -93,24 +94,24 @@ const LandingComponent = ({ user: response, onLogoutSuccess }) => {
                 </div>
                 <div className="container mb-3">
                     <div className="d-flex px-2 py-2 flex-wrap justify-content-center">
-                        <form className="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
+                        {/* <form className="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
                             <input type="search" className="form-control border-0" placeholder="Search..." aria-label="Search" />
-                        </form>
+                        </form> */}
 
                         <div className="text-end">
-                            <a id="home" className={`btn nav-link text-beige ${activeComponent === 'test' ? 'active-beige' : 'active-beige-hidden'}`} onClick={() => componentController('test')}>
+                            {/* <a id="home" className={`btn nav-link text-beige ${activeComponent === 'test' ? 'active-beige' : 'active-beige-hidden'}`} onClick={() => componentController('test')}>
                                 .
-                            </a>
-                            <button type="button" className="btn btn-warning text-black text-capitalize" style={{ cursor: 'none' }}>
+                            </a> */}
+                            {/* <button type="button" className="btn btn-warning text-black text-capitalize" style={{ cursor: 'none' }}>
                                 {['administrator', 'teacher', 'student', 'staff'].includes(userRole) ? userRole : 'None'}
-                            </button>
+                            </button> */}
                         </div>
 
                     </div>
                 </div>
             </header>
 
-            <section className="bg-light text-darkblue mt-5 py-4 rounded-top-5 min-vh-100">
+            <section className="bg-light text-darkblue mt-0 py-4 rounded-top-5 min-vh-100">
                 {activeComponent === 'home' && <HomeComponent componentController={componentController} />}
                 {activeComponent === 'actions' && <ActivityComponent />}
                 {activeComponent === 'settings' && <SettingsComponent />}
