@@ -3,6 +3,8 @@
 from django.db import models
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
+from authentication.models import User
+from teacher.models import Teacher
 
 
 #####################################################################
@@ -44,7 +46,7 @@ class Department(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.acronym
 #####################################################################
 
 
@@ -71,7 +73,7 @@ class Semester(models.Model):
     code = models.IntegerField()
     is_open = models.BooleanField(default=True)
     is_finished = models.BooleanField(default=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    departments = models.ManyToManyField(Department, blank=True)
 
     def __str__(self):
         return f'{self.term.name} {self.year}'
@@ -87,12 +89,48 @@ class Course(models.Model):
     code = models.IntegerField()
     credit = models.IntegerField()
     prerequisites = models.ManyToManyField('self', blank=True)
-    departments = models.ManyToManyField('Department')
+    departments = models.ManyToManyField(Department, blank=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.acronym} {self.code}'
 #####################################################################
 
+
+#####################################################################
+##################### TeacherEnrollment:
+#####################   - dependent on: Teacher, Designation, Department 
+class TeacherEnrollment(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    designations = models.ManyToManyField(Designation)
+    departments = models.ManyToManyField(Department, on_delete=models.CASCADE)
+    enrolled_by = models.ForeignKey(User, related_name='teacher_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
+    on_duty = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.teacher.acronym} - {self.designations} - {self.departments}'
+#####################################################################
+
+
+#####################################################################
+##################### Batch, BatchAndSection:
+#####################   - dependent on: Department.  
+class Batch(models.Model):
+    number = models.IntegerField()
+    department = models.ForeignKey(Department, related_name='batch', on_delete=models.SET_NULL, blank=True, null=True)
+    session = models.CharField(max_length=9, blank=True)
+
+    def __str__(self):
+        return f'{self.department}: Batch {self.number}'
+
+
+class BatchAndSection(models.Model):
+    batch = models.ForeignKey(Batch, related_name='sections', on_delete=models.CASCADE)
+    section = models.CharField(max_length=2)
+
+    def __str__(self):
+        return f'{self.batch} - Section {self.section}'
+#####################################################################
 
 
 
@@ -154,6 +192,7 @@ def create_term_choices(sender, **kwargs):
 def create_designations(sender, **kwargs):
     if kwargs.get('app').__name__ == 'academy.models':
         designations_data = [
+            'New Recruit',
             'Teaching Assistant',
             'Instructor',
             'Lecturer',
@@ -178,7 +217,6 @@ def create_designations(sender, **kwargs):
         for designation_name in designations_data:
             Designation.objects.get_or_create(name=designation_name)
 #####################################################################
-
 
 
 
