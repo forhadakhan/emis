@@ -11,10 +11,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from authentication.models import User
 from authentication.serializers import UserSerializer
-from .models import Staff
-from .serializers import StaffSerializer
 from authentication.views import UserDeleteView
 from rest_framework.views import APIView
+from .models import Staff
+from .serializers import StaffSerializer
 
 
 class StaffViewSet(viewsets.ModelViewSet):
@@ -119,3 +119,21 @@ class StaffDeleteView(DestroyModelMixin, GenericAPIView):
             if response.status_code != 204:
                 return response
         return self.destroy(request, *args, **kwargs)
+
+
+class StaffAllPermissionsView(View):
+    def get(self, request):
+        username = request.GET.get('username')
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                staff = Staff.objects.get(user=user)
+                permissions = staff.permissions.values_list('codename', flat=True)
+                return JsonResponse({'permissions': list(permissions)})
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'User not found.'}, status=404)
+            except Staff.DoesNotExist:
+                return JsonResponse({'error': 'Staff not found.'}, status=404)
+        else:
+            return JsonResponse({'error': 'Missing username parameter.'}, status=400)
+
