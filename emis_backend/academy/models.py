@@ -163,6 +163,34 @@ class Attendance(models.Model):
 
 
 #####################################################################
+##################### Assignment and AssignmentSubmission:
+#####################   - dependent on: CourseOffer, Assignment, Student. 
+class Assignment(models.Model):
+    course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    assign_date = models.DateField(blank=True)
+    due_date = models.DateField(blank=True)
+    max_marks = models.PositiveIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Assignment: {self.title} ({self.course_offer})'
+
+
+class AssignmentSubmission(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    file_ids = models.TextField(blank=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    max_files = models.PositiveIntegerField(null=True, blank=True)
+    marks = models.PositiveIntegerField(null=True, blank=True)
+    remarks = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'Assignment Submission: {self.assignment.title} ({self.student})'
+#####################################################################
+
+
+#####################################################################
 ##################### Model:
 #####################   - in/dependent 
 
