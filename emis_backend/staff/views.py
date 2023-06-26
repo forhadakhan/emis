@@ -137,3 +137,22 @@ class StaffAllPermissionsView(View):
         else:
             return JsonResponse({'error': 'Missing username parameter.'}, status=400)
 
+
+class StaffHasPermissionView(View):
+    def get(self, request):
+        username = request.GET.get('username')
+        permission_codename = request.GET.get('permission_codename')
+        
+        if username and permission_codename:
+            try:
+                user = User.objects.get(username=username)
+                staff = Staff.objects.get(user=user)
+                has_permission = staff.user.has_perm(permission_codename)
+                data = {'has_permission': has_permission}
+                return JsonResponse(data)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'User not found.'}, status=404)
+            except Staff.DoesNotExist:
+                return JsonResponse({'error': 'Staff not found.'}, status=404)
+        else:
+            return JsonResponse({'error': 'Missing username or permission_codename parameter.'}, status=400)
