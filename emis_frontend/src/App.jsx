@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import LoginComponent from './components/login';
+import WelcomePage from './components/Welcome';
 import LandingComponent from './components/landing';
 import Logo256 from './assets/logos/emis-256x256.png';
-import { getAccessToken, checkTokenValidity, refreshTokens } from './auth.js';
+import { getAccessToken, checkTokenValidity, refreshTokens } from './utils/auth.js';
 
 function App() {
     const [isLoading, setIsLoading] = useState(true);
@@ -43,7 +43,6 @@ function App() {
 
     const handleLogoutSuccess = (response) => {
         setIsLoggedIn(false);
-        setResponseData(response);
     };
 
     if (isLoading) {
@@ -57,10 +56,11 @@ function App() {
 
     return (
         <div className='vh-100'>
+            
             {isLoggedIn ? (
-                <LandingComponent user={responseData} onLogoutSuccess={handleLogoutSuccess} />
+                <LandingComponent onLogoutSuccess={handleLogoutSuccess} />
             ) : (
-                <LoginComponent onLoginSuccess={handleLoginSuccess} />
+                <WelcomePage onLoginSuccess={handleLoginSuccess} />
             )}
         </div>
     );
