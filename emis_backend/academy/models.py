@@ -1,6 +1,7 @@
 # academy/models.py
 
 from django.db import models
+from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from authentication.models import User
@@ -269,8 +270,8 @@ class Result(models.Model):
 #####################   - dependent on:  TermChoices.
 @receiver(post_migrate)
 def create_term_choices(sender, **kwargs):
-    app = kwargs.get('app')
-    if app and app.__name__ == 'academy.models':
+    app_config = kwargs.get('app_config')
+    if app_config and app_config.name == 'academy':
         term_choices_data = [
             {
                 'name': 'Fall',
@@ -309,8 +310,8 @@ def create_term_choices(sender, **kwargs):
 #####################   - dependent on: Designation.
 @receiver(post_migrate)
 def create_designations(sender, **kwargs):
-    app = kwargs.get('app')
-    if app and app.__name__ == 'academy.models':
+    app_config = kwargs.get('app_config')
+    if app_config and app_config.name == 'academy':
         designations_data = [
             'New Recruit',
             'Teaching Assistant',
