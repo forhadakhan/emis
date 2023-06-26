@@ -1,9 +1,10 @@
-# staff/models.py  
+# staff/models.py 
 
 from django.db import models
 from authentication.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import Permission
+from core.models import PermissionGroup
+
 
 class Staff(models.Model):
     GENDER_CHOICES = (
@@ -26,4 +27,9 @@ class Staff(models.Model):
     added_by = models.ForeignKey(User, related_name='staff_added_by', on_delete=models.SET_NULL, blank=True, null=True)
     history = models.JSONField(blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
-    
+    permission_group = models.ForeignKey(PermissionGroup, on_delete=models.SET_NULL, blank=True, null=True)
+    permissions = models.ManyToManyField(Permission, related_name='staff_permissions', blank=True)
+
+    def __str__(self):
+        return str(self.id)
+
