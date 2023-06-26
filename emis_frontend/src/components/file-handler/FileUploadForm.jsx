@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import API_BASE_URL from '../../config';
+import API_BASE_URL from '../../utils/config';
 
 const FileUploadForm = ({ onFileUpload, accept_type = 'any', deactive=false }) => {
     const [selectedFile, setSelectedFile] = useState(null);
