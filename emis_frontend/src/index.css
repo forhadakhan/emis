@@ -127,6 +127,9 @@ a.text-beige:hover {
 .mw-350 {
     max-width: 350px;
 }
+.w-350 {
+    width: 350px;
+}
 
 .bg-blur {
     position: fixed;
