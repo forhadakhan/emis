@@ -55,7 +55,7 @@ class PermissionGroupListView(APIView):
         return Response(group_data)
 
 
-class CustomContentTypesView(View):
+class CustomContentTypesView(APIView):
     def get(self, request):
         from django.conf import settings
 
@@ -77,3 +77,30 @@ class CustomContentTypesView(View):
         return JsonResponse(data)
 
 
+
+class ContentTypePermissionsView(APIView):
+    def get(self, request):
+        content_type_id = request.GET.get('content_type_id')
+
+        if not content_type_id:
+            return JsonResponse({'error': 'Content type ID is required'}, status=400)
+
+        try:
+            content_type = ContentType.objects.get(id=content_type_id)
+        except ContentType.DoesNotExist:
+            return JsonResponse({'error': 'Content type not found'}, status=404)
+
+        permissions = Permission.objects.filter(content_type=content_type)
+
+        data = {
+            'permissions': [
+                {
+                    'id': permission.id,
+                    'codename': permission.codename,
+                    'name': permission.name,
+                }
+                for permission in permissions
+            ]
+        }
+
+        return JsonResponse(data)
