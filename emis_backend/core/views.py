@@ -2,6 +2,8 @@
 
 import jwt
 from rest_framework import status
+from django.conf import settings
+from authentication.models import User
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -86,6 +88,7 @@ class TokenDecoderToGetUserRole:
         try:
             user = User.objects.get(id=user_id)
             user_role = user.role
+            return user_role 
         except User.DoesNotExist:
             return Response({'message': 'User from access token not found'}, status=status.HTTP_404_NOT_FOUND)
  
@@ -111,6 +114,7 @@ class CustomContentTypesView(APIView):
         }
 
         return JsonResponse(data)
+
 
 
 class ContentTypePermissionsView(APIView):
@@ -139,7 +143,6 @@ class ContentTypePermissionsView(APIView):
         }
 
         return JsonResponse(data)
-
 
 
 class PermissionGroupCreateView(APIView):
