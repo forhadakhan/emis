@@ -8,7 +8,6 @@ from core.models import PermissionGroup
 from django.contrib.auth.models import Permission
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
 from django.http import JsonResponse
 
 
@@ -56,18 +55,25 @@ class PermissionGroupListView(APIView):
         return Response(group_data)
 
 
-class CustomContentTypesView(APIView):
+class CustomContentTypesView(View):
     def get(self, request):
-        custom_apps = settings.CUSTOM_APPS
+        from django.conf import settings
+
+        custom_apps = getattr(settings, 'CUSTOM_APPS', [])
+
         content_types = ContentType.objects.filter(app_label__in=custom_apps)
+
         data = {
             'content_types': [
                 {
+                    'id': content_type.id,
                     'app_label': content_type.app_label,
                     'model': content_type.model,
                 }
                 for content_type in content_types
             ]
         }
+
         return JsonResponse(data)
+
 
