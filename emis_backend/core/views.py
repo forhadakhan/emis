@@ -145,12 +145,17 @@ class ContentTypePermissionsView(APIView):
         return JsonResponse(data)
 
 
+
 class PermissionGroupCreateView(APIView):
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        if request.user.role != 'administrator':
+    def post(self, request):        
+        authorization_header = request.headers.get('Authorization')
+        
+        # Decode the access token to retrieve the user ID
+        request_user_role = TokenDecoderToGetUserRole.decode_token(authorization_header)
+        
+        if request_user_role != 'administrator':
             return Response({"success": False, "message": "Only administrators can create permission groups"})
 
         # Assuming the request contains the necessary data for creating a permission group
