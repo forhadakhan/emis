@@ -114,7 +114,7 @@ const DataTableList = ({ source, setReference,  setActiveComponent }) => {
                     type="text"
                     placeholder="Search"
                     onChange={handleSearch}
-                    className="form-control text-center"
+                    className="form-control text-center border border-darkblue"
                 />
             </div>
 
