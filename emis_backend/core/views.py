@@ -1,5 +1,7 @@
 # core/views.py 
 
+import jwt
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -10,6 +12,21 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 
+
+
+class TokenDecoder:
+    @staticmethod
+    def decode_token(authorization_header):
+        try:
+            auth_type, access_token = authorization_header.split(' ')
+            if auth_type.lower() != 'bearer':
+                raise ValueError('Invalid Authorization header')
+
+            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            return decoded_token
+        except (ValueError, jwt.exceptions.DecodeError):
+            return None
+ 
 
 
 class CustomContentTypesView(APIView):
