@@ -28,6 +28,7 @@ const LoginComponent = ({ onLoginSuccess, username, setUsername, setActiveAuthCo
                 // Login successful
                 // Save the login response data in cookie 
                 saveLoginResponse(response.data);
+                console.log(response.data);
 
                 // Call the onLoginSuccess function passed as prop from App.jsx to change log state
                 onLoginSuccess();
