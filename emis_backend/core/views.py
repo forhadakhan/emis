@@ -209,3 +209,24 @@ class PermissionGroupListView(APIView):
         return Response(group_data)
 
 
+class GroupDeleteView(APIView):
+    def delete(self, request, group_id):
+        print(group_id)
+        authorization_header = request.headers.get('Authorization')
+
+        # Decode the access token to retrieve the user ID
+        request_user_role = TokenDecoderToGetUserRole.decode_token(
+            authorization_header)
+
+        if request_user_role != 'administrator':
+            return Response({"success": False, "message": "Only administrators can delete permission groups"})
+        
+        try:
+            group = PermissionGroup.objects.get(id=group_id)
+        except ObjectDoesNotExist:
+            return Response({"success": False, 'message': 'Group not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        group.delete()
+        return Response({"success": True, 'message': 'Group deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
