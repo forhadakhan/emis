@@ -1,4 +1,4 @@
-# core/views.py 
+# core/views.py
 
 import jwt
 from rest_framework import status
@@ -15,7 +15,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 
 
-
 class TokenDecoder:
     @staticmethod
     def decode_token(authorization_header):
@@ -24,16 +23,17 @@ class TokenDecoder:
             if auth_type.lower() != 'bearer':
                 raise ValueError('Invalid Authorization header')
 
-            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            decoded_token = jwt.decode(
+                access_token, settings.SECRET_KEY, algorithms=['HS256'])
             return decoded_token
         except (ValueError, jwt.exceptions.DecodeError):
             return None
- 
+
 
 class TokenDecoderToGetUserId:
     @staticmethod
     def decode_token(authorization_header):
-        
+
         # Check if the Authorization header is present
         if not authorization_header:
             return Response({'message': 'Authorization/Access token missing'}, status=status.HTTP_400_BAD_REQUEST)
@@ -48,15 +48,16 @@ class TokenDecoderToGetUserId:
 
         # Decode the access token to retrieve and return the user ID
         try:
-            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            decoded_token = jwt.decode(
+                access_token, settings.SECRET_KEY, algorithms=['HS256'])
             print(decoded_token)
             user_id = decoded_token['user_id']
-            return user_id 
+            return user_id
         except jwt.exceptions.DecodeError:
             return Response({'message': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             return Response({'message': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
- 
+
 
 class TokenDecoderToGetUserRole:
     @staticmethod
@@ -76,7 +77,8 @@ class TokenDecoderToGetUserRole:
 
         # Decode the access token to retrieve the user ID
         try:
-            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            decoded_token = jwt.decode(
+                access_token, settings.SECRET_KEY, algorithms=['HS256'])
             print(decoded_token)
             user_id = decoded_token['user_id']
         except jwt.exceptions.DecodeError:
@@ -84,14 +86,13 @@ class TokenDecoderToGetUserRole:
         except KeyError:
             return Response({'message': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get and return the user role  
+        # Get and return the user role
         try:
             user = User.objects.get(id=user_id)
             user_role = user.role
-            return user_role 
+            return user_role
         except User.DoesNotExist:
             return Response({'message': 'User from access token not found'}, status=status.HTTP_404_NOT_FOUND)
- 
 
 
 class CustomContentTypesView(APIView):
@@ -114,7 +115,6 @@ class CustomContentTypesView(APIView):
         }
 
         return JsonResponse(data)
-
 
 
 class ContentTypePermissionsView(APIView):
@@ -145,22 +145,23 @@ class ContentTypePermissionsView(APIView):
         return JsonResponse(data)
 
 
-
 class PermissionGroupCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):        
+    def post(self, request):
         authorization_header = request.headers.get('Authorization')
-        
+
         # Decode the access token to retrieve the user ID
-        request_user_role = TokenDecoderToGetUserRole.decode_token(authorization_header)
-        
+        request_user_role = TokenDecoderToGetUserRole.decode_token(
+            authorization_header)
+
         if request_user_role != 'administrator':
             return Response({"success": False, "message": "Only administrators can create permission groups"})
 
         # Assuming the request contains the necessary data for creating a permission group
         group_name = request.data.get('group_name')
-        permission_ids = request.data.get('permissions', [])  # Assuming a list of permission IDs is provided
+        # Assuming a list of permission IDs is provided
+        permission_ids = request.data.get('permissions', [])
 
         try:
             permission_group = PermissionGroup.objects.create(name=group_name)
@@ -176,12 +177,19 @@ class PermissionGroupCreateView(APIView):
             return Response({"success": False, "message": str(e)})
 
 
-
 class PermissionGroupListView(APIView):
-    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        authorization_header = request.headers.get('Authorization')
+
+        # Decode the access token to retrieve the user ID
+        request_user_role = TokenDecoderToGetUserRole.decode_token(
+            authorization_header)
+
+        if request_user_role != 'administrator':
+            return Response({"success": False, "message": "Only administrators can create permission groups"})
+
         permission_groups = PermissionGroup.objects.all()
 
         group_data = []
@@ -189,8 +197,16 @@ class PermissionGroupListView(APIView):
             group_data.append({
                 'id': group.id,
                 'name': group.name,
-                'permissions': [permission.codename for permission in group.permissions.all()]
+                'permissions': [
+                    {
+                        'id': permission.id,
+                        'codename': permission.codename,
+                        'name': permission.name,
+                    }
+                    for permission in group.permissions.all()
+                ],
             })
 
         return Response(group_data)
+
 
