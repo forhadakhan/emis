@@ -96,7 +96,6 @@ function CreatePermissionGroup() {
                 'Content-Type': 'application/json',
             },
         };
-        console.log('Request Config:', config);
 
         // Make the API request to create the permission group
         axios.post(`${API_BASE_URL}/core/permission-group-create/`, formData, config)
