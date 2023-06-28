@@ -13,6 +13,7 @@ from django.contrib.auth.models import Permission
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class TokenDecoder:
@@ -50,7 +51,6 @@ class TokenDecoderToGetUserId:
         try:
             decoded_token = jwt.decode(
                 access_token, settings.SECRET_KEY, algorithms=['HS256'])
-            print(decoded_token)
             user_id = decoded_token['user_id']
             return user_id
         except jwt.exceptions.DecodeError:
@@ -79,7 +79,6 @@ class TokenDecoderToGetUserRole:
         try:
             decoded_token = jwt.decode(
                 access_token, settings.SECRET_KEY, algorithms=['HS256'])
-            print(decoded_token)
             user_id = decoded_token['user_id']
         except jwt.exceptions.DecodeError:
             return Response({'message': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
