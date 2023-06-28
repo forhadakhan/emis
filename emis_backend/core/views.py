@@ -13,7 +13,12 @@ from django.contrib.auth.models import Permission
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
+from django.contrib.contenttypes.models import ContentType
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.generics import UpdateAPIView
+from .serializers import PermissionGroupSerializer
+
 
 
 class TokenDecoder:
@@ -187,7 +192,8 @@ class PermissionGroupListView(APIView):
             authorization_header)
 
         if request_user_role != 'administrator':
-            return Response({"success": False, "message": "Only administrators can create permission groups"})
+            return Response({"success": False, "message": "Only administrators can view permission groups"})
+
 
         permission_groups = PermissionGroup.objects.all()
 
@@ -211,7 +217,6 @@ class PermissionGroupListView(APIView):
 
 class GroupDeleteView(APIView):
     def delete(self, request, group_id):
-        print(group_id)
         authorization_header = request.headers.get('Authorization')
 
         # Decode the access token to retrieve the user ID
@@ -228,5 +233,44 @@ class GroupDeleteView(APIView):
 
         group.delete()
         return Response({"success": True, 'message': 'Group deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, group_id):
+        authorization_header = request.headers.get('Authorization')
+
+        # Decode the access token to retrieve the user ID
+        request_user_role = TokenDecoderToGetUserRole.decode_token(authorization_header)
+
+        if request_user_role != 'administrator':
+            return Response({"success": False, "message": "Only administrators can update permission groups"})
+
+        try:
+            permission_group = PermissionGroup.objects.get(id=group_id)
+        except PermissionGroup.DoesNotExist:
+            return Response({"success": False, "message": "Permission group not found"})
+
+        # Assuming the request contains the necessary data for updating a permission group
+        group_name = request.data.get('group_name')
+        permission_ids = request.data.get('permissions', [])
+
+        try:
+            # Update the permission group name
+            permission_group.name = group_name
+            permission_group.save()
+
+            # Get the permissions based on the provided permission IDs
+            permissions = Permission.objects.filter(id__in=permission_ids)
+
+            # Update the permissions of the permission group
+            permission_group.permissions.set(permissions)
+
+            return Response({"success": True, "message": "Permission group updated successfully"})
+        except Exception as e:
+            return Response({"success": False, "message": str(e)})
+
+
 
 
