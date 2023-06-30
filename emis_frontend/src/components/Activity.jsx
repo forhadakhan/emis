@@ -12,6 +12,7 @@ import ManageProfile from './manage-user/manage-administrator-&-staff/ManageProf
 import ManageTeacher from './manage-user/manage-teacher/ManageTeacher';
 import ManageStudent from './manage-user/manage-student/ManageStudent';
 import UserPermissions from './permissions/UserPermissions.jsx';
+import PublicMessages from './public-messages/PublicMessages.jsx';
 
 
 const ActivityComponent = () => {
@@ -48,6 +49,8 @@ const ActivityComponent = () => {
                 return <ManageProfile setActiveComponent={setActiveComponent} reference={reference} userType={userType} />;
             case 'UserPermissions':
                 return <UserPermissions setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'PublicMessages':
+                return <PublicMessages setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -93,8 +96,9 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'add_student', label: 'Add Student', render: 'AddStudent', icon: 'bi-person-plus' },
         { id: 'view_admin', label: 'Manage Admin', render: 'ManageAdministrator', icon: 'bi-shield-fill-plus' },
         { id: 'view_staff', label: 'Manage Staff', render: 'ManageStaff', icon: 'bi-shield-plus' },
-        { id: 'view_teacher', label: 'Manage Teacher', render: 'ManageTeacher', icon: 'bi-person-plus-fill' },
-        { id: 'view_student', label: 'Manage Student', render: 'ManageStudent', icon: 'bi-person-plus' },
+        { id: 'view_teacher', label: 'Manage Teacher', render: 'ManageTeacher', icon: 'bi-person-fill-gear' },
+        { id: 'view_student', label: 'Manage Student', render: 'ManageStudent', icon: 'bi-person-gear' },
+        { id: 'public_messages', label: 'Public Messages', render: 'PublicMessages', icon: 'bi-chat-right-quote-fill' },
         { id: 'view_permissions', label: 'User Permissions', render: 'UserPermissions', icon: 'bi-shield-shaded' },
     ];
 
