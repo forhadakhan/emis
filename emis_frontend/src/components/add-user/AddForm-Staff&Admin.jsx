@@ -178,9 +178,7 @@ const AddForm = ({ formFields, url }) => {
         axios
             .post(url, formDataToSend, config)
             .then((response) => {
-                // console.log(response.data);
-                console.log('Data submitted successfully.');
-                setAlertMessage('Data submitted successfully.');
+                setAlertMessage('Data saved successfully.');
                 setSubmitSuccess(true)
             })
             .catch((error) => {
@@ -189,6 +187,10 @@ const AddForm = ({ formFields, url }) => {
                 setAlertMessage('Failed to submit data. Please try again.');
             });
     };
+
+    const reviewDisable = () => {
+        return (formData.username === ''  || formData.email === '' || formData.nid.length < 10 || formData.first_name === '') 
+    }
 
 
     return (
@@ -203,6 +205,10 @@ const AddForm = ({ formFields, url }) => {
                         <div className="mb-3 my-4">
                             <label htmlFor="email" className="form-label h5 ">Email * </label>
                             <input type="email" className="form-control fs-5" id="email" name="email" value={formData.user.email} onChange={handleUserChange} required />
+                        </div>
+                        <div className="mb-3 my-4">
+                            <label htmlFor="designation" className="form-label h5 "> Designation * </label>
+                            <input type="text" className="form-control fs-5" id="designation" name="designation" value={formData.designation} onChange={handleChange} required />
                         </div>
                         <div className="mb-3 my-4">
                             <label className="form-label h5  me-2">Gender * </label>
@@ -303,7 +309,7 @@ const AddForm = ({ formFields, url }) => {
                                     You inputed invalid data, please check again.
                                 </div>
                             )}
-                            <button type="button" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleReview}><i className="bi bi-bullseye"></i> Review</button>
+                            <button type="submit" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleReview} disabled={reviewDisable()}><i className="bi bi-bullseye"></i> Review</button>
                             <button type="reset" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleReset}><i className="bi bi-x-circle-fill"></i> Reset</button>
                         </div>
                     </form>
