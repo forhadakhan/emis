@@ -19,6 +19,7 @@ const AddStaff = ({ setActiveComponent }) => {
             middle_name: '',
             last_name: '',
         },
+        designation: '',
         gender: '',
         nid: '',
         phone: '',
