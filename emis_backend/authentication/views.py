@@ -61,17 +61,17 @@ class LoginView(APIView):
                         # Add staff data to the user_data
                         user_data['profile'] = StaffSerializer(staff).data
 
-                # elif user.role == 'teacher':
-                #     teacher = Teacher.objects.filter(user=user).first()
-                #     if teacher is not None:
-                #         # Add teacher data to the user_data
-                #         user_data['profile'] = TeacherSerializer(teacher).data
+                elif user.role == 'teacher':
+                    teacher = Teacher.objects.filter(user=user).first()
+                    if teacher is not None:
+                        # Add teacher data to the user_data
+                        user_data['profile'] = TeacherSerializer(teacher).data
 
-                # elif user.role == 'student':
-                #     student = Student.objects.filter(user=user).first()
-                #     if student is not None:
-                #         # Add student data to the user_data
-                #         user_data['profile'] = StudentSerializer(student).data
+                elif user.role == 'student':
+                    student = Student.objects.filter(user=user).first()
+                    if student is not None:
+                        # Add student data to the user_data
+                        user_data['profile'] = StudentSerializer(student).data
 
                 return Response(user_data, status=status.HTTP_200_OK)
             else:
