@@ -4,7 +4,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, DestroyAPIView
 from .serializers import ContactSerializer
 from .models import ContactMessage
 
@@ -22,8 +22,8 @@ class ContactView(APIView):
 class ContactMessagePartialUpdateView(RetrieveUpdateAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactSerializer
-    lookup_field = 'id'  # Use the appropriate lookup field based on your model
-
+    lookup_field = 'id'  
+    
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -34,6 +34,17 @@ class ContactMessagePartialUpdateView(RetrieveUpdateAPIView):
     # # Update any additional fields during the partial update 
     # def perform_update(self, serializer):
     #     serializer.save(is_answered=True)  
+
+
+
+class ContactMessageDeleteView(DestroyAPIView):
+    queryset = ContactMessage.objects.all()
+    lookup_field = 'id'  
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'Message deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 
 
