@@ -60,7 +60,7 @@ const ViewProfile = ({ componentController, user, profile }) => {
 
                     </div>
                 </div>
-                <div className="col-md-8 border-right">
+                <div className="col-md-8 border-start-2 border-light">
                     <div className="p-3 py-5">
                         <div className="row mt-2">
                             <div className="col-md-12">
