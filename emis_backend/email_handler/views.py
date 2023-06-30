@@ -144,3 +144,32 @@ class PasswordResetView(APIView):
         
 
 
+class PublicMessageReplyEmailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            data = request.data
+            message = data.get('message')
+            reply = data.get('reply')
+
+            subject = 'Response to your message on EMIS'
+            html_message = render_to_string('email_templates/public_message_response.html', {
+                'data': {
+                    'message': message,
+                    'reply': reply,
+                }
+            })
+            from_email = settings.EMAIL_HOST_USER
+            recipients = [message.get('email')]
+
+            msg = EmailMessage(subject, html_message, from_email, recipients)
+            msg.content_subtype = 'html'
+            msg.send()
+
+            return Response({'message': 'Reply email sent successfully.'}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'message': 'Failed to send reply email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
