@@ -10,7 +10,7 @@ class PermissionSerializer(serializers.ModelSerializer):
         model = Permission
         fields = '__all__'
 
-
+# Not used
 class PermissionGroupSerializer(serializers.ModelSerializer):
     permissions = PermissionSerializer(many=True)
 
@@ -31,7 +31,7 @@ class PermissionGroupSerializer(serializers.ModelSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.permissions.clear()
         for permission_data in permissions_data:
-            permission = Permission.objects.get(id=permission_data['id'])
+            permission = Permission.objects.get(id=permission_data.get('id'))
             instance.permissions.add(permission)
         instance.save()
         return instance
