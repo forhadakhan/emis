@@ -3,8 +3,10 @@
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, DestroyAPIView
+# from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import ContactSerializer
 from .models import ContactMessage
 
@@ -20,6 +22,7 @@ class ContactView(APIView):
 
 
 class ContactMessagePartialUpdateView(RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = ContactMessage.objects.all()
     serializer_class = ContactSerializer
     lookup_field = 'id'  
@@ -38,6 +41,7 @@ class ContactMessagePartialUpdateView(RetrieveUpdateAPIView):
 
 
 class ContactMessageDeleteView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = ContactMessage.objects.all()
     lookup_field = 'id'  
 
@@ -49,6 +53,8 @@ class ContactMessageDeleteView(DestroyAPIView):
 
 
 class ContactMessageListView(ListAPIView):
+    # authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = ContactMessage.objects.all()
     serializer_class = ContactSerializer
 
