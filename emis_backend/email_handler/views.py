@@ -12,10 +12,12 @@ from rest_framework.views import APIView
 from authentication.models import User
 from django.http import HttpResponse
 from urllib.parse import quote
-from django.core.mail import EmailMessage
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.utils.crypto import get_random_string
+from django.conf import settings
+from rest_framework.permissions import IsAuthenticated
+
 
 
 class EmailVerificationView(APIView):
@@ -32,7 +34,7 @@ class EmailVerificationView(APIView):
                 'user': user,
                 'href': href,
             })
-            from_email = 'emis.carrier@gmail.com'
+            from_email = settings.EMAIL_HOST_USER
             recipients = [user.email]
 
             msg = EmailMessage(subject, html_message, from_email, recipients)
@@ -124,7 +126,7 @@ class PasswordResetView(APIView):
                 'user': user,
                 'code': code,
             })
-            from_email = 'emis.carrier@gmail.com'
+            from_email = settings.EMAIL_HOST_USER
             recipients = [user.email]
             msg = EmailMessage(subject, html_message, from_email, recipients)
             msg.content_subtype = 'html'  # Set the content subtype to 'html'
@@ -140,4 +142,5 @@ class PasswordResetView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
+
 
