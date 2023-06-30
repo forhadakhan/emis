@@ -31,6 +31,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to, userTy
         permanent_address: data.permanent_address,
         present_address: data.present_address,
         nid: data.nid,
+        designation: data.designation,
         photo_id: data.photo_id,
         phone: data.phone,
         birth_date: data.birth_date,
@@ -172,6 +173,18 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to, userTy
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label h6 me-4">Designation</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="designation"
+                        value={formData.designation}
+                        onChange={handleChange}
+                        disabled={isReadonly}
+                    />
                 </div>
 
                 <div className="mb-3">
