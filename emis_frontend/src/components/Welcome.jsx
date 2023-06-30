@@ -146,10 +146,10 @@ const Contact = () => {
         }
     };
 
-    const handleClearStatus = () => {
-        return  (formData.name === ''  && formData.email === '' && formData.message === '');
-      };
-      
+    const handleStatus = () => {
+        return (formData.name === '' && formData.email === '' && formData.message === '');
+    };
+
     const handleClear = () => {
         setFormData(getInitialFormData());
     };
@@ -239,10 +239,10 @@ const Contact = () => {
                             <div className="row">
                                 <div className="col-md-12 d-flex">
                                     <div className='mx-auto'>
-                                        <button className="btn btn-beige fw-bold m-3" type="submit">
+                                        <button className="btn btn-beige fw-bold m-3" type="submit" disabled={handleStatus()}>
                                             Send Message
                                         </button>
-                                        <button className="btn btn-darkblue border boder-beige fw-bold m-3 pt-1" disabled={handleClearStatus()} type="button" onClick={handleClear}>
+                                        <button className="btn btn-darkblue border boder-beige fw-bold m-3 pt-1" disabled={handleStatus()} type="button" onClick={handleClear}>
                                             <i className="bi bi-x-lg"></i>
                                         </button>
                                     </div>
