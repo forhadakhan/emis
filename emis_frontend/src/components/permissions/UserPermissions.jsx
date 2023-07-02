@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUserRole } from '../../utils/auth.js';
 import ManageGroup from './ManageGroup.jsx';
-import AssignPermissions from './AssignPermissions.jsx';
+import ManageAssignPermissions from './ManageAssignPermissions.jsx';
 
 const UserPermissions = ({ setActiveComponent, breadcrumb }) => {
     const [permissionComponent, setPermissionComponent] = useState('main');
@@ -19,8 +19,8 @@ const UserPermissions = ({ setActiveComponent, breadcrumb }) => {
                 return <PermissionPanel setPermissionComponent={setPermissionComponent} breadcrumb={updatedBreadcrumb} setActiveComponent={setActiveComponent} />;
             case 'ManageGroup':
                 return <ManageGroup setPermissionComponent={setPermissionComponent} breadcrumb={updatedBreadcrumb} />;
-            case 'AssignPermissions':
-                return <AssignPermissions setPermissionComponent={setPermissionComponent} breadcrumb={updatedBreadcrumb} />;
+            case 'ManageAssignPermissions':
+                return <ManageAssignPermissions setPermissionComponent={setPermissionComponent} breadcrumb={updatedBreadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -51,11 +51,10 @@ const UserPermissions = ({ setActiveComponent, breadcrumb }) => {
 
 const PermissionPanel = ({ setPermissionComponent, breadcrumb }) => {
     const user_role = getUserRole();
-    const [searchTerm, setSearchTerm] = useState('');
 
     const elements = [
         { id: 'manage_group', label: 'Manage Group', render: 'ManageGroup', icon: 'bi-people-fill' },
-        { id: 'assign_permissions', label: 'Assign Permissions', render: 'AssignPermissions', icon: 'bi-shield-fill-check' },
+        { id: 'manage_assign_permissions', label: 'Manage Assign Permissions', render: 'ManageAssignPermissions', icon: 'bi-shield-fill-check' },
     ];
 
     let allowedElements = [];
