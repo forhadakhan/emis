@@ -158,6 +158,11 @@ a.text-beige:hover {
             rgba(0,0,0,0) 100%);
 }
 
+*:focus {
+    box-shadow: none !important;
+}
+  
+
 /* Hide the default scrollbar */
 ::-webkit-scrollbar {
     width: 0.3em;
