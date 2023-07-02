@@ -60,7 +60,71 @@ const ManageAssignPermissions = ({ setPermissionComponent, breadcrumb }) => {
 
 
 const FindTheAssignee = ({ setAssignPermissionComponent, setAssignee, breadcrumb }) => {
-    
+    const [username, setUsername] = useState('');
+    const [responseMessage, setResponseMessage] = useState('');
+    const accessToken = getAccessToken();
+
+    const handleFindUser = (e) => {
+        e.preventDefault();
+        setResponseMessage();
+
+        // Prepare the data for submission
+        const usernameParam = encodeURIComponent(username);
+
+        // Configure the request headers
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+        const url = `${API_BASE_URL}/get-user/?username=${usernameParam}`;
+
+        // Make the API request to get the user
+        axios.get(url, config)
+            .then(response => {
+                console.log(response);
+                setAssignee(response.data);
+                setAssignPermissionComponent('TheAssigneeView');
+            })
+            .catch(error => {
+                console.log(error);
+                if (error.response && error.response.data && error.response.data.message) {
+                    setResponseMessage(error.response.data.message);
+                } else {
+                    setResponseMessage('An error occurred while retrieving the user.');
+                }
+            });
+    };
+
+
+    return (
+        <div>
+            <h1 className="fw-lighter">Manage Assign Permissions</h1>
+            <div className="mb-3 my-5 mx-md-5">
+                <label htmlFor="usernameInput" className="form-label"><i className="bi bi-input-cursor-text"></i> Enter username</label>
+                <input
+                    className="form-control border border-darkblue text-center"
+                    type="text"
+                    placeholder="Enter the assignee username."
+                    aria-label="usernameInput"
+                    onChange={(e) => setUsername(e.target.value)}
+                />
+            </div>
+
+            {responseMessage &&
+                <div className="alert alert-warning alert-dismissible fade show border border-darkblue mx-md-5" role="alert">
+                    <i className="bi bi-exclamation-triangle-fill"></i>
+                    <strong> {responseMessage} </strong>
+                    <button type="button" onClick={() => setResponseMessage('')} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>}
+
+            <div className="mb-3 m-3 d-flex">
+                <button className="btn btn-darkblue mx-auto" onClick={handleFindUser} disabled={username.length < 1} type='button'>
+                    <i className="bi bi-search"></i> Find
+                </button>
+            </div>
+        </div>
+    );
 }
 
 
