@@ -130,6 +130,45 @@ const FindTheAssignee = ({ setAssignPermissionComponent, setAssignee, breadcrumb
 
 const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb }) => {
 
+    const [user, setUser] = useState(assignee.user);
+    const [profile, setProfile] = useState(assignee.profile);
+
+
+    return (
+        <div>
+            <h1 className="fw-lighter">Assignee View</h1>
+
+            <form className="m-5"> 
+                <div className="row mb-3">
+                    <label htmlFor="inputUsername" className="col-sm-2 col-form-label">Username</label>
+                    <div className="col-sm-10">
+                        <input type="text" className="form-control" id="inputUsername" readOnly disabled value={user.username} />
+                    </div>
+                </div>
+                <div className="row mb-3">
+                    <label htmlFor="inputName" className="col-sm-2 col-form-label">Name</label>
+                    <div className="col-sm-10">
+                        <input type="text" className="form-control" id="inputName" readOnly disabled value={`${user.first_name} ${user.middle_name} ${user.last_name}`} />
+                    </div>
+                </div>
+                <div className="row mb-3">
+                    <label htmlFor="inputRole" className="col-sm-2 col-form-label">Role</label>
+                    <div className="col-sm-10">
+                        <input type="text" className="form-control" id="inputRole" readOnly disabled value={user.role} />
+                    </div>
+                </div>
+                <div className="row mb-3">
+                    <label htmlFor="inputDesignation" className="col-sm-2 col-form-label">Designation</label>
+                    <div className="col-sm-10">
+                        <input type="text" className="form-control" id="inputDesignation" readOnly disabled value={profile.designation} />
+                    </div>
+                </div>
+                
+                {/* <button type="submit" className="btn btn-primary">Sign in</button> */}
+            </form>
+
+        </div>
+    );
 }
 
 
