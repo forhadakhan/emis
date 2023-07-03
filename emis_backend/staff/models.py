@@ -3,7 +3,7 @@
 from django.db import models
 from authentication.models import User
 from django.contrib.auth.models import Permission
-from autentication.models import PermissionGroup
+from core.models import PermissionGroup
 
 
 class Staff(models.Model):
