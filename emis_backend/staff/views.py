@@ -8,6 +8,7 @@ from rest_framework import status, generics, viewsets
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
+from authentication.permissions import IsAdministrator
 from rest_framework.response import Response
 from authentication.models import User
 from authentication.serializers import UserSerializer
@@ -15,6 +16,9 @@ from authentication.views import UserDeleteView
 from rest_framework.views import APIView
 from .models import Staff
 from .serializers import StaffSerializer
+from core.models import PermissionGroup
+from django.contrib.auth.models import Permission
+
 
 
 class StaffViewSet(viewsets.ModelViewSet):
@@ -157,3 +161,29 @@ class StaffHasPermissionView(APIView):
         else:
             return JsonResponse({'error': 'Missing username or permission_codename parameter.'}, status=400)
         
+
+class StaffUpdatePermissionsView(APIView):
+    permission_classes = [IsAdministrator]
+
+    def patch(self, request, staff_id):
+        try:
+            staff = Staff.objects.get(id=staff_id)
+        except Staff.DoesNotExist:
+            return Response({"success": False, "message": "Staff not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            permission_ids = request.data.get('permissions', [])  
+            print(request.data)
+            print(permission_ids)
+
+            # Get the permissions based on the provided permission IDs
+            permissions = Permission.objects.filter(id__in=permission_ids)
+
+            # Update the permissions of the staff
+            staff.permissions.set(permissions)
+
+            return Response({"success": True, "message": "Staff permissions updated successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"success": False, "message": "Staff permissions update failed", "error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
