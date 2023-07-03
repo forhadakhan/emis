@@ -25,6 +25,27 @@ class IsAdministrator(BasePermission):
 
 
 
+class IsAdministratorOrStaff(BasePermission):
+    def has_permission(self, request, view):
+        # Check if the user is authenticated
+        is_authenticated = IsAuthenticated().has_permission(request, view)
+
+        if is_authenticated and request.user.role:
+            # Check if the user's role is 'administrator' or 'staff'
+            return (request.user.role == 'administrator') or (request.user.role == 'staff')
+            
+        return False
+
+    def handle_permission_denied(self, request, message='Permission denied'):
+        if request.user.role:
+            role = request.user.role.capitalize()
+            error_message = f"{role} is unauthorized to make this request"
+            return Response({'detail': f"{message}. {error_message}"}, status=status.HTTP_403_FORBIDDEN)
+            
+        return Response({'detail': message}, status=status.HTTP_403_FORBIDDEN)
+
+
+
 class IsStaff(BasePermission):
     def has_permission(self, request, view):
         # Check if the user is authenticated
