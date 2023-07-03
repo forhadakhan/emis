@@ -170,6 +170,6 @@ class PublicMessageReplyEmailView(APIView):
             return Response({'message': 'Reply email sent successfully.'}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({'message': 'Failed to send reply email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': 'Failed to send reply email.', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
