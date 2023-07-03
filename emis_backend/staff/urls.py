@@ -4,7 +4,16 @@ app_name = 'staff'
 
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import StaffViewSet, StaffUsersView, StaffPartialUpdate, StaffDeleteView, GetStaffView, StaffAllPermissionsView, StaffHasPermissionView
+from .views import (
+    StaffViewSet,
+    StaffUsersView,
+    StaffPartialUpdate,
+    StaffDeleteView,
+    GetStaffView,
+    StaffAllPermissionsView,
+    StaffHasPermissionView,
+    StaffUpdatePermissionsView
+)
 
 router = DefaultRouter()
 router.register(r'', StaffViewSet, basename='staff')
@@ -15,6 +24,7 @@ urlpatterns = [
     path('update-partial/<int:pk>/', StaffPartialUpdate.as_view(), name='staff_partial_update'),
     path('delete/<int:pk>/', StaffDeleteView.as_view(), name='staff_delete'),
     path('permissions/', StaffAllPermissionsView.as_view(), name='staff_permissions'),
+    path('update-permissions/<int:staff_id>/', StaffUpdatePermissionsView.as_view(), name='staff_update_permissions'),
     path('has-permission/', StaffHasPermissionView.as_view(), name='staff_has_permission'),
     path('', include(router.urls)),
 ]
