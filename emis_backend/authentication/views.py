@@ -3,6 +3,7 @@
 import jwt
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from authentication.permissions import IsAdministrator
 from django.contrib.auth import authenticate, login
 from .serializers import UserSerializer
 from .models import User
@@ -12,17 +13,17 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from staff.models import Staff     
-from administrator.models import Administrator     
-from staff.serializers import StaffSerializer    
-from administrator.serializers import AdministratorSerializer    
-from django.contrib.auth.hashers import check_password 
+from staff.models import Staff
+from administrator.models import Administrator
+from staff.serializers import StaffSerializer
+from administrator.serializers import AdministratorSerializer
+from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from django.conf import settings
 from rest_framework.authtoken.models import Token
 from django.core.exceptions import PermissionDenied
+from .utils import TokenDecoderToGetUserRole
 
-    
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -50,10 +51,12 @@ class LoginView(APIView):
                 }
 
                 if user.role == 'administrator':
-                    administrator = Administrator.objects.filter(user=user).first()
+                    administrator = Administrator.objects.filter(
+                        user=user).first()
                     if administrator is not None:
                         # Add administrator data to the user_data
-                        user_data['profile'] = AdministratorSerializer(administrator).data
+                        user_data['profile'] = AdministratorSerializer(
+                            administrator).data
 
                 if user.role == 'staff':
                     staff = Staff.objects.filter(user=user).first()
@@ -80,7 +83,7 @@ class LoginView(APIView):
                     'message': 'Email not verified',
                     'email_verified': False
                 }
-                return Response(user_data, status=status.HTTP_403_FORBIDDEN)         
+                return Response(user_data, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({'message': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -129,7 +132,8 @@ class CheckPasswordView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'Invalid user ID'}, status=status.HTTP_404_NOT_FOUND)
 
-        user_auth = authenticate(request, username=user.username, password=password)
+        user_auth = authenticate(
+            request, username=user.username, password=password)
         if user_auth is not None:
             return Response({'message': 'Password authenticated successfully'}, status=status.HTTP_200_OK)
         else:
@@ -174,7 +178,6 @@ class ChangePasswordUserView(APIView):
             return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-
 class ResetPasswordUserView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -189,7 +192,6 @@ class ResetPasswordUserView(APIView):
         user.save()
 
         return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
-
 
 
 class DeactivateUserView(APIView):
@@ -212,7 +214,8 @@ class DeactivateUserView(APIView):
 
         # Decode the access token to retrieve the user ID
         try:
-            decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            decoded_token = jwt.decode(
+                access_token, settings.SECRET_KEY, algorithms=['HS256'])
             user_id = decoded_token['user_id']
         except jwt.exceptions.DecodeError:
             return Response({'message': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
@@ -228,5 +231,62 @@ class DeactivateUserView(APIView):
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({'message': 'User deactivated successfully'}, status=status.HTTP_200_OK)
+
+
+class GetUserByUsernameView(APIView):
+    permission_classes = [IsAdministrator]
+    
+
+    def get(self, request, *args, **kwargs):
+        try:
+            _username = request.GET.get('username')
+            if _username is not None and isinstance(_username, str):
+                _username = _username.lower()
+            else:
+                return Response({"success": False, "message": "Invalid username"}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                user = User.objects.get(username=_username)
+            except User.DoesNotExist:
+                return Response({"success": False, "message": "User not found. Is the username correct?"}, status=status.HTTP_404_NOT_FOUND)
+
+            user_data = {
+                'user': UserSerializer(user).data
+            }
+
+            try:
+                if user.role == 'administrator':
+                    administrator = Administrator.objects.filter(user=user).first()
+                    if administrator is not None:
+                        # Add administrator data to the user_data
+                        user_data['profile'] = AdministratorSerializer(administrator).data
+
+                if user.role == 'staff':
+                    staff = Staff.objects.filter(user=user).first()
+                    if staff is not None:
+                        # Add staff data to the user_data
+                        user_data['profile'] = StaffSerializer(staff).data
+
+                elif user.role == 'teacher':
+                    teacher = Teacher.objects.filter(user=user).first()
+                    if teacher is not None:
+                        # Add teacher data to the user_data
+                        user_data['profile'] = TeacherSerializer(teacher).data
+
+                elif user.role == 'student':
+                    student = Student.objects.filter(user=user).first()
+                    if student is not None:
+                        # Add student data to the user_data
+                        user_data['profile'] = StudentSerializer(student).data
+
+            except Exception as e:
+                return Response({"success": False, "message": "Cannot get the user 'profile' data", 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            return Response(user_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"success": False, "message": "Cannot get the user data", 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
