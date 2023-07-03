@@ -24,4 +24,5 @@ class Administrator(models.Model):
     added_by = models.ForeignKey(User, related_name='administrator_added_by', on_delete=models.SET_NULL, blank=True, null=True)
     history = models.JSONField(blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    designation = models.CharField(max_length=99, blank=True, null=True)
     
