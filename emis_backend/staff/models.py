@@ -28,7 +28,7 @@ class Staff(models.Model):
     history = models.JSONField(blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     designation = models.CharField(max_length=99, blank=True, null=True)
-    permission_group = models.ForeignKey(PermissionGroup, on_delete=models.SET_NULL, blank=True, null=True)
+    permission_groups = models.ManyToManyField(PermissionGroup, related_name='staff_permission_groups', blank=True)
     permissions = models.ManyToManyField(Permission, related_name='staff_permissions', blank=True)
 
     def __str__(self):
