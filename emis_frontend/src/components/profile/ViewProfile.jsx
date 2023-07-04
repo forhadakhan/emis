@@ -7,7 +7,7 @@ import React from 'react';
 import {getFileLink, getUserId, getUserRole} from '../../utils/auth';
 
 const ViewProfile = ({ componentController, user, profile }) => {
-
+    console.log(profile);
     const genders = {
         'M': 'Male',
         'F': 'Female',
@@ -23,13 +23,11 @@ const ViewProfile = ({ componentController, user, profile }) => {
         alignItems: 'center',
     };
 
-    const user_id = getUserId();
-    const user_role = getUserRole();
-
-    
+    const userId = getUserId();
+    const userRole = getUserRole();
 
 
-    const iconHTML = '<i className="bi bi-person-bounding-box"></i>'; // Bootstrap icon HTML string
+    const iconHTML = '<i className="bi bi-person-bounding-box"></i>'; 
 
     return (
         <div className="container rounded-4 bg-white mt-5 mb-5">
@@ -74,6 +72,13 @@ const ViewProfile = ({ componentController, user, profile }) => {
                                 <p className='fs-5'>{user.username} </p>
                             </div>
                         </div>
+                        { profile.designation && 
+                        <div className="row mt-2">
+                            <div className="col-md-6">
+                                <h6 className='text-secondary fw-normal'>Designation</h6>
+                                <p className='fs-5'>{profile.designation} </p>
+                            </div>
+                        </div>}
                         <div className="row mt-2">
                             <div className="col-md-6">
                                 <h6 className='text-secondary fw-normal'>Email</h6>
