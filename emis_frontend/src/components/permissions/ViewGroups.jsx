@@ -329,16 +329,16 @@ const GroupRemote = ({ setGroupComponent, baseGroup }) => {
 
             <h3 className="m-3 text-center"> Group Details </h3>
 
-            <div class="container d-flex justify-content-center my-2">
-                <div class="bg-beige p-2 text-darkblue border-darkblue border">
-                    <input class="form-check-input" type="checkbox" id="modifyCheckbox" onChange={() => setDoChange(!doChange)} checked={doChange} />
-                    <label class="form-check-label px-2" htmlFor="modifyCheckbox">
+            <div className="container d-flex justify-content-center my-2">
+                <div className="bg-beige p-2 text-darkblue border-darkblue border">
+                    <input className="form-check-input" type="checkbox" id="modifyCheckbox" onChange={() => setDoChange(!doChange)} checked={doChange} />
+                    <label className="form-check-label px-2" htmlFor="modifyCheckbox">
                         Modify Group
                     </label>
                 </div>
 
-                <div class="">
-                    <button class="mx-1 bg-beige p-2 text-darkblue border-darkblue border" type="checkbox" id="modifyCheckbox" onClick={() => setIsDelete(!isDelete)} >
+                <div className="">
+                    <button className="mx-1 bg-beige p-2 text-darkblue border-darkblue border" type="checkbox" id="modifyCheckbox" onClick={() => setIsDelete(!isDelete)} >
                         Delete Group
                     </button>
                 </div>
@@ -356,18 +356,18 @@ const GroupRemote = ({ setGroupComponent, baseGroup }) => {
 
             <div className="m-5">
                 <form onSubmit={handleGroupUpdate}>
-                    <div class="mb-3 row">
-                        <label htmlFor="groupName" class="col-sm-2 col-form-label">Group Name:</label>
-                        <div class="col-sm-10">
-                            <input type="text" id="groupName" value={groupName} onChange={e => setGroupName(e.target.value)} class="form-control fw-bold" disabled={!doChange} required />
+                    <div className="mb-3 row">
+                        <label htmlFor="groupName" className="col-sm-2 col-form-label">Group Name:</label>
+                        <div className="col-sm-10">
+                            <input type="text" id="groupName" value={groupName} onChange={e => setGroupName(e.target.value)} className="form-control fw-bold" disabled={!doChange} required />
                         </div>
                     </div>
 
                     {doChange &&
-                        <div class="mb-3 row">
-                            <label htmlFor="contentTypes" class="col-sm-2 col-form-label">Content Type:</label>
-                            <div class="col-sm-10">
-                                <select value={selectedContentType} onChange={handleContentTypeChange} id="contentTypes" class="form-select" aria-label="Content Type">
+                        <div className="mb-3 row">
+                            <label htmlFor="contentTypes" className="col-sm-2 col-form-label">Content Type:</label>
+                            <div className="col-sm-10">
+                                <select value={selectedContentType} onChange={handleContentTypeChange} id="contentTypes" className="form-select" aria-label="Content Type">
                                     <option value="">Select a content type</option>
                                     {contentTypes.map(contentType => (
                                         <option key={contentType.id} value={contentType.id}>
@@ -379,10 +379,10 @@ const GroupRemote = ({ setGroupComponent, baseGroup }) => {
                         </div>}
 
                     {permissions.length > 0 && (
-                        <div class="mb-3 row">
-                            <label htmlFor="permissionTypes" class="col-sm-2 col-form-label">Available Permissions:</label>
-                            <div class="col-sm-10">
-                                <select multiple onChange={handlePermissionChange} id='permissionTypes' class="form-select" aria-label="Permission Types">
+                        <div className="mb-3 row">
+                            <label htmlFor="permissionTypes" className="col-sm-2 col-form-label">Available Permissions:</label>
+                            <div className="col-sm-10">
+                                <select multiple onChange={handlePermissionChange} id='permissionTypes' className="form-select" aria-label="Permission Types">
                                     {permissions.map(permission => (
                                         <option key={permission.id} value={permission.id}>
                                             {permission.codename} - {permission.name}
