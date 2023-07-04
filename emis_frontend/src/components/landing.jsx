@@ -6,8 +6,8 @@ import Logo64 from '../assets/logos/emis-64x64.png';
 import HomeComponent from './home';
 import ActivityComponent from './Activity';
 import SettingsComponent from './settings';
-import ProfileComponent from './profile';
-import AcademicCalendar from './fullCalendar';
+import ProfileComponent from './Profile';
+import AcademicCalendar from './FullCalendar';
 import Test from '../test';
 import { logout, getRefreshToken, getUserRole, getUserData } from '../utils/auth.js';
 
