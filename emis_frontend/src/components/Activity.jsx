@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUserRole } from '../utils/auth.js';
+import { getUserRole, hasPermission } from '../utils/auth.js';
 import AddUser from './add-user/AddUser';
 import AddAdministrator from './add-user/AddAdministrator';
 import AddStaff from './add-user/AddStaff';
@@ -19,7 +19,7 @@ const ActivityComponent = () => {
     const [activeComponent, setActiveComponent] = useState('main');
     const [reference, setReference] = useState(null);
     const [userType, setUserType] = useState(``);
-    const user_role = getUserRole();
+    const userRole = getUserRole();
 
     const breadcrumb = [
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('main')} ><i className="bi bi-grid-fill"></i> Activity </button>,
@@ -98,7 +98,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_staff', label: 'Manage Staff', render: 'ManageStaff', icon: 'bi-shield-plus' },
         { id: 'view_teacher', label: 'Manage Teacher', render: 'ManageTeacher', icon: 'bi-person-fill-gear' },
         { id: 'view_student', label: 'Manage Student', render: 'ManageStudent', icon: 'bi-person-gear' },
-        { id: 'public_messages', label: 'Public Messages', render: 'PublicMessages', icon: 'bi-chat-right-quote-fill' },
+        { id: 'view_contactmessage', label: 'Public Messages', render: 'PublicMessages', icon: 'bi-chat-right-quote-fill' },
         { id: 'view_permissions', label: 'User Permissions', render: 'UserPermissions', icon: 'bi-shield-shaded' },
     ];
 
@@ -107,7 +107,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
     if (user_role === "administrator") {
         allowedElements = [...elements];
     } else if (user_role === "staff") {
-        allowedElements = [...elements];
+        allowedElements = elements.filter((element) => hasPermission(element.id));
     }
 
     // Filter the elements based on the search term
