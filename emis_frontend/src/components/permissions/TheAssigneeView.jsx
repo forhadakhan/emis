@@ -300,10 +300,10 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                     <form onSubmit={handleUpdate}>
 
                         {doChangePermissions &&
-                            <div class="mb-3 row">
-                                <label htmlFor="contentTypes" class="col-sm-2 col-form-label">Content Type:</label>
-                                <div class="col-sm-10">
-                                    <select value={selectedContentType} onChange={handleContentTypeChange} id="contentTypes" class="form-select" aria-label="Content Type">
+                            <div className="mb-3 row">
+                                <label htmlFor="contentTypes" className="col-sm-2 col-form-label">Content Type:</label>
+                                <div className="col-sm-10">
+                                    <select value={selectedContentType} onChange={handleContentTypeChange} id="contentTypes" className="form-select" aria-label="Content Type">
                                         <option value="">Select a content type</option>
                                         {contentTypes.map(contentType => (
                                             <option key={contentType.id} value={contentType.id}>
@@ -315,10 +315,10 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                             </div>}
 
                         {permissions.length > 0 && (
-                            <div class="mb-3 row">
-                                <label htmlFor="permissionTypes" class="col-sm-2 col-form-label">Available Permissions:</label>
-                                <div class="col-sm-10">
-                                    <select multiple onChange={handlePermissionChange} id='permissionTypes' class="form-select" aria-label="Permission Types">
+                            <div className="mb-3 row">
+                                <label htmlFor="permissionTypes" className="col-sm-2 col-form-label">Available Permissions:</label>
+                                <div className="col-sm-10">
+                                    <select multiple onChange={handlePermissionChange} id='permissionTypes' className="form-select" aria-label="Permission Types">
                                         {permissions.map(permission => (
                                             <option key={permission.id} value={permission.id}>
                                                 {permission.codename} - {permission.name}
@@ -351,10 +351,10 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                         )}
 
                         {user.role !== 'administrator' && doChangeGroups && <>
-                            <div class="mb-3 row">
-                                <label htmlFor="groups" class="col-sm-2 col-form-label">Group List:</label>
-                                <div class="col-sm-10">
-                                    <select value={selectedGroups} onChange={handleGroupSelect} id="groups" class="form-select" aria-label="Group List">
+                            <div className="mb-3 row">
+                                <label htmlFor="groups" className="col-sm-2 col-form-label">Group List:</label>
+                                <div className="col-sm-10">
+                                    <select value={selectedGroups} onChange={handleGroupSelect} id="groups" className="form-select" aria-label="Group List">
                                         <option value="">Select a group</option>
                                         {groups.map(group => (
                                             <option key={group.id} value={group.id}>
