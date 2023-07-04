@@ -86,8 +86,6 @@ export const setUserData = (user) => {
 
 // Function to save the user profile data in localStorage
 export const setProfileData = (profile) => {
-    console.log(profile);
-
     // Check if 'profile' has 'permission_groups' and 'permissions' properties
     if (profile.hasOwnProperty('permission_groups') && profile.hasOwnProperty('permissions')) {
         // Merge 'profile.permissions' and 'profile.permission_groups.permissions' into a new array
@@ -101,11 +99,31 @@ export const setProfileData = (profile) => {
         // Encrypt and store the updated 'profile' object in localStorage
         const encryptedUserPermissions = encryptData(JSON.stringify(permissions));
         localStorage.setItem('permissions', encryptedUserPermissions);
-    } 
+    }
     // Encrypt and store the original 'profile' object in localStorage
     const encryptedUserProfile = encryptData(JSON.stringify(profile));
     localStorage.setItem('profile', encryptedUserProfile);
 };
+
+
+// Function to check if logged user has a permission
+export const hasPermission = (codename) => {
+    // Retrieve stored permissions from localStorage
+    const encryptedPermissions = localStorage.getItem('permissions');
+
+    // Check if permissions are stored
+    if (!encryptedPermissions) {
+        return false;
+    }
+
+    // Decrypt retrieved encryptedPermissions 
+    const decryptedPermissions = decryptData(encryptedPermissions);
+    const storedPermissions = JSON.parse(decryptedPermissions);
+
+    // Check if the passed codename exists in stored permissions
+    return storedPermissions.some((permission) => permission.codename === codename);
+};
+
 
 
 
