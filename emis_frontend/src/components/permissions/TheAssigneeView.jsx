@@ -33,7 +33,6 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
         permission.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) : [];
 
-    console.log(assignee)
 
     const fetchContentTypes = () => {
         // Configure the request headers
@@ -52,12 +51,55 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
             });
     };
 
+    const fetchGroups = () => {
+        // Configure the request headers
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+        axios
+            .get(`${API_BASE_URL}/core/permission-group-list/`, config)
+            .then(response => {
+                setGroups(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching content types:', error);
+            });
+    };
+
     useEffect(() => {
         if (doChangePermissions && contentTypes.length === 0) {
             fetchContentTypes();
         }
-    }, [doChangePermissions, contentTypes]);
 
+        fetchGroups();
+    }, [doChangePermissions, contentTypes, doChangeGroups]);
+
+    useEffect(() => {
+        fetchGroups();
+    }, []);
+    
+
+    const handleGroupSelect = (e) => {
+        const groupId = e.target.value;
+        const selectedGroup = groups.find(group => group.id === parseInt(groupId));
+
+        // Add the selected group to the list of selected groups
+        setSelectedGroups(prevGroups => {
+            const alreadySelected = prevGroups.find(group => group.id === selectedGroup.id);
+            if (!alreadySelected) {
+                return [...prevGroups, selectedGroup];
+            }
+            return prevGroups;
+        });
+    }
+
+    const handleGroupRemove = (groupId) => {
+        setSelectedGroups(prevGroups => (
+            prevGroups.filter(group => group.id !== groupId)
+        ));
+    };
 
     const handleContentTypeChange = (e) => {
         const selectedContentTypeId = e.target.value;
@@ -110,20 +152,27 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
         setPermissions([]);
         setSelectedPermissions(basePermissions);
         setDoChangePermissions(false);
+        setSelectedGroups(baseGroups);
+        setDoChangeGroups(false);
     }
 
-    const handleUpdatePermissions = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
 
         // Only make the update request if the data has changed
-        if (basePermissions.length === selectedPermissions.length &&
-            basePermissions.every(permission => selectedPermissions.some(selected => selected.id === permission.id))) {
+        if ((basePermissions.length === selectedPermissions.length &&
+            basePermissions.every(permission => selectedPermissions.some(selected => selected.id === permission.id))
+        ) && (
+                baseGroups.length === selectedGroups.length &&
+                baseGroups.every(group => selectedGroups.some(selected => selected.id === group.id)))
+        ) {
             setResponseMessage('No changes were made to the group.');
             return;
         }
 
         // Prepare the data for submission
         const formData = {
+            groups: selectedGroups.map(group => group.id),
             permissions: selectedPermissions.map(permission => permission.id),
         };
 
@@ -146,6 +195,8 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                 setDoChangePermissions(false);
                 setSelectedContentType('');
                 setPermissions([]);
+                setBaseGroups(selectedGroups);
+                setDoChangeGroups(false);
             })
             .catch(error => {
                 console.log(error);
@@ -155,10 +206,6 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                     setResponseMessage('An error occurred while updating the permission group.');
                 }
             });
-
-    }
-
-    const handleUpdateGroups = () => {
 
     }
 
@@ -223,7 +270,18 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                         <input type="text" className="form-control" id="inputDesignation" readOnly disabled value={profile.designation} />
                     </div>
                 </div>
-                {!doChangePermissions && user.role !== 'administrator' && 
+                {!doChangeGroups && user.role !== 'administrator' &&
+                    <div className="row mb-3">
+                        <label htmlFor="baseGroups" className="col-sm-2 col-form-label">Permission Groups:</label>
+                        <div className="col-sm-10 bg-white p-2 rounded-1 border">
+                            {baseGroups.map(group => (
+                                <div key={group.id} id="baseGroups" className="bg-beige text-darkblue d-inline-block border rounded-3 p-1 m-1">
+                                    <span className="px-2">{group.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>}
+                {!doChangePermissions && user.role !== 'administrator' && !doChangeGroups &&
                     <div className="row mb-3">
                         <label htmlFor="basePermission" className="col-sm-2 col-form-label">User Permissions:</label>
                         <div className="col-sm-10 bg-white p-2 rounded-1 border">
@@ -237,11 +295,9 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                     </div>}
             </div>
 
-            {user.role !== 'administrator' &&
+            {user.role !== 'administrator' && <>
                 <div className="m-md-5">
-                    <form onSubmit={handleUpdatePermissions}>
-
-                        {/* <button type="submit" className="btn btn-primary">Sign in</button> */}
+                    <form onSubmit={handleUpdate}>
 
                         {doChangePermissions &&
                             <div class="mb-3 row">
@@ -294,6 +350,35 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
                             </div>
                         )}
 
+                        {user.role !== 'administrator' && doChangeGroups && <>
+                            <div class="mb-3 row">
+                                <label htmlFor="groups" class="col-sm-2 col-form-label">Group List:</label>
+                                <div class="col-sm-10">
+                                    <select value={selectedGroups} onChange={handleGroupSelect} id="groups" class="form-select" aria-label="Group List">
+                                        <option value="">Select a group</option>
+                                        {groups.map(group => (
+                                            <option key={group.id} value={group.id}>
+                                                {group.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="row mb-3">
+                                <label htmlFor="selectedGroups" className="col-sm-2 col-form-label">Selected Groups:</label>
+                                <div className="col-sm-10 bg-white p-2 rounded-1 border">
+                                    {selectedGroups.map(group => (
+                                        <div key={group.id} id="selectedGroups" className="bg-beige text-darkblue d-inline-block border rounded-3 p-1 m-1">
+                                            <span className="px-2">{group.name}</span>
+                                            {doChangeGroups &&
+                                                <button type="button" className="btn border-0 border-start p-0 m-0" onClick={() => handleGroupRemove(group.id)}>
+                                                    <i className="bi bi-x-lg px-2"></i>
+                                                </button>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div></>}
+
                         {responseMessage && (
                             <div className="alert alert-info alert-dismissible fade show" role="alert">
                                 <strong>{responseMessage}</strong>
@@ -307,18 +392,18 @@ const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb })
 
                             </div>)}
 
-                        {doChangePermissions &&
+                        {(doChangeGroups || doChangePermissions) && <>
                             <div className="d-flex m-5">
                                 <div className="btn-group mx-auto">
-                                    <button type="submit" className="btn btn-darkblue fw-bold me-1" disabled={(selectedPermissions.length === 0)}>Update Permissions</button>
+                                    <button type="submit" className="btn btn-darkblue fw-bold me-1" >Update</button>
                                     <button type="button" className="btn btn-darkblue" onClick={() => handlePermissionReset()}>Reset</button>
                                 </div>
-                            </div>}
+                            </div></>}
                     </form>
                 </div>
-            }
+            </>}
 
-        </div>
+        </div >
     );
 }
 
