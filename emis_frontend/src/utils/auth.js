@@ -86,9 +86,28 @@ export const setUserData = (user) => {
 
 // Function to save the user profile data in localStorage
 export const setProfileData = (profile) => {
-    const encryptedUser = encryptData(JSON.stringify(profile));
-    localStorage.setItem('profile', encryptedUser);
+    console.log(profile);
+
+    // Check if 'profile' has 'permission_groups' and 'permissions' properties
+    if (profile.hasOwnProperty('permission_groups') && profile.hasOwnProperty('permissions')) {
+        // Merge 'profile.permissions' and 'profile.permission_groups.permissions' into a new array
+        const allPermissions = [...profile.permissions, ...profile.permission_groups.reduce((acc, group) => acc.concat(group.permissions), [])];
+
+        // Filter distinct elements based on the 'id' property
+        const permissions = allPermissions.filter((permission, index, self) =>
+            self.findIndex(p => p.id === permission.id) === index
+        );
+
+        // Encrypt and store the updated 'profile' object in localStorage
+        const encryptedUserPermissions = encryptData(JSON.stringify(permissions));
+        localStorage.setItem('permissions', encryptedUserPermissions);
+    } 
+    // Encrypt and store the original 'profile' object in localStorage
+    const encryptedUserProfile = encryptData(JSON.stringify(profile));
+    localStorage.setItem('profile', encryptedUserProfile);
 };
+
+
 
 // Function to get the user data from localStorage
 export const getUserData = () => {
