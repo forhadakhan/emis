@@ -62,7 +62,18 @@ class LoginView(APIView):
                     staff = Staff.objects.filter(user=user).first()
                     if staff is not None:
                         # Add staff data to the user_data
-                        user_data['profile'] = StaffSerializer(staff).data
+                        staff_data = StaffSerializer(staff).data
+                        permissions = staff.permissions.all()
+                        permission_data = [
+                            {
+                                'id': permission.id,
+                                'codename': permission.codename,
+                                'name': permission.name
+                            }
+                            for permission in permissions
+                        ]
+                        staff_data['permissions'] = permission_data
+                        user_data['profile'] = staff_data
 
                 elif user.role == 'teacher':
                     teacher = Teacher.objects.filter(user=user).first()
@@ -298,7 +309,6 @@ class GetUserByUsernameView(APIView):
 
         except Exception as e:
             return Response({"success": False, "message": "Cannot get the user data", 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 
