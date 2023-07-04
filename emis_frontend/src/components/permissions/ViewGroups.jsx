@@ -166,7 +166,7 @@ const PermissionGroupList = ({ setGroupComponent, setGroup }) => {
     );
 };
 
-
+ 
 const GroupRemote = ({ setGroupComponent, baseGroup }) => {
     const [baseGroupName, setBaseGroupName] = useState(baseGroup.name);
     const [baseGroupPermissions, setBaseGroupPermissions] = useState(baseGroup.permissions);
@@ -177,8 +177,15 @@ const GroupRemote = ({ setGroupComponent, baseGroup }) => {
     const [permissions, setPermissions] = useState([]);
     const [selectedPermissions, setSelectedPermissions] = useState(baseGroupPermissions);
     const [groupName, setGroupName] = useState(baseGroupName);
+    const [searchQuery, setSearchQuery] = useState('');
     const [responseMessage, setResponseMessage] = useState('');
     const accessToken = getAccessToken();
+
+
+    const filteredPermissions = selectedPermissions ? selectedPermissions.filter(permission =>
+        permission.codename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        permission.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) : [];
 
 
     const fetchContentTypes = () => {
@@ -390,15 +397,12 @@ const GroupRemote = ({ setGroupComponent, baseGroup }) => {
                         <div className="mb-3 row">
                             <label htmlFor="selectedPermission" className="col-sm-2 col-form-label">Group Permissions:</label>
                             <div className="col-sm-10 bg-white p-2 rounded-1 border">
-                                {selectedPermissions.map(permission => (
-                                    <div key={permission.id} id="selectedPermission" className="bg-beige text-darkblue d-inline-block border rounded-5 m-1">
+                                <input className="form-control text-center bg-light border d-block w-100 mb-2" type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search permissions" />
+                                {filteredPermissions.map(permission => (
+                                    <div key={permission.id} id="selectedPermission" className="bg-beige text-darkblue d-inline-block border rounded-3 p-1 m-1">
                                         <span className="px-2">{permission.codename} - {permission.name}</span>
                                         {doChange &&
-                                            <button
-                                                type="button"
-                                                className="btn border-0 border-start p-0 m-0"
-                                                onClick={() => handlePermissionRemove(permission.id)}
-                                            >
+                                            <button type="button" className="btn border-0 border-start p-0 m-0" onClick={() => handlePermissionRemove(permission.id)}>
                                                 <i className="bi bi-x-lg px-2"></i>
                                             </button>}
                                     </div>
