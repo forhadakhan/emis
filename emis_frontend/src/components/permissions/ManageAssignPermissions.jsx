@@ -126,7 +126,7 @@ const FindTheAssignee = ({ setAssignPermissionComponent, setAssignee, breadcrumb
                 <div className="mb-3 m-3 d-flex">
                     <button className="btn btn-darkblue mx-auto pt-1" disabled={username.length < 1} type='submit'>
                         {isLoading ?
-                            (<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>) :
+                            (<span className="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>) :
                             (<span><i className="bi bi-search"></i></span>)}  Find
                     </button>
                 </div>
