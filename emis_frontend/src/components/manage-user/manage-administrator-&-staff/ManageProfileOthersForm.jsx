@@ -128,7 +128,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to, userTy
 
         formDataToSend.append('updated_by', getUserId());
         formDataToSend.delete('updated_at');
-        console.log([...formDataToSend]);
+        
         axios.patch(`${API_BASE_URL}/${userType}/update-partial/${related_to}/`, formDataToSend, {
             headers: {
                 'Content-Type': 'multipart/form-data',
