@@ -60,11 +60,11 @@ const WelcomePage = ({ onLoginSuccess }) => {
                                             Contact
                                         </a>
                                     </li>
-                                    <li>
+                                    {/* <li>
                                         <a id="settings" className={`btn nav-link text-beige ${activeCoverComponent === 'apply' ? 'active-beige' : 'active-beige-hidden'}`} onClick={() => componentController('apply')}>
                                             Apply
                                         </a>
-                                    </li>
+                                    </li> */}
                                     <li>
                                         <a id="profile" className={`btn nav-link text-beige ${activeCoverComponent === 'auth' ? 'active-beige' : 'active-beige-hidden'}`} onClick={() => componentController('auth')}>
                                             Sign in
