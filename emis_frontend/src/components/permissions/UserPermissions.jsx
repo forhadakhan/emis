@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUserRole } from '../../utils/auth.js';
+import { getUserRole, hasPermission } from '../../utils/auth.js';
 import ManageGroup from './ManageGroup.jsx';
 import ManageAssignPermissions from './ManageAssignPermissions.jsx';
 
@@ -61,6 +61,8 @@ const PermissionPanel = ({ setPermissionComponent, breadcrumb }) => {
 
     if (user_role === "administrator") {
         allowedElements = [...elements];
+    } else if (user_role === "staff") {
+        allowedElements = elements.filter((element) => hasPermission(element.id));
     }
 
     return (
@@ -83,7 +85,7 @@ const PermissionPanel = ({ setPermissionComponent, breadcrumb }) => {
                             type='button'
                         >
                             <div className="text-beige my-auto w-100 text-center p-2">
-                                <i className={`bi ${element.icon} text-start`}></i>  
+                                <i className={`bi ${element.icon} text-start`}></i>
                                 <span className='text-end'> {element.label} </span>
                             </div>
                         </button>
