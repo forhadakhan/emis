@@ -50,7 +50,7 @@ const LandingComponent = ({ onLogoutSuccess }) => {
 
             <header className="mt-3">
                 <div className="px-3 py-2">
-                    <div className="container">
+                    <div className="container content-sm-75">
                         <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                             <a href="/" className="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-beige text-decoration-none">
                                 <img className="ms-2" src={Logo64} alt="EMIS Logo" height="64" />
