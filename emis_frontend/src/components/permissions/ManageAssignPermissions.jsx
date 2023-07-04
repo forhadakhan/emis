@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../utils/config.js';
 import { getUserRole, getAccessToken } from '../../utils/auth.js';
+import TheAssigneeView from './TheAssigneeView.jsx'
 
 
 const ManageAssignPermissions = ({ setPermissionComponent, breadcrumb }) => {
@@ -42,7 +43,7 @@ const ManageAssignPermissions = ({ setPermissionComponent, breadcrumb }) => {
     };
 
     return (
-        <div className="px-4 py-5">
+        <div className="px-md-4 py-5">
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     {updatedBreadcrumb.map((item, index) => (
@@ -62,11 +63,13 @@ const ManageAssignPermissions = ({ setPermissionComponent, breadcrumb }) => {
 const FindTheAssignee = ({ setAssignPermissionComponent, setAssignee, breadcrumb }) => {
     const [username, setUsername] = useState('');
     const [responseMessage, setResponseMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const accessToken = getAccessToken();
 
     const handleFindUser = (e) => {
         e.preventDefault();
         setResponseMessage();
+        setIsLoading(true);
 
         // Prepare the data for submission
         const usernameParam = encodeURIComponent(username);
@@ -82,12 +85,13 @@ const FindTheAssignee = ({ setAssignPermissionComponent, setAssignee, breadcrumb
         // Make the API request to get the user
         axios.get(url, config)
             .then(response => {
-                console.log(response);
+                setIsLoading(false);
                 setAssignee(response.data);
                 setAssignPermissionComponent('TheAssigneeView');
             })
             .catch(error => {
                 console.log(error);
+                setIsLoading(false);
                 if (error.response && error.response.data && error.response.data.message) {
                     setResponseMessage(error.response.data.message);
                 } else {
@@ -99,77 +103,38 @@ const FindTheAssignee = ({ setAssignPermissionComponent, setAssignee, breadcrumb
 
     return (
         <div>
-            <h1 className="fw-lighter">Manage Assign Permissions</h1>
-            <div className="mb-3 my-5 mx-md-5">
-                <label htmlFor="usernameInput" className="form-label"><i className="bi bi-input-cursor-text"></i> Enter username</label>
-                <input
-                    className="form-control border border-darkblue text-center"
-                    type="text"
-                    placeholder="Enter the assignee username."
-                    aria-label="usernameInput"
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-            </div>
-
-            {responseMessage &&
-                <div className="alert alert-warning alert-dismissible fade show border border-darkblue mx-md-5" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill"></i>
-                    <strong> {responseMessage} </strong>
-                    <button type="button" onClick={() => setResponseMessage('')} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>}
-
-            <div className="mb-3 m-3 d-flex">
-                <button className="btn btn-darkblue mx-auto" onClick={handleFindUser} disabled={username.length < 1} type='button'>
-                    <i className="bi bi-search"></i> Find
-                </button>
-            </div>
-        </div>
-    );
-}
-
-
-const TheAssigneeView = ({ assignee, setAssignPermissionComponent, breadcrumb }) => {
-
-    const [user, setUser] = useState(assignee.user);
-    const [profile, setProfile] = useState(assignee.profile);
-
-
-    return (
-        <div>
-            <h1 className="fw-lighter">Assignee View</h1>
-
-            <form className="m-5"> 
-                <div className="row mb-3">
-                    <label htmlFor="inputUsername" className="col-sm-2 col-form-label">Username</label>
-                    <div className="col-sm-10">
-                        <input type="text" className="form-control" id="inputUsername" readOnly disabled value={user.username} />
-                    </div>
+            <h1 className="text-center">Manage Assign Permissions</h1>
+            <form onSubmit={handleFindUser}>
+                <div className="mb-3 my-5 mx-md-5">
+                    <label htmlFor="usernameInput" className="form-label"><i className="bi bi-input-cursor-text"></i> Enter username</label>
+                    <input
+                        className="form-control border border-darkblue text-center"
+                        type="text"
+                        placeholder="Enter the assignee username."
+                        aria-label="usernameInput"
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
                 </div>
-                <div className="row mb-3">
-                    <label htmlFor="inputName" className="col-sm-2 col-form-label">Name</label>
-                    <div className="col-sm-10">
-                        <input type="text" className="form-control" id="inputName" readOnly disabled value={`${user.first_name} ${user.middle_name} ${user.last_name}`} />
-                    </div>
+
+                {responseMessage &&
+                    <div className="alert alert-warning alert-dismissible fade show border border-darkblue mx-md-5" role="alert">
+                        <i className="bi bi-exclamation-triangle-fill"></i>
+                        <strong> {responseMessage} </strong>
+                        <button type="button" onClick={() => setResponseMessage('')} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>}
+
+                <div className="mb-3 m-3 d-flex">
+                    <button className="btn btn-darkblue mx-auto pt-1" disabled={username.length < 1} type='submit'>
+                        {isLoading ?
+                            (<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>) :
+                            (<span><i className="bi bi-search"></i></span>)}  Find
+                    </button>
                 </div>
-                <div className="row mb-3">
-                    <label htmlFor="inputRole" className="col-sm-2 col-form-label">Role</label>
-                    <div className="col-sm-10">
-                        <input type="text" className="form-control" id="inputRole" readOnly disabled value={user.role} />
-                    </div>
-                </div>
-                <div className="row mb-3">
-                    <label htmlFor="inputDesignation" className="col-sm-2 col-form-label">Designation</label>
-                    <div className="col-sm-10">
-                        <input type="text" className="form-control" id="inputDesignation" readOnly disabled value={profile.designation} />
-                    </div>
-                </div>
-                
-                {/* <button type="submit" className="btn btn-primary">Sign in</button> */}
             </form>
-
         </div>
     );
 }
+
 
 
 
