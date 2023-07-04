@@ -247,7 +247,6 @@ class DeactivateUserView(APIView):
 class GetUserByUsernameView(APIView):
     permission_classes = [IsAdministrator]
     
-
     def get(self, request, *args, **kwargs):
         try:
             _username = request.GET.get('username')
@@ -274,10 +273,30 @@ class GetUserByUsernameView(APIView):
 
                 if user.role == 'staff':
                     staff = Staff.objects.filter(user=user).first()
-                    
                     if staff is not None:
                         # Add staff data to the user_data
                         staff_data = StaffSerializer(staff).data
+                        
+                        # Add permission groups data
+                        permission_groups = staff.permission_groups.all()
+                        group_data = [
+                            {
+                                'id': group.id,
+                                'name': group.name,
+                                'permissions': [
+                                    {
+                                        'id': permission.id,
+                                        'codename': permission.codename,
+                                        'name': permission.name
+                                    }
+                                    for permission in group.permissions.all()
+                                ]
+                            }
+                            for group in permission_groups
+                        ]
+                        
+                        staff_data['permission_groups'] = group_data
+                        
                         permissions = staff.permissions.all()
                         permission_data = [
                             {
@@ -288,6 +307,7 @@ class GetUserByUsernameView(APIView):
                             for permission in permissions
                         ]
                         staff_data['permissions'] = permission_data
+                        
                         user_data['profile'] = staff_data
 
                 elif user.role == 'teacher':
@@ -309,6 +329,7 @@ class GetUserByUsernameView(APIView):
 
         except Exception as e:
             return Response({"success": False, "message": "Cannot get the user data", 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
