@@ -165,7 +165,7 @@ a.text-beige:hover {
 .content-sm-75 {
     /* Styles for decreasing content size on small screens */
     @media (max-width: 768px) {
-      zoom: 0.75; /* 0.8 means 80% of the original size */
+      zoom: 0.75; /* 0.75 means 75% of the original size */
     }
   }
   
