@@ -1,23 +1,27 @@
 # email_handler/views.py
 
+import os
+from dotenv import load_dotenv
 from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from rest_framework.response import Response
+from django.views import View
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.models import User
-from django.http import HttpResponse
 from urllib.parse import quote
-from django.shortcuts import get_object_or_404
-from django.views import View
-from django.utils.crypto import get_random_string
-from django.conf import settings
-from rest_framework.permissions import IsAuthenticated
 
+# Load environment variables from .env file
+load_dotenv()
 
 
 class EmailVerificationView(APIView):
@@ -28,8 +32,32 @@ class EmailVerificationView(APIView):
             subject = 'EMIS: Verify your email'
             uid = quote(urlsafe_base64_encode(force_bytes(user.pk)))  # URL encode the uid
             token = default_token_generator.make_token(user)
-            domain = "http://localhost:8000"
+            domain = os.getenv('BACKEND_HOST_URL')
             href = f"{domain}/api/email/verification/confirm/{uid}/{token}/"  
+            html_message = render_to_string('email_templates/email_verification.html', {
+                'user': user,
+                'href': href,
+            })
+            from_email = settings.EMAIL_HOST_USER
+            recipients = [user.email]
+
+            msg = EmailMessage(subject, html_message, from_email, recipients)
+            msg.content_subtype = 'html'  # Set the content subtype to 'html'
+            msg.send()
+            return Response({'message': 'Email verification sent'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class EmailVerificationDirectView(APIView):
+    def send(self, user):
+        if user.is_authenticated and not user.email_verified:
+            subject = 'EMIS: Verify your email'
+            uid = quote(urlsafe_base64_encode(force_bytes(user.pk)))  # URL encode the uid
+            token = default_token_generator.make_token(user)
+            domain = os.getenv('BACKEND_HOST_URL')
+            href = f"{domain}/api/email/verification/confirm/{uid}/{token}/"
             html_message = render_to_string('email_templates/email_verification.html', {
                 'user': user,
                 'href': href,
@@ -79,7 +107,7 @@ class ResendEmailVerificationView(APIView):
                 subject = 'EMIS: Verify your email'
                 uid = quote(urlsafe_base64_encode(force_bytes(user.pk)))  # URL encode the uid
                 token = default_token_generator.make_token(user)
-                domain = "http://localhost:8000"
+                domain = os.getenv('BACKEND_HOST_URL')
                 href = f"{domain}/api/email/verification/confirm/{uid}/{token}/"  
                 message = render_to_string('email_templates/email_verification.html', {
                     'user': user,
