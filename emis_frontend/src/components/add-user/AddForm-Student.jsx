@@ -61,9 +61,9 @@ const AddForm = ({ formFields, url }) => {
 
     const validateGuardianPhoneNumber = () => {
         // only validate Bangladeshi numbers 
-        if (phone.startsWith('+880') || phone.startsWith('880') || phone.startsWith('0')) {
+        if (guardianPhone.startsWith('+880') || guardianPhone.startsWith('880') || guardianPhone.startsWith('0')) {
             const pattern = /^(?:\+?880|0|88)?\s?1[3456789]\d{8}$/;
-            if (!pattern.test(phone)) {
+            if (!pattern.test(guardianPhone)) {
                 setGuardianPhoneError(true);
             } else {
                 setGuardianPhoneError(false);
