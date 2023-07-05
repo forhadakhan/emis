@@ -13,10 +13,14 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from staff.models import Staff
 from administrator.models import Administrator
-from staff.serializers import StaffSerializer
 from administrator.serializers import AdministratorSerializer
+from staff.models import Staff
+from staff.serializers import StaffSerializer
+from teacher.models import Teacher
+from teacher.serializers import TeacherSerializer
+from student.models import Student
+from student.serializers import StudentSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView
 from django.conf import settings
