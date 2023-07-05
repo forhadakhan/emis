@@ -16,13 +16,11 @@ from .serializers import TeacherSerializer
 from authentication.views import UserDeleteView
 from rest_framework.views import APIView
 
-from django.contrib import messages
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework import viewsets
-import json
+
 
 class TeacherViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
 
@@ -57,6 +55,8 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
 
 class TeacherUsersView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         teacher_users = User.objects.filter(role='teacher')
         serialized_users = serializers.serialize('json', teacher_users, fields=('username', 'first_name', 'last_name', 'email', 'is_active'))
@@ -73,6 +73,8 @@ class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
 
 
 class GetTeacherView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         user_id = request.GET.get('reference')
         try:
@@ -114,6 +116,8 @@ class GetTeacherView(APIView):
 
 
 class TeacherPartialUpdate(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
     lookup_field = 'pk'
@@ -128,8 +132,9 @@ class TeacherPartialUpdate(generics.UpdateAPIView):
 
 
 class TeacherDeleteView(DestroyModelMixin, GenericAPIView):
-    queryset = Teacher.objects.all()
     permission_classes = [IsAuthenticated]
+    
+    queryset = Teacher.objects.all()
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()

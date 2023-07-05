@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import status, generics, viewsets
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
+from authentication.permissions import IsAdministrator
 from rest_framework.response import Response
 from authentication.models import User
 from authentication.serializers import UserSerializer
@@ -18,6 +18,8 @@ from rest_framework.views import APIView
 
 
 class AdministratorViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdministrator]
+    
     queryset = Administrator.objects.all()
     serializer_class = AdministratorSerializer
 
@@ -50,6 +52,8 @@ class AdministratorViewSet(viewsets.ModelViewSet):
 
 
 class AdministratorUsersView(APIView):
+    permission_classes = [IsAdministrator]
+    
     def get(self, request):
         administrator_users = User.objects.filter(role='administrator')
         serialized_users = serializers.serialize('json', administrator_users, fields=('username', 'first_name', 'last_name', 'email', 'is_active'))
@@ -64,6 +68,8 @@ class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
 
 
 class GetAdministratorView(APIView):
+    permission_classes = [IsAdministrator]
+    
     def get(self, request):
         user_id = request.GET.get('reference')
         try:
@@ -104,6 +110,8 @@ class GetAdministratorView(APIView):
 
 
 class AdministratorPartialUpdate(generics.UpdateAPIView):
+    permission_classes = [IsAdministrator]
+    
     queryset = Administrator.objects.all()
     serializer_class = AdministratorSerializer
     lookup_field = 'pk'
@@ -117,8 +125,9 @@ class AdministratorPartialUpdate(generics.UpdateAPIView):
 
 
 class AdministratorDeleteView(DestroyModelMixin, GenericAPIView):
+    permission_classes = [IsAdministrator]
+    
     queryset = Administrator.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()

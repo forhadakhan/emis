@@ -18,6 +18,8 @@ from rest_framework.views import APIView
 
 
 class StudentViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
@@ -51,6 +53,8 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 
 class StudentUsersView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         student_users = User.objects.filter(role='student')
         serialized_users = serializers.serialize('json', student_users, fields=('username', 'first_name', 'last_name', 'email', 'is_active'))
@@ -67,6 +71,8 @@ class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
 
 
 class GetStudentView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         user_id = request.GET.get('reference')
         try:
@@ -108,6 +114,8 @@ class GetStudentView(APIView):
 
 
 class StudentPartialUpdate(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     lookup_field = 'pk'
@@ -122,9 +130,10 @@ class StudentPartialUpdate(generics.UpdateAPIView):
 
 
 class StudentDeleteView(DestroyModelMixin, GenericAPIView):
-    queryset = Student.objects.all()
     permission_classes = [IsAuthenticated]
-
+    
+    queryset = Student.objects.all()
+    
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.user:

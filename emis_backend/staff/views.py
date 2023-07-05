@@ -7,8 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework import status, generics, viewsets
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
-from authentication.permissions import IsAdministrator
+from authentication.permissions import IsAdministratorOrStaff
 from rest_framework.response import Response
 from authentication.models import User
 from authentication.serializers import UserSerializer
@@ -23,6 +22,8 @@ from django.shortcuts import get_object_or_404
 
 
 class StaffViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdministratorOrStaff]
+    
     queryset = Staff.objects.all()
     serializer_class = StaffSerializer
 
@@ -56,6 +57,8 @@ class StaffViewSet(viewsets.ModelViewSet):
 
 
 class StaffUsersView(APIView):
+    permission_classes = [IsAdministratorOrStaff]
+    
     def get(self, request):
         staff_users = User.objects.filter(role='staff')
         serialized_users = serializers.serialize('json', staff_users, fields=('username', 'first_name', 'last_name', 'email', 'is_active'))
@@ -70,6 +73,8 @@ class CustomJSONEncoder(serializers.json.DjangoJSONEncoder):
 
 
 class GetStaffView(APIView):
+    permission_classes = [IsAdministratorOrStaff]
+    
     def get(self, request):
         user_id = request.GET.get('reference')
         try:
@@ -110,6 +115,8 @@ class GetStaffView(APIView):
 
 
 class StaffPartialUpdate(generics.UpdateAPIView):
+    permission_classes = [IsAdministratorOrStaff]
+    
     queryset = Staff.objects.all()
     serializer_class = StaffSerializer
     lookup_field = 'pk'
@@ -123,8 +130,9 @@ class StaffPartialUpdate(generics.UpdateAPIView):
 
 
 class StaffDeleteView(DestroyModelMixin, GenericAPIView):
+    permission_classes = [IsAdministratorOrStaff]
+    
     queryset = Staff.objects.all()
-    permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -138,6 +146,8 @@ class StaffDeleteView(DestroyModelMixin, GenericAPIView):
 
 
 class StaffAllPermissionsView(APIView):
+    permission_classes = [IsAdministratorOrStaff]
+    
     def get(self, request):
         username = request.GET.get('username')
         if username:
@@ -155,6 +165,8 @@ class StaffAllPermissionsView(APIView):
 
 
 class StaffHasPermissionView(APIView):
+    permission_classes = [IsAdministratorOrStaff]
+    
     def get(self, request):
         username = request.GET.get('username')
         permission_codename = request.GET.get('permission_codename')
@@ -175,7 +187,7 @@ class StaffHasPermissionView(APIView):
         
 
 class StaffUpdatePermissionsView(APIView):
-    permission_classes = [IsAdministrator]
+    permission_classes = [IsAdministratorOrStaff]
 
     def patch(self, request, staff_id):
         try:
