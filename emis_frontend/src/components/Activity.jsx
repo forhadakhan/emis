@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { getUserRole, hasPermission } from '../utils/auth.js';
-import AddUser from './add-user/AddUser';
 import AddAdministrator from './add-user/AddAdministrator';
 import AddStaff from './add-user/AddStaff';
 import AddTeacher from './add-user/AddTeacher';
 import AddStudent from './add-user/AddStudent';
-import ManageUser from './manage-user/ManageUser';
 import ManageAdministrator from './manage-user/manage-administrator-&-staff/ManageAdministrator';
 import ManageStaff from './manage-user/manage-administrator-&-staff/ManageStaff';
 import ManageProfile from './manage-user/manage-administrator-&-staff/ManageProfile';
 import ManageTeacher from './manage-user/manage-teacher/ManageTeacher';
+import ManageTeacherProfile from './manage-user/manage-teacher/ManageTeacherProfile';
 import ManageStudent from './manage-user/manage-student/ManageStudent';
 import UserPermissions from './permissions/UserPermissions.jsx';
 import PublicMessages from './public-messages/PublicMessages.jsx';
@@ -42,9 +41,11 @@ const ActivityComponent = () => {
             case 'ManageStaff':
                 return <ManageStaff setActiveComponent={setActiveComponent} setReference={setReference} setUserType={setUserType} />;
             case 'ManageTeacher':
-                return <ManageTeacher setActiveComponent={setActiveComponent} />;
+                return <ManageTeacher setActiveComponent={setActiveComponent} setReference={setReference} breadcrumb={breadcrumb} />;
+            case 'ManageTeacherProfile':
+                return <ManageTeacherProfile setActiveComponent={setActiveComponent} reference={reference} breadcrumb={breadcrumb} />;
             case 'ManageStudent':
-                return <ManageStudent setActiveComponent={setActiveComponent} />;
+                return <ManageStudent setActiveComponent={setActiveComponent} setReference={setReference} breadcrumb={breadcrumb} />;
             case 'ManageProfile':
                 return <ManageProfile setActiveComponent={setActiveComponent} reference={reference} userType={userType} />;
             case 'UserPermissions':
