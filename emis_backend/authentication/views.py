@@ -1,17 +1,22 @@
 # authentication/views.py
 
 import jwt
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
 from authentication.permissions import IsAdministrator
+from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import check_password
 from .serializers import UserSerializer
 from .models import User
+from .utils import TokenDecoderToGetUserRole
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 from administrator.models import Administrator
 from administrator.serializers import AdministratorSerializer
@@ -21,18 +26,12 @@ from teacher.models import Teacher
 from teacher.serializers import TeacherSerializer
 from student.models import Student
 from student.serializers import StudentSerializer
-from django.contrib.auth.hashers import check_password
-from rest_framework.views import APIView
-from django.conf import settings
-from rest_framework.authtoken.models import Token
-from django.core.exceptions import PermissionDenied
-from .utils import TokenDecoderToGetUserRole
 
 
 class UserViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class LoginView(APIView):
@@ -140,18 +139,18 @@ class LogoutView(GenericAPIView, CreateModelMixin):
 
 
 class UserDeleteView(DestroyModelMixin, GenericAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
 
 class UserPartialUpdateView(UpdateModelMixin, GenericAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -177,6 +176,7 @@ class CheckPasswordView(APIView):
 
 
 class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
     # Change password without old password
     def post(self, request):
         user_id = request.data.get('user_id')
@@ -194,6 +194,7 @@ class ChangePasswordView(APIView):
 
 
 class ChangePasswordUserView(APIView):
+    permission_classes = [IsAuthenticated]
     # Change password
     def post(self, request):
         user_id = request.data.get('user_id')
