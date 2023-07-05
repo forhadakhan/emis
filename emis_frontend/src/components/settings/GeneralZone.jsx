@@ -7,8 +7,9 @@ import axios from 'axios';
 const GeneralZone = () => {
     const user = getUserData();
     const [updatedUser, setUpdatedUser] = useState(user);
+    const [isLoading, setIsLoading] = useState(false);
     const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
-    const [showUpdateFailed, setShowUpdateFailed] = useState(false);
+    const [responseMessage, setResponseMessage] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -17,16 +18,18 @@ const GeneralZone = () => {
             [name]: value
         }));
         setShowUpdateSuccess(false);
-        setShowUpdateFailed(false);
+        setResponseMessage('');
     };
 
     const handleCancel = () => {
         setUpdatedUser(user);
         setShowUpdateSuccess(false);
-        setShowUpdateFailed(false);
+        setResponseMessage('');
     }
     
     const handleUpdate = () => {
+        setResponseMessage('');
+        setIsLoading(true);
         const accessToken = getAccessToken();
         const user_id = getUserId();
         const formDataToSend = new FormData();
@@ -54,8 +57,9 @@ const GeneralZone = () => {
             })
             .catch((error) => {
                 console.error(error);
-                setShowUpdateFailed(true);
+                setResponseMessage(error.response.data.message);
             });
+            setIsLoading(false);
     };
 
     return (
@@ -138,13 +142,15 @@ const GeneralZone = () => {
                                         <i className="bi bi-check2-circle"></i> Updated Successfully
                                         <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>}
-                                {showUpdateFailed &&
+                                {responseMessage &&
                                     <div className="alert alert-info fw-bold alert-dismissible fade show" role="alert">
-                                        <i className="bi bi-x-octagon"></i> Update Failed
-                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        <i className="bi bi-x-octagon"></i> {responseMessage}
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" onClick={() => setResponseMessage('')}></button>
                                     </div>} 
                         <div className="d-grid gap-2">
-                            <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">Update</button>
+                            <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">
+                                {isLoading ? <span className="spinner-grow spinner-grow-sm" role="status"></span> : 'Update'}
+                            </button>
                             <button onClick={handleCancel} className="btn btn-darkblue pt-1 profile-button" type="button">Cancel</button>
                         </div>
                     </div>
