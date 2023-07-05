@@ -10,6 +10,7 @@ import ManageProfile from './manage-user/manage-administrator-&-staff/ManageProf
 import ManageTeacher from './manage-user/manage-teacher/ManageTeacher';
 import ManageTeacherProfile from './manage-user/manage-teacher/ManageTeacherProfile';
 import ManageStudent from './manage-user/manage-student/ManageStudent';
+import ManageStudentProfile from './manage-user/manage-student/ManageStudentProfile';
 import UserPermissions from './permissions/UserPermissions.jsx';
 import PublicMessages from './public-messages/PublicMessages.jsx';
 
@@ -40,14 +41,16 @@ const ActivityComponent = () => {
                 return <ManageAdministrator setActiveComponent={setActiveComponent} setReference={setReference} setUserType={setUserType} />;
             case 'ManageStaff':
                 return <ManageStaff setActiveComponent={setActiveComponent} setReference={setReference} setUserType={setUserType} />;
+            case 'ManageProfile':
+                return <ManageProfile setActiveComponent={setActiveComponent} reference={reference} userType={userType} />;
             case 'ManageTeacher':
                 return <ManageTeacher setActiveComponent={setActiveComponent} setReference={setReference} breadcrumb={breadcrumb} />;
             case 'ManageTeacherProfile':
                 return <ManageTeacherProfile setActiveComponent={setActiveComponent} reference={reference} breadcrumb={breadcrumb} />;
             case 'ManageStudent':
                 return <ManageStudent setActiveComponent={setActiveComponent} setReference={setReference} breadcrumb={breadcrumb} />;
-            case 'ManageProfile':
-                return <ManageProfile setActiveComponent={setActiveComponent} reference={reference} userType={userType} />;
+            case 'ManageStudentProfile':
+                return <ManageStudentProfile setActiveComponent={setActiveComponent} reference={reference} breadcrumb={breadcrumb} />;
             case 'UserPermissions':
                 return <UserPermissions setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'PublicMessages':
