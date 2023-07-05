@@ -4,6 +4,12 @@ from rest_framework import serializers
 from .models import User
 from django.contrib.auth import get_user_model
 from email_handler.views import EmailVerificationView
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 
 class UserSerializer(serializers.ModelSerializer):
     
@@ -53,4 +59,5 @@ class DummyRequest:
         self.user = user
 
     def get_host(self):
-        return 'http://localhost:8000'
+        host = os.getenv('BACKEND_HOST_URL')
+        return host
