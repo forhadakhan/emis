@@ -3,12 +3,8 @@
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth import get_user_model
-from email_handler.views import EmailVerificationView
-import os
-from dotenv import load_dotenv
+from email_handler.views import EmailVerificationDirectView
 
-# Load environment variables from .env file
-load_dotenv()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,23 +37,10 @@ class UserSerializer(serializers.ModelSerializer):
             is_active=is_active,
             is_superuser=is_superuser
         )
-
-
         
-        # Create a dummy request object with the user attribute
-        dummy_request = DummyRequest(user)
-        
-        # Invoke EmailVerificationView with the request object
-        email_verification_view = EmailVerificationView()
-        response = email_verification_view.post(dummy_request)
+        # Send verification mail
+        email_verification = EmailVerificationDirectView()
+        response = email_verification.send(user)
 
         return user
 
-# Create a dummy request object with the user attribute
-class DummyRequest:
-    def __init__(self, user):
-        self.user = user
-
-    def get_host(self):
-        host = os.getenv('BACKEND_HOST_URL')
-        return host
