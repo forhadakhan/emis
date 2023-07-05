@@ -9,7 +9,7 @@ import DataTable from 'react-data-table-component';
 import '../../../index.css';
 
 
-const DataTableList = ({ source, setReference,  setActiveComponent }) => {
+const DataTableList = ({ source, setReference, setActiveComponent }) => {
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
 
@@ -30,9 +30,9 @@ const DataTableList = ({ source, setReference,  setActiveComponent }) => {
                 user.fields.username.toLowerCase().includes(keyword) ||
                 user.fields.first_name.toLowerCase().includes(keyword) ||
                 user.fields.last_name.toLowerCase().includes(keyword) ||
-                user.fields.email.toLowerCase().includes(keyword) || 
+                user.fields.email.toLowerCase().includes(keyword) ||
                 ((user.fields.is_active && (keyword === 'active' || keyword === 'unblocked')) ||
-                (!user.fields.is_active && (keyword === 'inactive' || keyword === 'blocked')))
+                    (!user.fields.is_active && (keyword === 'inactive' || keyword === 'blocked')))
         );
         setFilteredData(filteredResults);
     };
@@ -109,6 +109,18 @@ const DataTableList = ({ source, setReference,  setActiveComponent }) => {
 
     return (
         <div>
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
+                    <option value="" selected>No Filter</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="unblocked">Not Blocked</option>
+                </select>
+            </div>
             <div className="m-5">
                 <input
                     type="text"
