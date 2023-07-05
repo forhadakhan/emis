@@ -32,9 +32,19 @@ class AdministratorViewSet(viewsets.ModelViewSet):
 
         administrator_data['user'] = user.id
 
-        serializer = self.get_serializer(data=administrator_data)
-        serializer.is_valid(raise_exception=True)
-        administrator = serializer.save()
+        try:
+            serializer = self.get_serializer(data=administrator_data)
+            serializer.is_valid(raise_exception=True)
+            administrator = serializer.save()
+        except Exception as e:
+            # Delete the newly created user if creating the teacher fails
+            user.delete()
+
+            error_messages = {}
+            for field, errors in e.detail.items():
+                error_messages[field] = str(errors[0])
+
+            return Response(error_messages, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
