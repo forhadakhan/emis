@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import check_password
+from django.http import QueryDict
 from .serializers import UserSerializer
 from .models import User
 from .utils import TokenDecoderToGetUserRole
@@ -26,6 +27,7 @@ from teacher.models import Teacher
 from teacher.serializers import TeacherSerializer
 from student.models import Student
 from student.serializers import StudentSerializer
+from email_handler.views import EmailVerificationDirectView
 
 
 class UserViewSet(ModelViewSet):
@@ -153,7 +155,36 @@ class UserPartialUpdateView(UpdateModelMixin, GenericAPIView):
     serializer_class = UserSerializer
 
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        try:
+            # Create a mutable copy of the QueryDict
+            data = request.data.copy()
+
+            # Set email_verified to False if email is being updated
+            if 'email' in data:
+                data['email_verified'] = False
+
+            # Create a mutable QueryDict from the modified data
+            mutable_request_data = QueryDict('', mutable=True)
+            mutable_request_data.update(data)
+
+            # Update the request data with the mutable QueryDict
+            request._request.POST = mutable_request_data
+
+            partial_update_response = self.partial_update(request, *args, **kwargs)
+
+            # Send verification email if email was updated
+            if 'email' in data:
+                user = self.get_object()  # Get the updated user object
+                email_verification_view = EmailVerificationDirectView()
+                email_verification_response = email_verification_view.send(user)
+                # You can check the response and handle it accordingly if needed
+
+            return partial_update_response
+
+        except Exception as e:
+            # Handle generic exceptions
+            # You can log the exception or return an appropriate error response with a message and status code
+            return Response({'message': 'An error occurred while updating. Please try again.', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CheckPasswordView(APIView):
