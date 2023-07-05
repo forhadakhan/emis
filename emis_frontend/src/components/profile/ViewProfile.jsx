@@ -7,7 +7,6 @@ import React from 'react';
 import {getFileLink, getUserId, getUserRole} from '../../utils/auth';
 
 const ViewProfile = ({ componentController, user, profile }) => {
-    console.log(profile);
     const genders = {
         'M': 'Male',
         'F': 'Female',
