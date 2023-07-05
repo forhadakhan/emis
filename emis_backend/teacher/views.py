@@ -16,6 +16,11 @@ from .serializers import TeacherSerializer
 from authentication.views import UserDeleteView
 from rest_framework.views import APIView
 
+from django.contrib import messages
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework import viewsets
+import json
 
 class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
@@ -32,9 +37,20 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
         teacher_data['user'] = user.id
 
-        serializer = self.get_serializer(data=teacher_data)
-        serializer.is_valid(raise_exception=True)
-        Teacher = serializer.save()
+        try:
+            serializer = self.get_serializer(data=teacher_data)
+            serializer.is_valid(raise_exception=True)
+            teacher = serializer.save()
+        except Exception as e:
+            # Delete the newly created user if creating the teacher fails
+            user.delete()
+
+            error_messages = {}
+            for field, errors in e.detail.items():
+                error_messages[field] = str(errors[0])
+
+            return Response(error_messages, status=status.HTTP_400_BAD_REQUEST)
+
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
