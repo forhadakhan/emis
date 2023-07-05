@@ -1,6 +1,39 @@
+/**
+ * Calling From: Activity.jsx
+ * Calling To: AddForm-Student.jsx; 
+ */
+
 import React from 'react';
+import AddForm from './AddForm-Student';
+import API_BASE_URL from '../../utils/config';
+
 
 const AddStudent = ({ setActiveComponent }) => {
+    const url = `${API_BASE_URL}/student/`;
+    const formFields = {
+        user: {
+            username: '',
+            password: '',
+            email: '',
+            first_name: '',
+            middle_name: '',
+            last_name: '',
+        },
+        gender: '',
+        nid: '',
+        phone: '',
+        birth_date: '',
+        father_name: '',
+        mother_name: '',
+        guardian_name: '',
+        guardian_relationship: '',
+        guardian_phone: '',
+        guardian_email: '',
+        permanent_address: '',
+        present_address: '',
+        photo_id: '',
+    }
+
     return (
         <div>
             <a className="icon-link icon-link-hover" href="#" onClick={() => setActiveComponent('main')}>
@@ -13,6 +46,8 @@ const AddStudent = ({ setActiveComponent }) => {
                 </div>
                 Add Student
             </h3>
+
+            <AddForm formFields={formFields} url={url} />
 
         </div>
     );
