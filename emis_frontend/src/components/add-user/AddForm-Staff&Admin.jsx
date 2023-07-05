@@ -156,7 +156,12 @@ const AddForm = ({ formFields, url }) => {
         const formDataToSend = new FormData();
         for (const key in formData) {
             if (key === 'user') {
-                formDataToSend.append(key, JSON.stringify(formData[key]));
+                const userObj = formData[key];
+                userObj.email = userObj.email.toLowerCase();
+                userObj.username = userObj.username.toLowerCase();
+                formDataToSend.append(key, JSON.stringify(userObj));
+            } else if (key === 'email' || key === 'username') {
+                formDataToSend.append(key, formData[key].toLowerCase());
             } else {
                 formDataToSend.append(key, formData[key]);
             }
@@ -184,7 +189,19 @@ const AddForm = ({ formFields, url }) => {
             .catch((error) => {
                 console.error(error);
                 setIsLoading(false);
-                setAlertMessage('Failed to submit data. Please try again.');
+                if (error.response && error.response.data) {
+                    const errorMessages = Object.values(error.response.data)
+                      .flatMap((errorArray) => errorArray)
+                      .join('\n');
+                  
+                    if (errorMessages) {
+                      setAlertMessage(`Failed to submit data.\n${errorMessages}`);
+                    } else {
+                      setAlertMessage('Failed to submit data. Please try again.');
+                    }
+                  } else {
+                    setAlertMessage('Failed to submit data. Please try again.');
+                  }                  
             });
     };
 
@@ -309,7 +326,7 @@ const AddForm = ({ formFields, url }) => {
                                     You inputed invalid data, please check again.
                                 </div>
                             )}
-                            <button type="submit" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleReview} disabled={reviewDisable()}><i className="bi bi-bullseye"></i> Review</button>
+                            <button type="button" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleReview} disabled={reviewDisable()}><i className="bi bi-bullseye"></i> Review</button>
                             <button type="reset" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleReset}><i className="bi bi-x-circle-fill"></i> Reset</button>
                         </div>
                     </form>
@@ -397,9 +414,9 @@ const AddForm = ({ formFields, url }) => {
                                 </button>
                                 <button type="submit" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleSubmit}>
                                     {isLoading ? (
-                                        <div class="d-flex justify-content-center">
-                                            <div class="spinner-border" role="status">
-                                                <span class="visually-hidden">Loading...</span>
+                                        <div className="d-flex justify-content-center">
+                                            <div className="spinner-border" role="status">
+                                                <span className="visually-hidden">Loading...</span>
                                             </div>
                                         </div>) : (<div><i className="bi bi-person-bounding-box"></i> Save</div>)}
                                 </button>
