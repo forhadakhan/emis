@@ -100,24 +100,10 @@ const CalendarComponent = ({ componentController }) => {
     };
 
 
-
-
     return (
         <div className="container p-3">
             <div className="text-darkblue p-2">
-                <h4 className="text-center shadow fs-5 bg-darkblue text-beige mx-2 my-4 p-2 border border-beige rounded-3">
-                    <a href="#" onClick={handleAcademicCalendar} className="text-decoration-none text-beige">
-                        Academic Calendar &nbsp;
-                        <i className="bi bi-box-arrow-up-right"></i>
-                    </a>
-                </h4>
-
-
-                {/* <h3 className="pb-2 border-bottom text-darkblue p-3"><a href="#" onClick={handleAcademicCalendar} className="text-decoration-none text-darkblue">
-                    Academic Calendar &nbsp;
-                    <i className="bi bi-box-arrow-up-right"></i>
-                </a></h3> */}
-
+                
                 <div className="p-2">
                     <div className="row">
                         <div className="col-12 col-md-4 d-flex justify-content-center justify-content-md-start">
@@ -153,12 +139,17 @@ const CalendarComponent = ({ componentController }) => {
                                     <div id="day-number" className="cal-days">
                                         {generateCalendarDays()}
                                     </div>
+                                    <div className="d-grid">
+                                        <a href="#" onClick={handleAcademicCalendar} className="text-decoration-none btn btn-sm btn-darkblue">
+                                            Academic Calendar &nbsp;
+                                            <i className="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <hr className="d-block d-md-none m-3 border-0" />
-
 
                         <div className="col-md-8">
                             <div id="day" className="bg-light p-3 mx-0 overflow-auto shadow border border-beige rounded-3 h-100">
