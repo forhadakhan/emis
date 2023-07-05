@@ -1,7 +1,36 @@
+/**
+ * Calling From: Activity.jsx
+ * Calling To: AddForm-Teacher.jsx; 
+ */
+
 import React from 'react';
+import AddForm from './AddForm-Teacher';
+import API_BASE_URL from '../../utils/config';
 
 
 const AddTeacher = ({ setActiveComponent }) => {
+    const url = `${API_BASE_URL}/teacher/`;
+    const formFields = {
+        user: {
+            username: '',
+            password: '',
+            email: '',
+            first_name: '',
+            middle_name: '',
+            last_name: '',
+        },
+        acronym: '',
+        gender: '',
+        nid: '',
+        phone: '',
+        birth_date: '',
+        father_name: '',
+        mother_name: '',
+        permanent_address: '',
+        present_address: '',
+        photo_id: '',
+    }
+
     return (
         <div>
             <a className="icon-link icon-link-hover" href="#" onClick={() => setActiveComponent('main')}>
@@ -15,9 +44,12 @@ const AddTeacher = ({ setActiveComponent }) => {
                 Add Teacher
             </h3>
 
+            <AddForm formFields={formFields} url={url} />
+
         </div>
     );
 };
+
 
 export default AddTeacher;
 
