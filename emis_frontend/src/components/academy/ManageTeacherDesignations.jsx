@@ -42,7 +42,7 @@ const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
                 </nav>
 
             </div>
-            <h2 className="mt-2 px-2">Manage Teacher Designations</h2>
+            <h2 className="text-center m-5 px-2">Manage Teacher Designations</h2>
 
             <nav className="nav nav-pills flex-column flex-sm-row my-4">
                 <button
@@ -73,6 +73,7 @@ export const DesignationList = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [selectedDesignation, setSelectedDesignation] = useState('');
     const accessToken = getAccessToken();
@@ -108,6 +109,11 @@ export const DesignationList = () => {
     const handleEditModal = (designation) => {
         setSelectedDesignation(designation);
         setShowEditModal(true);
+    };
+
+    const handleDeleteModal = (designation) => {
+        setSelectedDesignation(designation);
+        setShowDeleteModal(true);
     };
 
     const columns = [
@@ -193,9 +199,19 @@ export const DesignationList = () => {
                     setRefresh={setRefresh}
                 />}
 
+            {showDeleteModal &&
+                <DeleteDesignationModal
+                    show={showDeleteModal}
+                    handleClose={() => setShowDeleteModal(false)}
+                    designation={selectedDesignation}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                />}
+
         </div>
     );
 };
+
 
 
 const EditDesignationModal = ({ show, handleClose, designation, refresh, setRefresh }) => {
@@ -264,6 +280,72 @@ const EditDesignationModal = ({ show, handleClose, designation, refresh, setRefr
                                 <button type="submit" className="btn btn-primary fw-medium">Update</button>
                             </form>
                             {updateMessage && <div className='p-3'>{updateMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
+
+
+
+const DeleteDesignationModal = ({ show, handleClose, designation, refresh, setRefresh }) => {
+    const [deleteMessage, setDeleteMessage] = useState('');
+    const [deleted, setDeleted] = useState(false);
+    const accessToken = getAccessToken();
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.delete(
+                `${API_BASE_URL}/academy/designations/${designation.id}/`,
+                config
+            );
+
+            setDeleted(true);
+            setRefresh(!refresh); // reload the updated data in DesignationList 
+        } catch (error) {
+            setDeleteMessage('Deletion failed, an error occurred.');
+            console.error(error);
+        }
+    };
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content border border-beige">
+                        <div className="modal-header bg-danger text-beige">
+                            <h5 className="modal-title fs-4"><i className="bi bi-trash"></i> <span className='text-light'>Delete Designation</span> </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body text-center bg-light">
+                            <form onSubmit={handleDelete}>
+                                <div className="m-3 fw-bold">
+                                    {deleted ?
+                                        `Deleted '${designation.name}' Successfully` :
+                                        `Are you sure to delete '${designation.name}'?`
+                                    }
+                                </div>
+                                {!deleted && 
+                                <div className="btn-group">
+                                    <button type="submit" className="btn btn-danger fw-medium m-1">Delete</button>
+                                    <button type="button" className="btn btn-dark fw-medium m-1" onClick={handleClose} data-dismiss="modal" aria-label="Close">Cancel</button>
+                                </div>}
+                            </form>
+                            {deleteMessage && <div className='p-3'>{deleteMessage}</div>}
                         </div>
                     </div>
                 </div>
