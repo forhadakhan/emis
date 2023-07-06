@@ -156,29 +156,14 @@ class UserPartialUpdateView(UpdateModelMixin, GenericAPIView):
 
     def patch(self, request, *args, **kwargs):
         try:
-            # Create a mutable copy of the QueryDict
-            data = request.data.copy()
-
-            # Set email_verified to False if email is being updated
-            if 'email' in data:
-                data['email_verified'] = False
-
-            # Create a mutable QueryDict from the modified data
-            mutable_request_data = QueryDict('', mutable=True)
-            mutable_request_data.update(data)
-
-            # Update the request data with the mutable QueryDict
-            request._request.POST = mutable_request_data
-
             partial_update_response = self.partial_update(request, *args, **kwargs)
 
             # Send verification email if email was updated
-            if 'email' in data:
+            if 'email' in request.data:
                 user = self.get_object()  # Get the updated user object
                 email_verification_view = EmailVerificationDirectView()
                 email_verification_response = email_verification_view.send(user)
-                # You can check the response and handle it accordingly if needed
-
+                
             return partial_update_response
 
         except Exception as e:
