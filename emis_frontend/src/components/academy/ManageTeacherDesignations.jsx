@@ -4,9 +4,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
+import API_BASE_URL from '../../utils/config.js';
+import { getAccessToken } from '../../utils/auth';
 
 
 const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
+    const [showComponent, setShowComponent] = useState('DesignationList');
 
 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -15,6 +20,14 @@ const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
         </button>
     );
 
+    const renderComponent = () => {
+        switch (showComponent) {
+            case 'DesignationList':
+                return <DesignationList />
+            default:
+                return <DesignationList />
+        }
+    }
 
     return (
         <>
@@ -46,10 +59,124 @@ const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
             </nav>
 
             <div className="">
+                {renderComponent()}
             </div>
         </>
     );
 }
+
+
+
+export const DesignationList = () => {
+    const [designations, setDesignations] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const accessToken = getAccessToken();
+
+    useEffect(() => {
+        const fetchDesignations = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                const response = await axios.get(`${API_BASE_URL}/academy/designations/`, config);
+                setDesignations(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchDesignations();
+    }, []);
+
+    useEffect(() => {
+        setFilteredData(designations.filter(designation => designation.name.toLowerCase().includes(searchKeyword.toLowerCase())));
+    }, [designations, searchKeyword]);
+
+    const handleSearch = (e) => {
+        setSearchKeyword(e.target.value);
+    };
+
+    const columns = [
+        {
+            name: 'Name',
+            selector: 'name',
+            sortable: true,
+        },
+        {
+            name: 'Action',
+            cell: (row) => (<>
+                <div className="mx-auto">
+                    <button
+                        type="button"
+                        className="btn border-0 btn-outline-primary p-1 mx-1"
+                        onClick={() => handleEditModal(row)}>
+                        <i className="bi bi-pen"></i> 
+                    </button>
+                    <button
+                        type="button"
+                        className="btn border-0 btn-outline-danger p-1 mx-1"
+                        onClick={() => handleDeleteModal(row)}>
+                        <i className="bi bi-trash"></i> 
+                    </button>
+                </div>
+            </>),
+            button: true
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px',
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '16px',
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '16px',
+                paddingRight: '8px',
+                fontWeight: 'bold',
+            },
+        },
+    };
+
+    return (
+        <div>
+            <div className="m-5">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <div className="rounded-top-4">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    pagination
+                    customStyles={customStyles}
+                />
+            </div>
+        </div>
+    );
+};
 
 
 
