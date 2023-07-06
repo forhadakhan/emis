@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../utils/config.js';
-import { getAccessToken } from '../../utils/auth';
+import { getAccessToken, hasPermission, getUserRole } from '../../utils/auth';
 import { formatDateTime } from '../../utils/utils';
 
 
@@ -16,8 +16,9 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
     const [isDelete, setIsDelete] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [reply, setReply] = useState('');
-    const [replyMessage, setReplyMessage] = useState('');
+    const [serverResponse, setServerResponse] = useState('');
     const accessToken = getAccessToken();
+    const loggedUserRole = getUserRole();
 
 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -95,7 +96,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
         setIsLoading(true);
         axios.post(url, data, config)
             .then(response => {
-                setReplyMessage(response.data.message);
+                setServerResponse(response.data.message);
                 setReply('');
                 setIsRead(true);
                 setIsAnswered(true);
@@ -103,7 +104,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                 setIsLoading(false);
             })
             .catch(error => {
-                setReplyMessage(error.response.data.message);
+                setServerResponse(error.response.data.message);
                 console.error('Failed to send email:', error);
                 setIsLoading(false);
             });
@@ -141,30 +142,32 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
 
                 <div className="d-flex justify-content-center my-4">
 
-                    {!isRead ? (
-                        <button className="btn btn-darkblue pt-1 mx-1" onClick={handleMarkAsRead}>
-                            <i className="bi bi-envelope-open"></i> Mark as Read
-                        </button>
-                    ) : (
-                        <button className="btn btn-beige pt-1 mx-1" onClick={handleMarkAsUnread}>
-                            <i className="bi bi-envelope-fill"></i> Mark as Unread
-                        </button>
-                    )}
+                    {(loggedUserRole === 'administrator' || hasPermission('change_contactmessage')) && <>
+                        {!isRead ? (
+                            <button className="btn btn-darkblue pt-1 mx-1" onClick={handleMarkAsRead}>
+                                <i className="bi bi-envelope-open"></i> Mark as Read
+                            </button>
+                        ) : (
+                            <button className="btn btn-beige pt-1 mx-1" onClick={handleMarkAsUnread}>
+                                <i className="bi bi-envelope-fill"></i> Mark as Unread
+                            </button>
+                        )}
 
-                    {!isAnswered ? (
-                        <button className="btn btn-darkblue pt-1 mx-1" disabled >
-                            <i className="bi bi-app"></i> Not Answered
+                        {!isAnswered ? (
+                            <button className="btn btn-darkblue pt-1 mx-1" disabled >
+                                <i className="bi bi-app"></i> Not Answered
+                            </button>
+                        ) : (
+                            <button className="btn btn-darkblue pt-1 mx-1" disabled >
+                                <i className="bi bi-check-square"></i> Answered
+                            </button>
+                        )}
+                    </>}
+                    {(loggedUserRole === 'administrator' || hasPermission('delete_contactmessage')) && <>
+                        <button className="btn btn-danger pt-1 mx-1" onClick={() => setIsDelete(!isDelete)} >
+                            <i className="bi bi-trash3"></i> Delete
                         </button>
-                    ) : (
-                        <button className="btn btn-darkblue pt-1 mx-1" disabled >
-                            <i className="bi bi-check-square"></i> Answered
-                        </button>
-                    )}
-
-                    <button className="btn btn-danger pt-1 mx-1" onClick={() => setIsDelete(!isDelete)} >
-                        <i className="bi bi-trash3"></i> Delete
-                    </button>
-
+                    </>}
                 </div>
 
                 {isDelete &&
@@ -210,29 +213,31 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                     </div>
                 </form>
 
-                <h6 className='my-2 px-3'>Reply</h6>
-                <textarea
-                    rows={7}
-                    cols={50}
-                    value={reply}
-                    required
-                    onChange={handleReplyChange}
-                    placeholder="Enter your reply here"
-                    className='d-block w-100 my-2 rounded-3 p-3 border border-beige'
-                ></textarea>
-                {replyMessage && (
-                    <div className="alert alert-info alert-dismissible fade show border border-darkblue" role="alert">
-                        <i className="bi bi-check-square-fill"> </i> <strong> {replyMessage} </strong>
-                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setReplyMessage(false)} ></button>
-                    </div>
-                )}
-                <button className="btn btn-darkblue d-block w-100 my-3" onClick={handleSendReply} disabled={reply.length < 2}>
-                    {isLoading ? <>
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        <span class="visually-hidden">Loading...</span>
-                    </> :
-                        'Send Reply'}
-                </button>
+                {(loggedUserRole === 'administrator' || hasPermission('change_contactmessage')) && <>
+                    <h6 className='my-2 px-3'>Reply</h6>
+                    <textarea
+                        rows={7}
+                        cols={50}
+                        value={reply}
+                        required
+                        onChange={handleReplyChange}
+                        placeholder="Enter your reply here"
+                        className='d-block w-100 my-2 rounded-3 p-3 border border-beige'
+                    ></textarea>
+                    {serverResponse && (
+                        <div className="alert alert-info alert-dismissible fade show border border-darkblue" role="alert">
+                            <i className="bi bi-check-square-fill"> </i> <strong> {serverResponse} </strong>
+                            <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setServerResponse(false)} ></button>
+                        </div>
+                    )}
+                    <button className="btn btn-darkblue d-block w-100 my-3" onClick={handleSendReply} disabled={reply.length < 2}>
+                        {isLoading ? <>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="visually-hidden">Loading...</span>
+                        </> :
+                            'Send Reply'}
+                    </button>
+                </>}
             </div>
         </div>
     );
