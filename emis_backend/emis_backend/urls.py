@@ -1,6 +1,8 @@
+# Main urls
 
 from django.contrib import admin
 from django.urls import path, include
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,5 +16,6 @@ urlpatterns = [
     path('api/email/', include('email_handler.urls', namespace='email_handler')),
     path('api/', include('miscellaneous.urls', namespace='miscellaneous')),
     path('api/core/', include('core.urls', namespace='core')),
+    path('api/academy/', include('academy.urls', namespace='academy')),
 ]
 
