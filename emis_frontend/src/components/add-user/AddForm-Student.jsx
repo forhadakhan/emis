@@ -209,14 +209,23 @@ const AddForm = ({ formFields, url }) => {
                 // console.error(error);
                 setIsLoading(false);
                 if (error.response && error.response.data) {
-                    const errorMessages = Object.values(error.response.data)
-                        .flatMap((errorArray) => errorArray)
-                        .join('\n');
-
+                    const errorMessages = Object.entries(error.response.data)
+                      .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                          return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                          const errorMessage = Object.values(errorArray).join(' ');
+                          return [`[${key}] ${errorMessage}`];
+                        } else {
+                          return [`[${key}] ${errorArray}`];
+                        }
+                      })
+                      .join('\n');
+                  
                     if (errorMessages) {
-                        setAlertMessage(`Failed to submit data, \n${errorMessages}`);
+                      setAlertMessage(`Failed to submit data,\n${errorMessages}`);
                     } else {
-                        setAlertMessage('Failed to submit data. Please try again.');
+                      setAlertMessage('Failed to submit data. Please try again.');
                     }
                 } else {
                     setAlertMessage('Failed to submit data. Please try again.');
