@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
-import  {formatDateTime} from '../../utils/utils';
+import { formatDateTime } from '../../utils/utils';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth';
 
@@ -78,35 +78,28 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
                 row.message.length > 18 ? `${row.message.slice(0, 18)}...` : row.message,
         },
         {
-            name: 'Received at',            
+            name: 'Received at',
             selector: 'received_at',
             sortable: true,
             cell: (row) => (formatDateTime(row.received_at)),
         },
         {
-            name: 'Read/Unread',            
-            selector: 'is_read',
-            sortable: true,
-            cell: (row) => (row.is_read ? <i className="bi bi-envelope-open"> Read </i> : <i className="bi bi-envelope-fill"> Unread </i>),
-        },
-        {
-            name: 'Answer/Not Answered',
-            selector: 'is_answered',
-            sortable: true,
-            cell: (row) => (row.is_answered ? <i className="bi bi-check-square"> Answered </i> : <i className="bi bi-app"> Not Answered </i>),
-        },
-        {
             name: 'View',
-            cell: (row) => (
-                <button
-                    type="button"
-                    className="btn btn-beige text-darkblue p-0 px-1"
-                    onClick={() => handleViewMessage(row)}
-                >
-                    <i className="bi bi-chat-right-quote"></i> Details
-                </button>
-            ),
-            button: true,
+            selector: 'is_read',
+            cell: (row) => (<>
+                <div className="mx-auto">
+                    {(row.is_read ? <i className="bi bi-envelope-open mx-1"></i> : <i className="bi bi-envelope-fill mx-1"></i>)}
+                    {(row.is_answered ? <i className="bi bi-check-square mx-1"></i> : <i className="bi bi-app mx-1"></i>)}
+                    <button
+                        type="button"
+                        className="btn btn-beige text-darkblue p-0 px-1 mx-1"
+                        onClick={() => handleViewMessage(row)}
+                    >
+                        <i className="bi bi-chat-right-quote"></i> Details
+                    </button>
+                </div>
+            </>),
+            // button: true,
         },
     ];
 
@@ -148,12 +141,18 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
 
             <h1 className='my-4'>Public Messages</h1>
 
-            {error && (
-                <div className="alert alert-warning alert-dismissible fade show border border-darkblue" role="alert">
-                    <i className="bi bi-exclamation-octagon-fill"> </i> <strong> {error} </strong>
-                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            )}
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
+                    <option value="" selected>No Filter</option>
+                    <option value="read">Read</option>
+                    <option value="unread">Unread</option>
+                    <option value="answered">Answered</option>
+                    <option value="not answered">Not Answered</option>
+                </select>
+            </div>
 
             <div className="m-5">
                 <input
@@ -172,6 +171,14 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
                     customStyles={customStyles}
                 />
             </div>
+
+            {error && (
+                <div className="alert alert-warning alert-dismissible fade show border border-darkblue" role="alert">
+                    <i className="bi bi-exclamation-octagon-fill"> </i> <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            )}
+
         </div>
     );
 };
