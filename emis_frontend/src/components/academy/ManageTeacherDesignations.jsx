@@ -24,6 +24,8 @@ const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
         switch (showComponent) {
             case 'DesignationList':
                 return <DesignationList />
+            case 'AddDesignation':
+                return <AddDesignation />
             default:
                 return <DesignationList />
         }
@@ -176,6 +178,68 @@ export const DesignationList = () => {
             </div>
         </div>
     );
+};
+
+
+
+const AddDesignation = () => {
+    const [name, setName] = useState('');
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('');
+    const accessToken = getAccessToken();
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+  
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        };
+  
+        const newDesignation = { name };
+        const response = await axios.post(`${API_BASE_URL}/academy/designations/`, newDesignation, config);
+        setAlertMessage('Designation added successfully');
+        setAlertType('success');
+          
+        // Clear the form
+        setName('');
+      } catch (error) {
+        setAlertMessage('Failed to add designation');
+        setAlertType('danger');
+        console.error(error);
+      }
+    };
+
+  return (
+    <div className="container">
+        
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+          <label htmlFor="name" className="form-label">Name</label>
+          <input
+            type="text"
+            className="form-control"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto" disabled={name.length < 2}>Add Designation</button>
+      </form>
+
+      {alertMessage && (
+        <div className={`alert alert-${alertType} alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+            <i className={`bi ${alertType==='success' ? 'bi-check-circle-fill' : 'bi-x-circle'} mx-2`}></i>
+            <strong>{alertMessage}</strong>
+            <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
+        </div>
+      )}
+
+    </div>
+  );
 };
 
 
