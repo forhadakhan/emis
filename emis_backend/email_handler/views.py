@@ -52,7 +52,7 @@ class EmailVerificationView(APIView):
 
 class EmailVerificationDirectView(APIView):
     def send(self, user):
-        if user.is_authenticated and not user.email_verified:
+        try:
             subject = 'EMIS: Verify your email'
             uid = quote(urlsafe_base64_encode(force_bytes(user.pk)))  # URL encode the uid
             token = default_token_generator.make_token(user)
@@ -68,9 +68,9 @@ class EmailVerificationDirectView(APIView):
             msg = EmailMessage(subject, html_message, from_email, recipients)
             msg.content_subtype = 'html'  # Set the content subtype to 'html'
             msg.send()
-            return Response({'message': 'Email verification sent'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'message': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Verification email sent'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': 'Failed sending verification email'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
