@@ -137,7 +137,8 @@ class LogoutView(GenericAPIView, CreateModelMixin):
             except Exception as e:
                 return Response({'message': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'message': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'message': 'Refresh token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
 
 
 class UserDeleteView(DestroyModelMixin, GenericAPIView):
