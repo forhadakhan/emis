@@ -11,5 +11,5 @@ from .views import (
 
 urlpatterns = [
     path('designations/', DesignationAPIView.as_view(), name='designations'),
-    path('designations/<int:pk>/', DesignationAPIView.as_view(), name='designation-detail'),
+    path('designations/<int:pk>/', DesignationAPIView.as_view(), name='designation-pk'),
 ]
