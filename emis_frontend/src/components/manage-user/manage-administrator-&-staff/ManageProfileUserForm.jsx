@@ -12,6 +12,8 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
     const [isReadonly, setIsReadonly] = useState(true);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const loggedUser = getUserId();
+
     function convertDate(dateString) {
         if (dateString) {
             const date = new Date(dateString);
@@ -58,7 +60,7 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
                 formDataToSend.append(key, value);
             }
         });
-        // console.log([...formDataToSend]);
+        formDataToSend.append('updated_by', loggedUser);
 
         axios.patch(`${API_BASE_URL}/user/update-partial/${data.id}/`, formDataToSend, {
             headers: {
