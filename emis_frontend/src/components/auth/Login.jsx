@@ -33,7 +33,7 @@ const LoginComponent = ({ onLoginSuccess, username, setUsername, setActiveAuthCo
                 onLoginSuccess();
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             // Handle login error
             if (error.code === "ERR_NETWORK") {
                 setError("Network Error. It's our fault!");
