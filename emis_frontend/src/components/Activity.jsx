@@ -13,6 +13,7 @@ import ManageStudent from './manage-user/manage-student/ManageStudent';
 import ManageStudentProfile from './manage-user/manage-student/ManageStudentProfile';
 import UserPermissions from './permissions/UserPermissions.jsx';
 import PublicMessages from './public-messages/PublicMessages.jsx';
+import ManageTeacherDesignations from './academy/ManageTeacherDesignations.jsx';
 
 
 const ActivityComponent = () => {
@@ -55,6 +56,8 @@ const ActivityComponent = () => {
                 return <UserPermissions setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'PublicMessages':
                 return <PublicMessages setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'ManageTeacherDesignations':
+                return <ManageTeacherDesignations setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -104,6 +107,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_student', label: 'Manage Student', render: 'ManageStudent', icon: 'bi-person-gear' },
         { id: 'view_contactmessage', label: 'Public Messages', render: 'PublicMessages', icon: 'bi-chat-right-quote-fill' },
         { id: 'view_permissions', label: 'User Permissions', render: 'UserPermissions', icon: 'bi-shield-shaded' },
+        { id: 'view_designation', label: 'Manage Teacher Designations', render: 'ManageTeacherDesignations', icon: 'bi-person-fill-up' },
     ];
 
     let allowedElements = [];
