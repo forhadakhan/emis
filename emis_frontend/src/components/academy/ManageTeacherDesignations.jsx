@@ -13,7 +13,6 @@ import { getAccessToken } from '../../utils/auth';
 const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
     const [showComponent, setShowComponent] = useState('DesignationList');
 
-
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageTeacherDesignations')}>
             <i className="bi bi-person-fill-up"></i> Manage Teacher Designations
@@ -46,17 +45,17 @@ const ManageTeacherDesignations = ({ setActiveComponent, breadcrumb }) => {
             <h2 className="mt-2 px-2">Manage Teacher Designations</h2>
 
             <nav className="nav nav-pills flex-column flex-sm-row my-4">
-                <button 
-                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`} 
-                    disabled={showComponent==='DesignationList'}
+                <button
+                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`}
+                    disabled={showComponent === 'DesignationList'}
                     onClick={() => setShowComponent('DesignationList')}>
-                        List All Designations
+                    List All Designations
                 </button>
-                <button 
-                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`} 
-                    disabled={showComponent==='AddDesignation'}
+                <button
+                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`}
+                    disabled={showComponent === 'AddDesignation'}
                     onClick={() => setShowComponent('AddDesignation')}>
-                        Add New Designation
+                    Add New Designation
                 </button>
             </nav>
 
@@ -73,6 +72,9 @@ export const DesignationList = () => {
     const [designations, setDesignations] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState('');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [refresh, setRefresh] = useState(false);
+    const [selectedDesignation, setSelectedDesignation] = useState('');
     const accessToken = getAccessToken();
 
     useEffect(() => {
@@ -93,7 +95,7 @@ export const DesignationList = () => {
         };
 
         fetchDesignations();
-    }, []);
+    }, [refresh]);
 
     useEffect(() => {
         setFilteredData(designations.filter(designation => designation.name.toLowerCase().includes(searchKeyword.toLowerCase())));
@@ -101,6 +103,11 @@ export const DesignationList = () => {
 
     const handleSearch = (e) => {
         setSearchKeyword(e.target.value);
+    };
+
+    const handleEditModal = (designation) => {
+        setSelectedDesignation(designation);
+        setShowEditModal(true);
     };
 
     const columns = [
@@ -117,13 +124,13 @@ export const DesignationList = () => {
                         type="button"
                         className="btn border-0 btn-outline-primary p-1 mx-1"
                         onClick={() => handleEditModal(row)}>
-                        <i className="bi bi-pen"></i> 
+                        <i className="bi bi-pen"></i>
                     </button>
                     <button
                         type="button"
                         className="btn border-0 btn-outline-danger p-1 mx-1"
                         onClick={() => handleDeleteModal(row)}>
-                        <i className="bi bi-trash"></i> 
+                        <i className="bi bi-trash"></i>
                     </button>
                 </div>
             </>),
@@ -176,8 +183,93 @@ export const DesignationList = () => {
                     customStyles={customStyles}
                 />
             </div>
+
+            {showEditModal &&
+                <EditDesignationModal
+                    show={showEditModal}
+                    handleClose={() => setShowEditModal(false)}
+                    designation={selectedDesignation}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                />}
+
         </div>
     );
+};
+
+
+const EditDesignationModal = ({ show, handleClose, designation, refresh, setRefresh }) => {
+    const [updatedDesignation, setUpdatedDesignation] = useState(designation);
+    const [updateMessage, setUpdateMessage] = useState('');
+    const accessToken = getAccessToken();
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedDesignation((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.patch(
+                `${API_BASE_URL}/academy/designations/${updatedDesignation.id}/`,
+                updatedDesignation,
+                config
+            );
+
+            setUpdateMessage('Updated Successfully');
+            setRefresh(!refresh); // reload the updated data in DesignationList 
+        } catch (error) {
+            setUpdateMessage('Update failed, an error occurred.');
+            console.error(error);
+        }
+    };
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content border border-beige">
+                        <div className="modal-header bg-darkblue text-beige">
+                            <h5 className="modal-title fs-4"><i className="bi bi-pen"></i> Edit Designation </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body text-center">
+                            <form onSubmit={handleUpdate}>
+                                <div className="mb-3">
+                                    {/* <label htmlFor="name" className="form-label">Name</label> */}
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="name"
+                                        name="name"
+                                        value={updatedDesignation.name}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <button type="submit" className="btn btn-primary fw-medium">Update</button>
+                            </form>
+                            {updateMessage && <div className='p-3'>{updateMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
 };
 
 
@@ -187,59 +279,59 @@ const AddDesignation = () => {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertType, setAlertType] = useState('');
     const accessToken = getAccessToken();
-  
+
     const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        };
-  
-        const newDesignation = { name };
-        const response = await axios.post(`${API_BASE_URL}/academy/designations/`, newDesignation, config);
-        setAlertMessage('Designation added successfully');
-        setAlertType('success');
-          
-        // Clear the form
-        setName('');
-      } catch (error) {
-        setAlertMessage('Failed to add designation');
-        setAlertType('danger');
-        console.error(error);
-      }
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const newDesignation = { name };
+            const response = await axios.post(`${API_BASE_URL}/academy/designations/`, newDesignation, config);
+            setAlertMessage('Designation added successfully');
+            setAlertType('success');
+
+            // Clear the form
+            setName('');
+        } catch (error) {
+            setAlertMessage('Failed to add designation');
+            setAlertType('danger');
+            console.error(error);
+        }
     };
 
-  return (
-    <div className="container">
-        
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3 col-sm-12 col-md-6 mx-auto">
-          <label htmlFor="name" className="form-label">Name</label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto" disabled={name.length < 2}>Add Designation</button>
-      </form>
+    return (
+        <div className="container">
 
-      {alertMessage && (
-        <div className={`alert alert-${alertType} alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
-            <i className={`bi ${alertType==='success' ? 'bi-check-circle-fill' : 'bi-x-circle'} mx-2`}></i>
-            <strong>{alertMessage}</strong>
-            <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
-        </div>
-      )}
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="name" className="form-label">Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                </div>
+                <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto" disabled={name.length < 2}>Add Designation</button>
+            </form>
 
-    </div>
-  );
+            {alertMessage && (
+                <div className={`alert alert-${alertType} alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className={`bi ${alertType === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle'} mx-2`}></i>
+                    <strong>{alertMessage}</strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
+                </div>
+            )}
+
+        </div>
+    );
 };
 
 
