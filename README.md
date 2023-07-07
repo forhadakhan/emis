@@ -1,5 +1,4 @@
 <!-- PROJECT LOGO -->
-<br />
 <p align="center">
   <a href="https://github.com/forhadakhan/emis">
     <img src="https://i.postimg.cc/7ZdXzGj1/emis-256x256.png" alt="Logo" width="80" height="80">
@@ -11,7 +10,7 @@
     <samp>(Education Management Information System)</samp>
     <br />
     <br />
-    <button><a href="#"><strong>Visit Live Site</strong></a></button>
+    <a href="#"><strong>Visit Live Site</strong></a>
     <br />
     <br />
     <a href="https://github.com/forhadakhan/emis/discussions/1">Discussions</a>
@@ -28,9 +27,34 @@
 
 The 'Education Management Information System' revolutionizes educational institute management using cutting-edge web technologies such as Django, React.js, PostgreSQL, and Gmail SMTP. It offers multi-role user authentication and authorization for administrators, staff, teachers, and students. The system provides customizable permissions for users, allowing administrators to assign individual or group access levels. Key features include comprehensive information management for staff, teachers, and students, streamlined grading and assessments, robust reporting and analytics, efficient document delivery, seamless communication and collaboration, and regular updates for users.
 
+## Technologies
 
+#### Backend
+[![Python](https://img.shields.io/badge/Python-v3.11.3-blue)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-v4.2.2-brightgreen)](https://www.djangoproject.com/)
+[![Django Rest Framework](https://img.shields.io/badge/Django%20Rest%20Framework-v3.14.0-orange)](https://www.django-rest-framework.org/)
+[![DRF Simple JWT](https://img.shields.io/badge/DRF%20Simple%20JWT-v5.2.2-blue)](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-v15-blue)](https://www.postgresql.org/)
+[![Google Drive API](https://img.shields.io/badge/Google%20Drive%20API-blue)](https://developers.google.com/drive/api/)
+[![Gmail SMTP](https://img.shields.io/badge/Gmail%20SMTP-orange)](https://mail.google.com/)
+
+- Language: Python
+- Framework: Django (Django Rest Framework)
+- Database: PostgreSQL
+- Email: Gmail SMTP
+- File Storage: Google Cloud (Google Drive API)
+
+#### Frontend
+[![JavaScript](https://img.shields.io/badge/JavaScript-red)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![React JS](https://img.shields.io/badge/React%20JS-v18.2.0-navyblue)](https://reactjs.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-v5.3-blue)](https://getbootstrap.com/)
+[![Vite](https://img.shields.io/badge/Vite-v4.3.9-purple)](https://vitejs.dev/)
+
+- Language: JavaScript
+- Library: React JS
+- CSS Framework: Bootstrap
+- LDS: Vite
 
 ## License
 
 [MIT License](./LICENSE) © 2023 [Forhad Khan](https://github.com/forhadakhan/)
-
