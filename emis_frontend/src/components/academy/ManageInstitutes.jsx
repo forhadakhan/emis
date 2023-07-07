@@ -28,7 +28,7 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
             case 'AddInstitute':
                 return <AddInstitute />;
             case 'InstituteDetails':
-                return <InstituteDetails institute={selectedInstitute} />;
+                return <InstituteDetails institute={selectedInstitute} setShowComponent={setShowComponent} />;
             default:
                 return <InstituteList />;
         }
@@ -78,7 +78,6 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
     const [institutes, setInstitutes] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState('');
-    const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selected, setSelected] = useState('');
     const [refresh, setRefresh] = useState(false);
@@ -225,10 +224,11 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
 };
 
 
-const InstituteDetails = ({ institute }) => {
+const InstituteDetails = ({ institute, setShowComponent }) => {
     const [baseInstitute, setBaseInstitute] = useState(institute);
     const [updatedInstitute, setUpdatedInstitute] = useState(baseInstitute);
     const [updateMessage, setUpdateMessage] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isModify, setIsModify] = useState(true);
     const accessToken = getAccessToken();
 
@@ -244,6 +244,11 @@ const InstituteDetails = ({ institute }) => {
         setIsModify(!isModify);
         setUpdatedInstitute(baseInstitute);
         setUpdateMessage('');
+    }
+
+    const handleClose = () => {
+        setShowDeleteModal(false)
+        setShowComponent('InstituteList');
     }
 
     const handleUpdate = async (e) => {
@@ -295,9 +300,14 @@ const InstituteDetails = ({ institute }) => {
     return (
         <div className="m-2 m-md-5">
 
-            <button className="btn btn-darkblue rounded-circle p-3 mb-3 d-flex mx-auto lh-1" onClick={handleModify}>
+            <div className='d-flex justify-content-center'>
+            <button className="btn btn-darkblue rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleModify}>
                 <i className='bi bi-pen'></i>
             </button>
+            <button className="btn btn-danger rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setShowDeleteModal(true)}>
+                <i className='bi bi-trash'></i>
+            </button>
+            </div>
 
             <form onSubmit={handleUpdate} className=''>
                 <div className="mb-3">
@@ -380,6 +390,16 @@ const InstituteDetails = ({ institute }) => {
                         Update
                     </button>}
             </form>
+
+            {showDeleteModal &&
+                <DeleteInstituteModal
+                    show={showDeleteModal}
+                    handleClose={handleClose}
+                    institute={institute}
+                    refresh={false}
+                    setRefresh={() => {}}
+                />}
+
         </div>
     );
 };
@@ -414,6 +434,7 @@ const DeleteInstituteModal = ({ show, handleClose, institute, refresh, setRefres
             console.error(error);
         }
     };
+
 
     return (
         <div className="bg-blur">
