@@ -13,6 +13,7 @@ import { getAccessToken } from '../../utils/auth';
 
 const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
     const [showComponent, setShowComponent] = useState('InstituteList');
+    const [selectedInstitute, setSelectedInstitute] = useState('');
 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageInstitutes')}>
@@ -23,9 +24,11 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'InstituteList':
-                return <InstituteList />;
+                return <InstituteList setSelectedInstitute={setSelectedInstitute} setShowComponent={setShowComponent} />;
             case 'AddInstitute':
                 return <AddInstitute />;
+            case 'InstituteDetails':
+                return <InstituteDetails institute={selectedInstitute} />;
             default:
                 return <InstituteList />;
         }
@@ -71,13 +74,12 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
 
 
 
-const InstituteList = () => {
+const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
     const [institutes, setInstitutes] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selectedInstitute, setSelectedInstitute] = useState('');
     const [refresh, setRefresh] = useState(false);
     const accessToken = getAccessToken();
 
@@ -93,7 +95,7 @@ const InstituteList = () => {
 
                 const response = await axios.get(`${API_BASE_URL}/academy/institutes/`, config);
                 setInstitutes(response.data);
-                console.log(response.data);
+                // console.log(response.data);
             } catch (error) {
                 console.error(error);
             }
@@ -114,7 +116,7 @@ const InstituteList = () => {
 
     const handleEditModal = (institute) => {
         setSelectedInstitute(institute);
-        setShowEditModal(true);
+        setShowComponent('InstituteDetails');
     };
 
     const handleDeleteModal = (institute) => {
@@ -147,7 +149,8 @@ const InstituteList = () => {
                         className="btn border-0 btn-outline-primary p-1 mx-1"
                         onClick={() => handleEditModal(row)}
                     >
-                        <i className="bi bi-pen"></i>
+                        <i className="bi bi-eye"> | </i>   
+                        <i className="bi bi-vector-pen"> </i> 
                     </button>
                     <button
                         type="button"
@@ -207,6 +210,166 @@ const InstituteList = () => {
                     customStyles={customStyles}
                 />
             </div>
+        </div>
+    );
+};
+
+
+const InstituteDetails = ({ institute }) => {
+    const [baseInstitute, setBaseInstitute] = useState(institute);
+    const [updatedInstitute, setUpdatedInstitute] = useState(baseInstitute);
+    const [updateMessage, setUpdateMessage] = useState('');
+    const [isModify, setIsModify] = useState(true);
+    const accessToken = getAccessToken();
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedInstitute((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleModify = () => {
+        setIsModify(!isModify);
+        setUpdatedInstitute(baseInstitute);
+        setUpdateMessage('');
+    }
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.patch(
+                `${API_BASE_URL}/academy/institutes/${updatedInstitute.id}/`,
+                updatedInstitute,
+                config
+            );
+            setUpdateMessage('Updated Successfully');
+            setBaseInstitute(updatedInstitute);
+            setIsModify(!isModify);
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessages = Object.entries(error.response.data)
+                    .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                            return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                            const errorMessage = Object.values(errorArray).join(' ');
+                            return [`[${key}] ${errorMessage}`];
+                        } else {
+                            return [`[${key}] ${errorArray}`];
+                        }
+                    })
+                    .join('\n');
+
+                if (errorMessages) {
+                    setUpdateMessage(`Update failed,\n${errorMessages}`);
+                } else {
+                    setUpdateMessage('Update failed, an error occurred.');
+                }
+            } else {
+                setUpdateMessage('Update failed, an error occurred.');
+            }
+            // console.error(error);
+        }
+    };
+
+    return (
+        <div className="m-2 m-md-5">
+
+            <button className="btn btn-darkblue rounded-circle p-3 mb-3 d-flex mx-auto lh-1" onClick={handleModify}>
+                <i className='bi bi-pen'></i>
+            </button>
+
+            <form onSubmit={handleUpdate} className=''>
+                <div className="mb-3">
+                    <label htmlFor="name" className="form-label">
+                        Institute Name
+                    </label>
+                    <input
+                        type="text"
+                        className="form-control border border-darkblue"
+                        id="name"
+                        name="name"
+                        value={updatedInstitute.name}
+                        onChange={handleInputChange}
+                        disabled={isModify}
+                    />
+                </div>
+                <div className='row mb-3'>
+                    <div className="col-6">
+                        <label htmlFor="acronym" className="form-label">
+                            Acronym
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control border border-darkblue"
+                            id="acronym"
+                            name="acronym"
+                            value={updatedInstitute.acronym}
+                            onChange={handleInputChange}
+                            disabled={isModify}
+                        />
+                    </div>
+                    <div className="col-6">
+                        <label htmlFor="code" className="form-label">
+                            Code
+                        </label>
+                        <input
+                            type="number"
+                            className="form-control border border-darkblue"
+                            id="code"
+                            name="code"
+                            value={updatedInstitute.code}
+                            onChange={handleInputChange}
+                            disabled={isModify}
+                        />
+                    </div>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="about" className="form-label">
+                        About
+                    </label>
+                    <textarea
+                        className="form-control border border-darkblue"
+                        id="about"
+                        name="about"
+                        value={updatedInstitute.about}
+                        onChange={handleInputChange}
+                        disabled={isModify}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="history" className="form-label">
+                        History
+                    </label>
+                    <textarea
+                        className="form-control border border-darkblue"
+                        id="history"
+                        name="history"
+                        value={updatedInstitute.history}
+                        onChange={handleInputChange}
+                        disabled={isModify}
+                    />
+                </div>
+                {updateMessage && 
+                <div className="alert alert-info text-center fw-bold">
+                    {updateMessage} 
+                </div>}
+
+                {!isModify &&
+                    <button type="submit" className="btn btn-primary d-flex mx-auto fw-medium">
+                        Update
+                    </button>}
+            </form>
         </div>
     );
 };
