@@ -239,9 +239,9 @@ SIMPLE_JWT = {
 }
 
 
-
+FRONTEND_HOST_URL = os.getenv('FRONTEND_HOST_URL')
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:5173',  # React frontend's URL
+    FRONTEND_HOST_URL,  # React frontend's URL
 ]
 
 CORS_ALLOW_METHODS = [
