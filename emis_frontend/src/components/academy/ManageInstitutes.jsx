@@ -611,7 +611,6 @@ const AddInstitute = () => {
                         id="about"
                         value={about}
                         onChange={(e) => setAbout(e.target.value)}
-                        required
                     />
                 </div>
                 <div className="mb-3 col-sm-12 col-md-6 mx-auto">
@@ -622,7 +621,6 @@ const AddInstitute = () => {
                         id="history"
                         value={history}
                         onChange={(e) => setHistory(e.target.value)}
-                        required
                     />
                 </div>
                 <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto">Add Institute</button>
