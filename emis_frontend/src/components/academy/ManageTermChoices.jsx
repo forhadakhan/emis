@@ -12,7 +12,7 @@ const ManageTermChoices = ({ setActiveComponent, breadcrumb }) => {
 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageTermChoices')}>
-            <i className="bi bi-person-fill-up"></i> Manage Term Choices
+            <i className="bi-sign-intersection-fill"></i> Manage Term Choices
         </button>
     );
 
