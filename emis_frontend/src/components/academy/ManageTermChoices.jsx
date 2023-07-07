@@ -70,7 +70,9 @@ const ManageTermChoices = ({ setActiveComponent, breadcrumb }) => {
 const TermList = () => {
     const [terms, setTerms] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [selectedTerm, setSelectedTerm] = useState('');
+    const [refresh, setRefresh] = useState(false);
     const accessToken = getAccessToken();
 
     useEffect(() => {
@@ -91,7 +93,7 @@ const TermList = () => {
         };
 
         fetchTerms();
-    }, [accessToken]);
+    }, [accessToken, refresh]);
 
     useEffect(() => {
         setFilteredData(terms);
@@ -101,9 +103,9 @@ const TermList = () => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = terms.filter(
             (term) =>
-                term.name.toLowerCase().includes(keyword) || 
-                term.start.toLowerCase().includes(keyword) || 
-                term.end.toLowerCase().includes(keyword) 
+                term.name.toLowerCase().includes(keyword) ||
+                term.start.toLowerCase().includes(keyword) ||
+                term.end.toLowerCase().includes(keyword)
         );
         setFilteredData(filteredResults);
     };
@@ -156,7 +158,7 @@ const TermList = () => {
         },
     ];
 
-    
+
     const customStyles = {
         rows: {
             style: {
@@ -202,11 +204,93 @@ const TermList = () => {
                     customStyles={customStyles}
                 />
             </div>
+
+            {showEditModal &&
+                <EditTermModal
+                    show={showEditModal}
+                    handleClose={() => setShowEditModal(false)}
+                    term={selectedTerm}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                />}
         </div>
     );
 };
 
 
+const EditTermModal = ({ show, handleClose, term, refresh, setRefresh }) => {
+    const [updatedTerm, setUpdatedTerm] = useState(term);
+    const [updateMessage, setUpdateMessage] = useState('');
+    const accessToken = getAccessToken();
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedTerm((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.patch(
+                `${API_BASE_URL}/academy/term-choices/${updatedTerm.id}/`,
+                updatedTerm,
+                config
+            );
+
+            setUpdateMessage('Updated Successfully');
+            setRefresh(!refresh); // reload the updated data in TermList 
+        } catch (error) {
+            setUpdateMessage('Update failed, an error occurred.');
+            console.error(error);
+        }
+    };
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content border border-beige">
+                        <div className="modal-header bg-darkblue text-beige">
+                            <h5 className="modal-title fs-4"><i className="bi bi-pen"></i> Edit Term </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body text-center">
+                            <form onSubmit={handleUpdate}>
+                                <div className="mb-3">
+                                    {/* <label htmlFor="name" className="form-label">Name</label> */}
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="name"
+                                        name="name"
+                                        value={updatedTerm.name}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <button type="submit" className="btn btn-primary fw-medium">Update</button>
+                            </form>
+                            {updateMessage && <div className='p-3'>{updateMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
 
 
 export default ManageTermChoices;
