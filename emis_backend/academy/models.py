@@ -66,6 +66,21 @@ class ProgramTypes(models.Model):
 
 
 #####################################################################
+##################### Program:
+#####################   - dependent on: Department. 
+class Program(models.Model):
+    name = models.CharField(max_length=124)
+    acronym = models.CharField(max_length=16)
+    code = models.IntegerField()
+    details = models.TextField(blank=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.acronym
+#####################################################################
+
+
+#####################################################################
 ##################### TermChoices:
 #####################   independent.  
 #####################   linked with: create_term_choices().  
