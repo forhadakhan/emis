@@ -59,7 +59,6 @@ class LoginView(APIView):
                     administrator = Administrator.objects.filter(user=user).first()
                     if administrator is not None:
                         # Add administrator data to the user_data
-                        print(AdministratorSerializer(administrator).data)
                         user_data['profile'] = AdministratorSerializer(administrator).data
 
                 if user.role == 'staff':
