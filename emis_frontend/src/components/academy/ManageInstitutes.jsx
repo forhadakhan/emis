@@ -80,6 +80,7 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
     const [searchKeyword, setSearchKeyword] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selected, setSelected] = useState('');
     const [refresh, setRefresh] = useState(false);
     const accessToken = getAccessToken();
 
@@ -120,7 +121,7 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
     };
 
     const handleDeleteModal = (institute) => {
-        setSelectedInstitute(institute);
+        setSelected(institute);
         setShowDeleteModal(true);
     };
 
@@ -149,8 +150,8 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
                         className="btn border-0 btn-outline-primary p-1 mx-1"
                         onClick={() => handleEditModal(row)}
                     >
-                        <i className="bi bi-eye"> | </i>   
-                        <i className="bi bi-vector-pen"> </i> 
+                        <i className="bi bi-eye"> | </i>
+                        <i className="bi bi-vector-pen"> </i>
                     </button>
                     <button
                         type="button"
@@ -210,6 +211,15 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
                     customStyles={customStyles}
                 />
             </div>
+
+            {showDeleteModal &&
+                <DeleteInstituteModal
+                    show={showDeleteModal}
+                    handleClose={() => setShowDeleteModal(false)}
+                    institute={selected}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                />}
         </div>
     );
 };
@@ -360,10 +370,10 @@ const InstituteDetails = ({ institute }) => {
                         disabled={isModify}
                     />
                 </div>
-                {updateMessage && 
-                <div className="alert alert-info text-center fw-bold">
-                    {updateMessage} 
-                </div>}
+                {updateMessage &&
+                    <div className="alert alert-info text-center fw-bold">
+                        {updateMessage}
+                    </div>}
 
                 {!isModify &&
                     <button type="submit" className="btn btn-primary d-flex mx-auto fw-medium">
@@ -374,6 +384,89 @@ const InstituteDetails = ({ institute }) => {
     );
 };
 
+
+
+const DeleteInstituteModal = ({ show, handleClose, institute, refresh, setRefresh }) => {
+    const [deleteMessage, setDeleteMessage] = useState('');
+    const [deleted, setDeleted] = useState(false);
+    const accessToken = getAccessToken();
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.delete(
+                `${API_BASE_URL}/academy/institutes/${institute.id}/`,
+                config
+            );
+
+            setDeleted(true);
+            setRefresh(!refresh); // reload the updated data in InstituteList
+        } catch (error) {
+            setDeleteMessage('Deletion failed, an error occurred.');
+            console.error(error);
+        }
+    };
+
+    return (
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content border border-beige">
+                        <div className="modal-header bg-danger text-beige">
+                            <h5 className="modal-title fs-4">
+                                <i className="bi bi-trash"> </i>
+                                <span className='text-white'> Delete Institute </span>
+                            </h5>
+                            <button
+                                type="button"
+                                className="close btn bg-beige border-2 border-beige"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                                onClick={handleClose}
+                            >
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body text-center bg-light">
+                            <form onSubmit={handleDelete}>
+                                <div className="m-3 fw-bold">
+                                    {deleted
+                                        ? `Deleted '${institute.acronym} ${institute.code}' Successfully`
+                                        : `Are you sure you want to delete '${institute.acronym} ${institute.code}'?`}
+                                </div>
+                                {!deleted && (
+                                    <div className="btn-group">
+                                        <button type="submit" className="btn btn-danger fw-medium m-1">
+                                            Delete
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="btn btn-dark fw-medium m-1"
+                                            onClick={handleClose}
+                                            data-dismiss="modal"
+                                            aria-label="Close"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                )}
+                            </form>
+                            {deleteMessage && <div className="p-3">{deleteMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 
 const AddInstitute = () => {
