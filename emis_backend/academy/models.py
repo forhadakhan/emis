@@ -146,7 +146,7 @@ class TeacherEnrollment(models.Model):
 
 #####################################################################
 ##################### Batch, BatchAndSection:
-#####################   - dependent on: Department.  
+#####################   - dependent on: Program.  
 class Batch(models.Model):
     number = models.IntegerField()
     program = models.ForeignKey(Program, related_name='batch', on_delete=models.SET_NULL, blank=True, null=True)
@@ -167,10 +167,9 @@ class BatchAndSection(models.Model):
 
 #####################################################################
 ##################### StudentEnrollment:
-#####################   - dependent on: Student, Department, BatchAndSection, User 
+#####################   - dependent on: Student, BatchAndSection, User 
 class StudentEnrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     batch = models.ForeignKey(BatchAndSection, on_delete=models.CASCADE)
     enrolled_by = models.ForeignKey(User, related_name='student_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
     is_active = models.BooleanField(default=True)
