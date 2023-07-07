@@ -59,6 +59,7 @@ local_settings.py
 
 # Ignore generated coverage reports
 htmlcov/
+.vite
 
 
 # Ignore system and editor files on macOS
