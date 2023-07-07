@@ -55,10 +55,10 @@ class Department(models.Model):
 #####################################################################
 ##################### ProgramTypes:
 #####################   - dependent on:  
-class ProgramTypes(models.Model):
+class DegreeType(models.Model):
     name = models.CharField(max_length=124)
-    acronym = models.CharField(max_length=16)
-    code = models.IntegerField()
+    acronym = models.CharField(max_length=16, unique=True)
+    code = models.IntegerField(unique=True)
 
     def __str__(self):
         return self.acronym
@@ -367,5 +367,145 @@ def create_designations(sender, **kwargs):
             Designation.objects.get_or_create(name=designation_name)
 #####################################################################
 
+
+
+#####################################################################
+##################### create_degree_types:
+#####################   - dependent on: DegreeType.
+@receiver(post_migrate)
+def create_degree_types(sender, **kwargs):
+    app_config = kwargs.get('app_config')
+    if app_config and app_config.name == 'academy':  
+        degree_types_data = [
+            {
+                'name': 'Bachelor of Arts',
+                'acronym': 'BA',
+                'code': '101'
+            },
+            {
+                'name': 'Bachelor of Architecture',
+                'acronym': 'BArch',
+                'code': '102'
+            },
+            {
+                'name': 'Bachelor of Business Administration',
+                'acronym': 'BBA',
+                'code': '103'
+            },
+            {
+                'name': 'Bachelor of Education',
+                'acronym': 'BEd',
+                'code': '104'
+            },
+            {
+                'name': 'Bachelor of Engineering',
+                'acronym': 'BEng',
+                'code': '105'
+            },
+            {
+                'name': 'Bachelor of Fine Arts',
+                'acronym': 'BFA',
+                'code': '106'
+            },
+            {
+                'name': 'Bachelor of Pharmacy',
+                'acronym': 'BPharm',
+                'code': '107'
+            },
+            {
+                'name': 'Bachelor of Science',
+                'acronym': 'BSc',
+                'code': '108'
+            },
+            {
+                'name': 'Doctor of Business Administration',
+                'acronym': 'DBA',
+                'code': '201'
+            },
+            {
+                'name': 'Doctor of Social Work',
+                'acronym': 'DSW',
+                'code': '202'
+            },
+            {
+                'name': 'Doctor of Education',
+                'acronym': 'EdD',
+                'code': '203'
+            },
+            {
+                'name': 'Bachelor of Laws',
+                'acronym': 'LLB',
+                'code': '204'
+            },
+            {
+                'name': 'Master of Laws',
+                'acronym': 'LLM',
+                'code': '205'
+            },
+            {
+                'name': 'Master of Arts',
+                'acronym': 'MA',
+                'code': '301'
+            },
+            {
+                'name': 'Master of Architecture',
+                'acronym': 'MArch',
+                'code': '302'
+            },
+            {
+                'name': 'Master of Business Administration',
+                'acronym': 'MBA',
+                'code': '303'
+            },
+            {
+                'name': 'Master of Education',
+                'acronym': 'MEd',
+                'code': '304'
+            },
+            {
+                'name': 'Master of Engineering',
+                'acronym': 'MEng',
+                'code': '305'
+            },
+            {
+                'name': 'Master of Fine Arts',
+                'acronym': 'MFA',
+                'code': '306'
+            },
+            {
+                'name': 'Master of Philosophy',
+                'acronym': 'MPhil',
+                'code': '307'
+            },
+            {
+                'name': 'Master of Science',
+                'acronym': 'MSc',
+                'code': '308'
+            },
+            {
+                'name': 'Master of Social Work',
+                'acronym': 'MSW',
+                'code': '309'
+            },
+            {
+                'name': 'Doctor of Pharmacy',
+                'acronym': 'PharmD',
+                'code': '401'
+            },
+            {
+                'name': 'Doctor of Philosophy',
+                'acronym': 'PhD',
+                'code': '402'
+            },
+            {
+                'name': 'Doctor of Psychology',
+                'acronym': 'PsyD',
+                'code': '403'
+            },
+        ]
+
+        for degree_data in degree_types_data:
+            DegreeType.objects.get_or_create(**degree_data)
+#####################################################################
 
 
