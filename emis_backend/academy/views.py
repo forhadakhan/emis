@@ -10,10 +10,11 @@ from authentication.permissions import IsAdministratorOrStaff
 from .models import (
     Designation,
     TermChoices,
+    Institute,
 )
 from .serializers import (
     DesignationSerializer,
-    TermChoicesSerializer,
+    InstituteSerializer,
 )
 
 
@@ -63,6 +64,7 @@ class DesignationAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
 class TermChoicesAPIView(APIView):
     permission_classes = [IsAdministratorOrStaff]
 
@@ -108,6 +110,48 @@ class TermChoicesAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+class InstituteAPIView(APIView):
+    def get(self, request):
+        try:
+            institutes = Institute.objects.all()
+            serializer = InstituteSerializer(institutes, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request):
+        try:
+            serializer = InstituteSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def patch(self, request, pk):
+        try:
+            institute = get_object_or_404(Institute, pk=pk)
+            serializer = InstituteSerializer(institute, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Institute.DoesNotExist:
+            return Response({'message': 'Institute not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete(self, request, pk):
+        try:
+            institute = get_object_or_404(Institute, pk=pk)
+            institute.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Institute.DoesNotExist:
+            return Response({'message': 'Institute not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
