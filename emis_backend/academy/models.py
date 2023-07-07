@@ -149,7 +149,7 @@ class TeacherEnrollment(models.Model):
 #####################   - dependent on: Department.  
 class Batch(models.Model):
     number = models.IntegerField()
-    department = models.ForeignKey(Department, related_name='batch', on_delete=models.SET_NULL, blank=True, null=True)
+    program = models.ForeignKey(Program, related_name='batch', on_delete=models.SET_NULL, blank=True, null=True)
     session = models.CharField(max_length=9, blank=True)
 
     def __str__(self):
