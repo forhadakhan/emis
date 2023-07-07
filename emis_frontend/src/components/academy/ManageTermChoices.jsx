@@ -24,6 +24,8 @@ const ManageTermChoices = ({ setActiveComponent, breadcrumb }) => {
         switch (showComponent) {
             case 'TermList':
                 return <TermList />;
+            case 'AddTerm':
+                return <AddTerm />;
             default:
                 return <TermList />;
         }
@@ -290,6 +292,103 @@ const EditTermModal = ({ show, handleClose, term, refresh, setRefresh }) => {
             </div>
         </div>
     </>);
+};
+
+
+
+
+
+const AddTerm = () => {
+    const [name, setName] = useState('');
+    const [start, setStart] = useState('');
+    const [end, setEnd] = useState('');
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('');
+    const accessToken = getAccessToken();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const newTerm = {
+                name: name,
+                start: start,
+                end: end
+            };
+
+            const response = await axios.post(`${API_BASE_URL}/academy/term-choices/`, newTerm, config);
+            setAlertMessage('Term added successfully');
+            setAlertType('success');
+
+            // Clear the form
+            setName('');
+            setStart('');
+            setEnd('');
+        } catch (error) {
+            setAlertMessage('Failed to add term');
+            setAlertType('danger');
+            console.error(error);
+        }
+    };
+
+
+    return (
+        <div className="container">
+
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="name" className="form-label">Term Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="name" className="form-label">Start at (month)</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="start"
+                        value={start}
+                        onChange={(e) => setStart(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="name" className="form-label">End at (month)</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="end"
+                        value={end}
+                        onChange={(e) => setEnd(e.target.value)}
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto">Add Term</button>
+            </form>
+
+            {alertMessage && (
+                <div className={`alert alert-${alertType} alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className={`bi ${alertType === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle'} mx-2`}></i>
+                    <strong>{alertMessage}</strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
+                </div>
+            )}
+
+        </div>
+    );
 };
 
 
