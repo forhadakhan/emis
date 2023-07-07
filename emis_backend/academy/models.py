@@ -54,7 +54,8 @@ class Department(models.Model):
 
 #####################################################################
 ##################### ProgramTypes:
-#####################   - dependent on:  
+#####################   independent.  
+#####################   linked with: create_degree_types().  
 class DegreeType(models.Model):
     name = models.CharField(max_length=124)
     acronym = models.CharField(max_length=16, unique=True)
@@ -67,7 +68,7 @@ class DegreeType(models.Model):
 
 #####################################################################
 ##################### Program:
-#####################   - dependent on: Department. 
+#####################   - dependent on: Department, DegreeType. 
 class Program(models.Model):
     name = models.CharField(max_length=124)
     acronym = models.CharField(max_length=16, unique=True)
@@ -97,14 +98,14 @@ class TermChoices(models.Model):
 
 #####################################################################
 ##################### Semester:
-#####################   - dependent on: TermChoices, Department
+#####################   - dependent on: TermChoices, Program
 class Semester(models.Model):
     term = models.ForeignKey(TermChoices, on_delete=models.CASCADE)
     year = models.IntegerField()
     code = models.IntegerField()
     is_open = models.BooleanField(default=True)
     is_finished = models.BooleanField(default=True)
-    departments = models.ManyToManyField(Department, blank=True)
+    programs = models.ManyToManyField(Program, blank=True)
 
     def __str__(self):
         return f'{self.term.name} {self.year}'
