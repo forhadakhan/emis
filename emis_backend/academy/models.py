@@ -41,8 +41,8 @@ class Institute(models.Model):
 #####################   - dependent on: Institute. 
 class Department(models.Model):
     name = models.CharField(max_length=124)
-    acronym = models.CharField(max_length=16)
-    code = models.IntegerField()
+    acronym = models.CharField(max_length=16, unique=True)
+    code = models.IntegerField(unique=True)
     about = models.TextField(blank=True)
     history = models.TextField(blank=True)
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE)
@@ -117,8 +117,8 @@ class Semester(models.Model):
 #####################   - dependent on: Program.
 class Course(models.Model):
     name = models.CharField(max_length=100)
-    acronym = models.CharField(max_length=16)
-    code = models.IntegerField()
+    acronym = models.CharField(max_length=16, unique=True)
+    code = models.IntegerField(unique=True)
     credit = models.IntegerField()
     prerequisites = models.ManyToManyField('self', blank=True)
     programs = models.ManyToManyField(Program, blank=True)
