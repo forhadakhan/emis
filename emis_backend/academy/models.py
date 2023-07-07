@@ -26,8 +26,8 @@ class Designation(models.Model):
 #####################   - independent. 
 class Institute(models.Model):
     name = models.CharField(max_length=124)
-    acronym = models.CharField(max_length=16)
-    code = models.IntegerField(blank=True)
+    acronym = models.CharField(max_length=16, unique=True)
+    code = models.IntegerField(blank=True, unique=True)
     about = models.TextField(blank=True)
     history = models.TextField(blank=True)
 
