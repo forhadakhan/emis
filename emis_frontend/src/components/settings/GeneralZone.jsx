@@ -18,11 +18,15 @@ const GeneralZone = () => {
             [name]: value
         }));
         setShowUpdateSuccess(false);
-        setResponseMessage('');
     };
 
     const handleCancel = () => {
         setUpdatedUser(user);
+        setShowUpdateSuccess(false);
+        setResponseMessage('');
+    }
+
+    const resetResponseMessage = () => {
         setShowUpdateSuccess(false);
         setResponseMessage('');
     }
@@ -54,12 +58,13 @@ const GeneralZone = () => {
                 setUpdatedUser(response.data);
                 setUserData(response.data);
                 setShowUpdateSuccess(true);
+                setIsLoading(false);
             })
             .catch((error) => {
                 console.error(error);
                 setResponseMessage(error.response.data.message);
+                setIsLoading(false);
             });
-            setIsLoading(false);
     };
 
     return (
@@ -140,12 +145,12 @@ const GeneralZone = () => {
                                 {showUpdateSuccess &&
                                     <div className="alert alert-info fw-bold text-darkblue alert-dismissible fade show" role="alert">
                                         <i className="bi bi-check2-circle"></i> Updated Successfully
-                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" onClick={resetResponseMessage}></button>
                                     </div>}
                                 {responseMessage &&
                                     <div className="alert alert-info fw-bold alert-dismissible fade show" role="alert">
                                         <i className="bi bi-x-octagon"></i> {responseMessage}
-                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" onClick={() => setResponseMessage('')}></button>
+                                        <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close" onClick={resetResponseMessage}></button>
                                     </div>} 
                         <div className="d-grid gap-2">
                             <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">
