@@ -114,14 +114,14 @@ class Semester(models.Model):
 
 #####################################################################
 ##################### Course:
-#####################   - dependent on: Department.
+#####################   - dependent on: Program.
 class Course(models.Model):
     name = models.CharField(max_length=100)
     acronym = models.CharField(max_length=16)
     code = models.IntegerField()
     credit = models.IntegerField()
     prerequisites = models.ManyToManyField('self', blank=True)
-    departments = models.ManyToManyField(Department, blank=True)
+    programs = models.ManyToManyField(Program, blank=True)
 
     def __str__(self):
         return f'{self.acronym} {self.code}'
