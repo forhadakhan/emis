@@ -70,10 +70,11 @@ class DegreeType(models.Model):
 #####################   - dependent on: Department. 
 class Program(models.Model):
     name = models.CharField(max_length=124)
-    acronym = models.CharField(max_length=16)
-    code = models.IntegerField()
+    acronym = models.CharField(max_length=16, unique=True)
+    code = models.IntegerField(unique=True)
     details = models.TextField(blank=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    degree_type = models.OneToOneField(DegreeType, on_delete=models.CASCADE, null=True)
+    department = models.OneToOneField(Department, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.acronym
@@ -366,7 +367,6 @@ def create_designations(sender, **kwargs):
         for designation_name in designations_data:
             Designation.objects.get_or_create(name=designation_name)
 #####################################################################
-
 
 
 #####################################################################
