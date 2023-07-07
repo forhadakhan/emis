@@ -53,7 +53,7 @@ const LoginComponent = ({ onLoginSuccess, username, setUsername, setActiveAuthCo
 
     return (
         <div className="d-flex align-items-center justify-content-center">
-            <div className="card bg-transparent">
+            <div className="">
                 <div className="text-center">
                     <i className="bi bi-door-closed text-beige fs-1"></i>
                 </div>
