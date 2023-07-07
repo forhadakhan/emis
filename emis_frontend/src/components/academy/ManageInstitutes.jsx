@@ -494,8 +494,8 @@ const AddInstitute = () => {
     const [name, setName] = useState('');
     const [acronym, setAcronym] = useState('');
     const [code, setCode] = useState(null);
-    const [about, setAbout] = useState(null);
-    const [history, setHistory] = useState(null);
+    const [about, setAbout] = useState('');
+    const [history, setHistory] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
     const [alertType, setAlertType] = useState('');
     const accessToken = getAccessToken();
