@@ -16,6 +16,15 @@ const ManageTermChoices = ({ setActiveComponent, breadcrumb }) => {
         </button>
     );
 
+    const renderComponent = () => {
+        switch (showComponent) {
+            case '':
+                return "";
+            default:
+                return "";
+        }
+    }
+
     return (
         <>
             <div className="">
@@ -46,7 +55,7 @@ const ManageTermChoices = ({ setActiveComponent, breadcrumb }) => {
             </nav>
 
             <div className="">
-                
+                {renderComponent()}
             </div>
         </>
     );
