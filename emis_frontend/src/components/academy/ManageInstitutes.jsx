@@ -1,0 +1,44 @@
+/**
+ * Calling from: Activity.jsx
+ * Calling to: 
+ */
+
+
+import React, { useEffect, useState } from 'react';
+
+
+const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
+
+    const updatedBreadcrumb = breadcrumb.concat(
+        <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageInstitutes')}>
+            <i className="bi bi-house-gear-fill"></i> Manage Term Choices
+        </button>
+    );
+
+
+    return (
+        <>
+            <div className="">
+                <nav aria-label="breadcrumb">
+                    <ol className="breadcrumb">
+                        {updatedBreadcrumb.map((item, index) => (
+                            <li className="breadcrumb-item" key={index}>{item}</li>
+                        ))}
+                    </ol>
+                </nav>
+
+            </div>
+
+            <h2 className="text-center m-5 px-2">Manage Institutes</h2>
+
+
+            <div className="">
+                
+            </div>
+        </>
+    );
+}
+
+
+
+export default ManageInstitutes;
