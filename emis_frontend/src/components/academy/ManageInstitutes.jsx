@@ -16,6 +16,15 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
         </button>
     );
 
+    const renderComponent = () => {
+        switch (showComponent) {
+            case '':
+                return '';
+            default:
+                return '';
+        }
+    }
+
 
     return (
         <>
@@ -48,7 +57,7 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
             </nav>
 
             <div className="">
-                
+                {renderComponent()}                
             </div>
         </>
     );
