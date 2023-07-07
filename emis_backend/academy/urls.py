@@ -6,13 +6,17 @@ from django.urls import path
 
 from .views import (
     DesignationAPIView,
-    TermChoicesAPIView,  
+    TermChoicesAPIView,
+    InstituteAPIView,  
 )
 
 
 urlpatterns = [
     path('designations/', DesignationAPIView.as_view(), name='designations'),
     path('designations/<int:pk>/', DesignationAPIView.as_view(), name='designation-pk'),
-    path('term-choices/', TermChoicesAPIView.as_view(), name='term-choices'),  
-    path('term-choices/<int:pk>/', TermChoicesAPIView.as_view(), name='term-choice-pk'),  
+    path('term-choices/', TermChoicesAPIView.as_view(), name='term-choices'),
+    path('term-choices/<int:pk>/', TermChoicesAPIView.as_view(), name='term-choice-pk'),
+    path('institutes/', InstituteAPIView.as_view(), name='institutes'),  
+    path('institutes/<int:pk>/', InstituteAPIView.as_view(), name='institute-pk'),  
 ]
+
