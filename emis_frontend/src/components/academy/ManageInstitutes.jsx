@@ -77,7 +77,6 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
 const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
     const [institutes, setInstitutes] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
-    const [searchKeyword, setSearchKeyword] = useState('');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selected, setSelected] = useState('');
     const [refresh, setRefresh] = useState(false);
@@ -105,13 +104,18 @@ const InstituteList = ({ setSelectedInstitute, setShowComponent }) => {
     }, [accessToken, refresh]);
 
     useEffect(() => {
-        setFilteredData(institutes.filter(institute =>
-            institute.name.toLowerCase().includes(searchKeyword.toLowerCase())
-        ));
-    }, [institutes, searchKeyword]);
+        setFilteredData(institutes);
+    }, [institutes]);
 
     const handleSearch = (e) => {
-        setSearchKeyword(e.target.value);
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = institutes.filter(
+            (institute) =>
+                institute.name.toLowerCase().includes(keyword) ||
+                institute.acronym.toLowerCase().includes(keyword) ||
+                institute.code.toString().includes(keyword)
+        );
+        setFilteredData(filteredResults);
     };
 
     const handleEditModal = (institute) => {
