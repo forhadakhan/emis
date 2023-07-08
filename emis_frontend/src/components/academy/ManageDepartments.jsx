@@ -30,7 +30,7 @@ const ManageDepartments = ({ setActiveComponent, breadcrumb }) => {
             case 'DepartmentDetails':
                 return <DepartmentDetails department={selectedDepartment} setShowComponent={setShowComponent} />;
             default:
-                return <DepartmentList />;
+                return <DepartmentList setSelectedDepartment={setSelectedDepartment} setShowComponent={setShowComponent} />;
         }
     }
 
@@ -273,9 +273,158 @@ const AddDepartment = () => {
 
 
 
-const DepartmentList = () => {
+const DepartmentList = ({ setSelectedDepartment, setShowComponent }) => {
+    const [departments, setDepartments] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selected, setSelected] = useState('');
+    const [refresh, setRefresh] = useState(false);
+    const accessToken = getAccessToken();
 
-}
+    useEffect(() => {
+        const fetchDepartments = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                const response = await axios.get(`${API_BASE_URL}/academy/departments/`, config);
+                setDepartments(response.data);
+                // console.log(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchDepartments();
+    }, [accessToken, refresh]);
+
+    useEffect(() => {
+        setFilteredData(departments);
+    }, [departments]);
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = departments.filter(
+            (department) =>
+                department.name.toLowerCase().includes(keyword) ||
+                department.acronym.toLowerCase().includes(keyword) ||
+                department.code.toString().includes(keyword)
+        );
+        setFilteredData(filteredResults);
+    };
+
+    const handleEditModal = (department) => {
+        setSelectedDepartment(department);
+        setShowComponent('DepartmentDetails');
+    };
+
+    const handleDeleteModal = (department) => {
+        setSelected(department);
+        setShowDeleteModal(true);
+    };
+
+    const columns = [
+        {
+            name: 'Name',
+            selector: 'name',
+            sortable: true,
+        },
+        {
+            name: 'Acronym',
+            selector: 'acronym',
+            sortable: true,
+        },
+        {
+            name: 'Code',
+            selector: 'code',
+            sortable: true,
+        },
+        {
+            name: 'Action',
+            cell: (row) => (
+                <div className="mx-auto">
+                    <button
+                        type="button"
+                        className="btn border-0 btn-outline-primary p-1 mx-1"
+                        onClick={() => handleEditModal(row)}
+                    >
+                        <i className="bi bi-eye"> | </i>
+                        <i className="bi bi-vector-pen"> </i>
+                    </button>
+                    <button
+                        type="button"
+                        className="btn border-0 btn-outline-danger p-1 mx-1"
+                        onClick={() => handleDeleteModal(row)}
+                    >
+                        <i className="bi bi-trash"></i>
+                    </button>
+                </div>
+            ),
+            button: true,
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px',
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '16px',
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '16px',
+                paddingRight: '8px',
+                fontWeight: 'bold',
+            },
+        },
+    };
+
+    return (
+        <div>
+            <div className="m-5">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <div className="rounded-top-4">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    pagination
+                    customStyles={customStyles}
+                />
+            </div>
+
+            {showDeleteModal &&
+                <DeleteDepartmentModal
+                    show={showDeleteModal}
+                    handleClose={() => setShowDeleteModal(false)}
+                    department={selected}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                />}
+        </div>
+    );
+};
 
 
 
