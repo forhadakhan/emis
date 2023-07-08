@@ -15,6 +15,7 @@ from .models import (
 from .serializers import (
     DesignationSerializer,
     InstituteSerializer,
+    TermChoicesSerializer,
 )
 
 
