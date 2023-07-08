@@ -5,6 +5,7 @@ from .models import (
     Designation,
     Institute,
     Department,
+    DegreeType,
     TermChoices,
     Semester,
     Course,
@@ -37,6 +38,12 @@ class InstituteSerializer(serializers.ModelSerializer):
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
+        fields = '__all__'
+
+
+class DegreeTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DegreeType
         fields = '__all__'
 
 
