@@ -340,6 +340,7 @@ const DeleteTermModal = ({ show, handleClose, term, refresh, setRefresh }) => {
 
     const handleDelete = async (e) => {
         e.preventDefault();
+        setDeleteMessage('');
 
         try {
             const config = {
