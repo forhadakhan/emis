@@ -221,8 +221,118 @@ const DegreeTypeList = ({ setSelectedDegreeType, setShowComponent }) => {
 
 
 const AddDegreeType = () => {
+    const [name, setName] = useState('');
+    const [acronym, setAcronym] = useState('');
+    const [code, setCode] = useState(null);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('');
+    const accessToken = getAccessToken();
 
-}
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const newDegreeType = {
+                name,
+                acronym,
+                code,
+            };
+
+            const response = await axios.post(`${API_BASE_URL}/academy/degree-types/`, newDegreeType, config);
+            setAlertMessage('Degree type added successfully');
+            setAlertType('success');
+
+            // Clear the form
+            setName('');
+            setAcronym('');
+            setCode('');
+
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessages = Object.entries(error.response.data)
+                    .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                            return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                            const errorMessage = Object.values(errorArray).join(' ');
+                            return [`[${key}] ${errorMessage}`];
+                        } else {
+                            return [`[${key}] ${errorArray}`];
+                        }
+                    })
+                    .join('\n');
+
+                if (errorMessages) {
+                    setAlertMessage(`Failed to submit data,\n${errorMessages}`);
+                } else {
+                    setAlertMessage('Failed to submit data. Please try again.');
+                }
+            } else {
+                setAlertMessage('Failed to submit data. Please try again.');
+            }
+            setAlertType('danger');
+            console.error(error);
+        }
+    };
+
+    return (
+        <div className="container">
+
+            {alertMessage && (
+                <div className={`alert alert-${alertType} alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className={`bi ${alertType === 'success' ? 'bi-check-circle-fill' : 'bi-x-circle'} mx-2`}></i>
+                    <strong>{alertMessage}</strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="name" className="form-label">Degree Type Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="acronym" className="form-label">Acronym</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="acronym"
+                        value={acronym}
+                        onChange={(e) => setAcronym(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="mb-3 col-sm-12 col-md-6 mx-auto">
+                    <label htmlFor="code" className="form-label">Code</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="code"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto">Add Degree Type</button>
+            </form>
+
+        </div>
+    );
+};
 
 
 const EditDegreeType = () => {
