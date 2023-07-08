@@ -16,6 +16,7 @@ import PublicMessages from './public-messages/PublicMessages.jsx';
 import ManageTeacherDesignations from './academy/ManageTeacherDesignations.jsx';
 import ManageTermChoices from './academy/ManageTermChoices.jsx';
 import ManageInstitutes from './academy/ManageInstitutes.jsx';
+import ManageDepartments from './academy/ManageDepartments.jsx';
 import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
 
 
@@ -65,6 +66,8 @@ const ActivityComponent = () => {
                 return <ManageTermChoices setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageInstitutes':
                 return <ManageInstitutes setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'ManageDepartments':
+                return <ManageDepartments setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageDegreeTypes':
                 return <ManageDegreeTypes setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
@@ -119,6 +122,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_termchoices', label: 'Manage Term Choices', render: 'ManageTermChoices', icon: 'bi-sign-intersection-fill' },
         { id: 'view_designation', label: 'Manage Teacher Designations', render: 'ManageTeacherDesignations', icon: 'bi-person-fill-up' },
         { id: 'view_institute', label: 'Manage Institutes', render: 'ManageInstitutes', icon: 'bi-hospital' },
+        { id: 'view_department', label: 'Manage Departments', render: 'ManageDepartments', icon: 'bi-house-gear-fill' },
         { id: 'view_degreetype', label: 'Manage Degree Types', render: 'ManageDegreeTypes', icon: 'bi-mortarboard-fill' },
     ];
 
