@@ -24,6 +24,7 @@ class Designation(models.Model):
 #####################################################################
 ##################### Institute:
 #####################   - independent. 
+#####################   linked with: create_institutes(). 
 class Institute(models.Model):
     name = models.CharField(max_length=124)
     acronym = models.CharField(max_length=16, unique=True)
@@ -506,6 +507,126 @@ def create_degree_types(sender, **kwargs):
 
         for degree_data in degree_types_data:
             DegreeType.objects.get_or_create(**degree_data)
+#####################################################################
+
+
+#####################################################################
+##################### create_degree_types:
+#####################   - dependent on: Institute.
+@receiver(post_migrate)
+def create_institutes(sender, **kwargs):
+    app_config = kwargs.get('app_config')
+    if app_config and app_config.name == 'academy':  
+        institutes = [
+            {
+                'name': 'Institute of Science, Technology, Engineering, and Mathematics',
+                'acronym': 'STEM',
+                'code': '1001',
+                'about': 'The Institute of Science, Technology, Engineering, and Mathematics (STEM) offers a comprehensive education and research environment in the fields of science, technology, engineering, and mathematics, fostering innovation, problem-solving, and interdisciplinary collaboration.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Social Sciences',
+                'acronym': 'ISS',
+                'code': '1002',
+                'about': 'The Institute of Social Sciences conducts research and offers academic programs focused on the study of societies, cultures, and human behavior.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Business and Economics',
+                'acronym': 'IBE',
+                'code': '1003',
+                'about': 'The Institute of Business and Economics is dedicated to providing comprehensive education and research opportunities in the fields of business management, economics, and entrepreneurship.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Health Sciences',
+                'acronym': 'IHS',
+                'code': '1004',
+                'about': 'The Institute of Health Sciences is committed to advancing healthcare through cutting-edge research, interdisciplinary collaboration, and the education of future healthcare professionals.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Humanities',
+                'acronym': 'IH',
+                'code': '1005',
+                'about': 'The Institute of Humanities explores the diverse aspects of human thought, creativity, and expression, fostering critical thinking, cultural understanding, and artistic exploration.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Environmental Studies',
+                'acronym': 'IES',
+                'code': '1006',
+                'about': 'The Institute of Environmental Studies focuses on understanding and addressing environmental challenges through interdisciplinary research, education, and sustainable practices.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Computing and Information Technology',
+                'acronym': 'ICIT',
+                'code': '1007',
+                'about': 'The Institute of Computing and Information Technology is dedicated to advancing computer science, information technology, and related fields through research, innovation, and industry collaboration.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Arts and Design',
+                'acronym': 'IAD',
+                'code': '1008',
+                'about': 'The Institute of Arts and Design offers a creative and intellectually stimulating environment for the exploration and development of artistic expression, design, and visual communication.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Communication and Media Studies',
+                'acronym': 'ICMS',
+                'code': '1009',
+                'about': 'The Institute of Communication and Media Studies examines the dynamic and evolving nature of communication and media, exploring their social, cultural, and technological impact.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Law and Legal Studies',
+                'acronym': 'ILLS',
+                'code': '1010',
+                'about': 'The Institute of Law and Legal Studies provides a comprehensive understanding of legal principles, ethics, and governance, preparing students for careers in law, advocacy, and policy-making.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Education and Pedagogy',
+                'acronym': 'IEP',
+                'code': '1011',
+                'about': 'The Institute of Education and Pedagogy focuses on the theory and practice of education, preparing educators and researchers to make a positive impact on learning and instructional methodologies.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Agriculture and Rural Development',
+                'acronym': 'IARD',
+                'code': '1012',
+                'about': 'The Institute of Agriculture and Rural Development is dedicated to advancing sustainable agricultural practices, rural development strategies, and food security through research, education, and community engagement.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Psychology and Behavioral Sciences',
+                'acronym': 'IPBS',
+                'code': '1013',
+                'about': 'The Institute of Psychology and Behavioral Sciences investigates the complexities of human behavior, cognition, and mental processes, providing insights into individual and societal well-being.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Architecture and Urban Planning',
+                'acronym': 'IAUP',
+                'code': '1014',
+                'about': 'The Institute of Architecture and Urban Planning explores the art and science of designing sustainable and livable built environments, addressing the challenges of urban development and architectural design.',
+                'history': ''
+            },
+            {
+                'name': 'Institute of Energy and Sustainable Resources',
+                'acronym': 'IESR',
+                'code': '1015',
+                'about': 'The Institute of Energy and Sustainable Resources conducts research and offers educational programs focused on renewable energy, energy efficiency, and sustainable resource management, addressing global energy challenges and environmental sustainability.',
+                'history': ''
+            }
+        ]
+
+        for institute in institutes:
+            Institute.objects.get_or_create(**institute)
 #####################################################################
 
 
