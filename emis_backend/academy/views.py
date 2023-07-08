@@ -11,11 +11,13 @@ from .models import (
     Designation,
     TermChoices,
     Institute,
+    DegreeType,
 )
 from .serializers import (
     DesignationSerializer,
     InstituteSerializer,
     TermChoicesSerializer,
+    DegreeTypeSerializer,
 )
 
 
@@ -151,6 +153,50 @@ class InstituteAPIView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Institute.DoesNotExist:
             return Response({'message': 'Institute not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class DegreeTypeAPIView(APIView):
+    def get(self, request):
+        try:
+            degree_types = DegreeType.objects.all()
+            serializer = DegreeTypeSerializer(degree_types, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request):
+        try:
+            serializer = DegreeTypeSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def patch(self, request, pk):
+        try:
+            degree_type = get_object_or_404(DegreeType, pk=pk)
+            serializer = DegreeTypeSerializer(degree_type, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except DegreeType.DoesNotExist:
+            return Response({'message': 'Degree Type not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete(self, request, pk):
+        try:
+            degree_type = get_object_or_404(DegreeType, pk=pk)
+            degree_type.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except DegreeType.DoesNotExist:
+            return Response({'message': 'Degree Type not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
