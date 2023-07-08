@@ -267,6 +267,7 @@ const AddDepartment = () => {
                     />
                 </div>
                 <button type="submit" className="btn btn-darkblue p-1 px-2 d-flex mx-auto">Add Department</button>
+                <button type="button" className="btn btn-danger p-1 px-2 d-flex mx-auto my-2" onClick={clearForm}>Clear Data</button>
             </form>
 
         </div>
