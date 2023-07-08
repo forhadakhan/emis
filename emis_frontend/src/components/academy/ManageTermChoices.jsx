@@ -246,6 +246,11 @@ const EditTermModal = ({ show, handleClose, term, refresh, setRefresh }) => {
     const handleUpdate = async (e) => {
         e.preventDefault();
 
+        if(updatedTerm === term) {
+            setUpdateMessage('No changes detected!');
+            return;
+        }
+
         try {
             const config = {
                 headers: {
@@ -280,10 +285,10 @@ const EditTermModal = ({ show, handleClose, term, refresh, setRefresh }) => {
                                 <i className="bi bi-x-lg"></i>
                             </button>
                         </div>
-                        <div className="modal-body text-center">
+                        <div className="modal-body">
                             <form onSubmit={handleUpdate}>
                                 <div className="mb-3">
-                                    {/* <label htmlFor="name" className="form-label">Name</label> */}
+                                    <label htmlFor="name" className="form-label text-secondary">Name</label>
                                     <input
                                         type="text"
                                         className="form-control border border-darkblue"
@@ -293,9 +298,31 @@ const EditTermModal = ({ show, handleClose, term, refresh, setRefresh }) => {
                                         onChange={handleInputChange}
                                     />
                                 </div>
-                                <button type="submit" className="btn btn-primary fw-medium">Update</button>
+                                <div className="mb-3">
+                                    <label htmlFor="name" className="form-label text-secondary">Start at (month)</label>
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="start"
+                                        name="start"
+                                        value={updatedTerm.start}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="name" className="form-label text-secondary">End at (month)</label>
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="end"
+                                        name="end"
+                                        value={updatedTerm.end}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <button type="submit" className="btn btn-primary fw-medium d-flex mx-auto">Update</button>
                             </form>
-                            {updateMessage && <div className='p-3'>{updateMessage}</div>}
+                            {updateMessage && <div className='p-3 text-center'>{updateMessage}</div>}
                         </div>
                     </div>
                 </div>
