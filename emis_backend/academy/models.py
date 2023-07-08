@@ -622,6 +622,13 @@ def create_institutes(sender, **kwargs):
                 'code': '1015',
                 'about': 'The Institute of Energy and Sustainable Resources conducts research and offers educational programs focused on renewable energy, energy efficiency, and sustainable resource management, addressing global energy challenges and environmental sustainability.',
                 'history': ''
+            },
+            {
+                'name': 'Institute of Culture, Language and Literature',
+                'acronym': 'ICLL',
+                'code': '1016',
+                'about': 'The Institute of Culture, Language, and Literature (ICLL) is a prestigious academic institution dedicated to the study and exploration of various aspects of culture, language, and literature. The ICLL offers a wide range of programs and courses that delve into the rich tapestry of human culture, linguistic diversity, and literary traditions.',
+                'history': ''
             }
         ]
 
