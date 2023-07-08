@@ -247,6 +247,7 @@ const AddDepartment = () => {
                 <div className="mb-3 col-sm-12 col-md-6 mx-auto">
                     <label htmlFor="about" className="form-label">About</label>
                     <textarea
+                        rows="10"
                         type="textarea"
                         className="form-control"
                         id="about"
@@ -257,6 +258,7 @@ const AddDepartment = () => {
                 <div className="mb-3 col-sm-12 col-md-6 mx-auto">
                     <label htmlFor="history" className="form-label">History</label>
                     <textarea
+                        rows="10"
                         type="textarea"
                         className="form-control"
                         id="history"
@@ -301,6 +303,7 @@ const DepartmentList = ({ setSelectedDepartment, setShowComponent }) => {
 
         fetchDepartments();
     }, [accessToken, refresh]);
+
 
     useEffect(() => {
         setFilteredData(departments);
@@ -428,10 +431,254 @@ const DepartmentList = ({ setSelectedDepartment, setShowComponent }) => {
 
 
 
-const DepartmentDetails = () => {
+const DepartmentDetails = ({ department }) => {
+    const [baseDepartment, setBaseDepartment] = useState(department);
+    const [updatedDepartment, setUpdatedDepartment] = useState(baseDepartment);
+    const [updateMessage, setUpdateMessage] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [reset, setReset] = useState(false);
+    const [isModify, setIsModify] = useState(true);
+    const [institute, setInstitute] = useState(department.institute.id);
+    const [institutes, setInstitutes] = useState([]);
+    const accessToken = getAccessToken();
 
-}
+    useEffect(() => {
+        setUpdateMessage('');
+        const fetchInstitutes = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                };
 
+                const response = await axios.get(`${API_BASE_URL}/academy/institutes/`, config);
+                setInstitutes(response.data);
+            } catch (error) {
+                setUpdateMessage('An error occurred while fetching available institutes list.');
+                console.error(error);
+            }
+        };
+
+        fetchInstitutes();
+    }, [accessToken]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedDepartment((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleModify = () => {
+        setIsModify(!isModify);
+        setUpdatedDepartment(baseDepartment);
+        setUpdateMessage('');
+    }
+
+    const handleClose = () => {
+        setShowDeleteModal(false);
+        if (reset) {
+            setUpdateMessage('Deleted Successfully.');
+            setIsModify(true);
+        }
+    }
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        if (!parseInt(institute)) {
+            setAlertType('danger')
+            setAlertMessage('A valid institute must be selected.');
+            return;
+        }
+
+        const department = {...updatedDepartment, institute}
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.patch(
+                `${API_BASE_URL}/academy/departments/${department.id}/`,
+                department,
+                config
+            );
+            setUpdateMessage('Updated Successfully');
+            setBaseDepartment(department);
+            setIsModify(!isModify);
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessages = Object.entries(error.response.data)
+                    .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                            return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                            const errorMessage = Object.values(errorArray).join(' ');
+                            return [`[${key}] ${errorMessage}`];
+                        } else {
+                            return [`[${key}] ${errorArray}`];
+                        }
+                    })
+                    .join('\n');
+
+                if (errorMessages) {
+                    setUpdateMessage(`Update failed,\n${errorMessages}`);
+                } else {
+                    setUpdateMessage('Update failed, an error occurred.');
+                }
+            } else {
+                setUpdateMessage('Update failed, an error occurred.');
+            }
+            // console.error(error);
+        }
+    };
+
+    return (
+        <div className="m-2 m-md-5">
+
+            <div className='d-flex justify-content-center'>
+                <button disabled={reset} className="btn btn-darkblue rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleModify}>
+                    <i className='bi bi-pen'></i>
+                </button>
+                <button disabled={reset} className="btn btn-danger rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setShowDeleteModal(true)}>
+                    <i className='bi bi-trash'></i>
+                </button>
+            </div>
+
+            {updateMessage &&
+                <div className="alert bg-beige text-darkblue border border-dark text-center fw-bold">
+                    {updateMessage}
+                </div>}
+
+            <form onSubmit={handleUpdate} className=''>
+                <div className="mb-3">
+                    <label htmlFor="name" className="form-label text-secondary">
+                        Department Name
+                    </label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        name="name"
+                        value={updatedDepartment.name}
+                        onChange={handleInputChange}
+                        disabled={isModify}
+                    />
+                </div>
+                <div className='row mb-3'>
+                    <div className="col-6">
+                        <label htmlFor="acronym" className="form-label text-secondary">
+                            Acronym
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="acronym"
+                            name="acronym"
+                            value={updatedDepartment.acronym}
+                            onChange={handleInputChange}
+                            disabled={isModify}
+                        />
+                    </div>
+                    <div className="col-6">
+                        <label htmlFor="code" className="form-label text-secondary">
+                            Code
+                        </label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            id="code"
+                            name="code"
+                            value={updatedDepartment.code}
+                            onChange={handleInputChange}
+                            disabled={isModify}
+                        />
+                    </div>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="institute" className="form-label">Select Institute:</label>
+                    <select
+                        value={institute}
+                        onChange={(e) => setInstitute(e.target.value)}
+                        id="institute"
+                        className="form-select"
+                        aria-label="Institute List"      
+                        name="institute"               
+                        disabled={isModify}>
+
+                        <option value="">-- Institute List --</option>
+
+                        {institutes.length > 0 ? (
+                            institutes.map((i) =>
+                                <option key={i.id} value={i.id} name="institute" className="bg-darkblue text-beige">
+                                    {i.acronym} {i.code} - {i.name}
+                                </option>)
+                        ) : (
+                            (department.institute && parseInt(department.institute.id)) ? (
+                                <option
+                                    key={department.institute.id}
+                                    value={department.institute.id}
+                                    className="bg-darkblue text-beige">
+                                    {department.institute.acronym} {department.institute.code} - {department.institute.name}
+                                </option>
+                            ) : (
+                                null))}
+                    </select>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="about" className="form-label text-secondary">
+                        About
+                    </label>
+                    <textarea 
+                        rows="10"
+                        className="form-control"
+                        id="about"
+                        name="about"
+                        value={updatedDepartment.about}
+                        onChange={handleInputChange}
+                        disabled={isModify}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="history" className="form-label text-secondary">
+                        History
+                    </label>
+                    <textarea
+                        rows="10"
+                        className="form-control"
+                        id="history"
+                        name="history"
+                        value={updatedDepartment.history}
+                        onChange={handleInputChange}
+                        disabled={isModify}
+                    />
+                </div>
+
+                {!isModify &&
+                    <button disabled={reset} type="submit" className="btn btn-primary d-flex mx-auto fw-medium">
+                        Update
+                    </button>}
+            </form>
+
+            {showDeleteModal &&
+                <DeleteDepartmentModal
+                    show={showDeleteModal}
+                    handleClose={handleClose}
+                    department={department}
+                    refresh={reset}
+                    setRefresh={setReset}
+                />}
+
+        </div>
+    );
+};
 
 
 
