@@ -11,12 +11,14 @@ from .models import (
     Designation,
     TermChoices,
     Institute,
+    Department,
     DegreeType,
 )
 from .serializers import (
     DesignationSerializer,
     InstituteSerializer,
     TermChoicesSerializer,
+    DepartmentSerializer,
     DegreeTypeSerializer,
 )
 
@@ -153,6 +155,66 @@ class InstituteAPIView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Institute.DoesNotExist:
             return Response({'message': 'Institute not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class DepartmentAPIView(APIView):
+    def get(self, request):
+        try:
+            departments = Department.objects.all()
+            serializer = DepartmentSerializer(departments, many=True)
+            # Include the nested representation of the associated Institute object
+            data = serializer.data
+            for department_data in data:
+                institute_id = department_data['institute']
+                if institute_id:
+                    department_data['institute'] = self.get_institute_data(institute_id)
+                else:
+                    department_data['institute'] = None  # Set to null if institute_id is not present
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get_institute_data(self, institute_id):
+        try:
+            institute = Institute.objects.get(pk=institute_id)
+            serializer = InstituteSerializer(institute)
+            return serializer.data
+        except Institute.DoesNotExist:
+            return None
+
+    def post(self, request):
+        try:
+            serializer = DepartmentSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def patch(self, request, pk):
+        try:
+            department = get_object_or_404(Department, pk=pk)
+            serializer = DepartmentSerializer(department, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Department.DoesNotExist:
+            return Response({'message': 'Department not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete(self, request, pk):
+        try:
+            department = get_object_or_404(Department, pk=pk)
+            department.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Department.DoesNotExist:
+            return Response({'message': 'Department not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
