@@ -234,6 +234,7 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
     const [updateMessage, setUpdateMessage] = useState('');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isModify, setIsModify] = useState(true);
+    const [reset, setReset] = useState(false);
     const accessToken = getAccessToken();
 
     const handleInputChange = (e) => {
@@ -252,7 +253,10 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
 
     const handleClose = () => {
         setShowDeleteModal(false)
-        setShowComponent('InstituteList');
+        if (reset) {
+            setUpdateMessage('Deleted Successfully.');
+            setIsModify(true);
+        }
     }
 
     const handleUpdate = async (e) => {
@@ -400,8 +404,8 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
                     show={showDeleteModal}
                     handleClose={handleClose}
                     institute={institute}
-                    refresh={false}
-                    setRefresh={() => {}}
+                    refresh={reset}
+                    setRefresh={setReset}
                 />}
 
         </div>
