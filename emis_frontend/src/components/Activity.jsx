@@ -118,7 +118,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_permission', label: 'User Permissions', render: 'UserPermissions', icon: 'bi-shield-shaded' },
         { id: 'view_termchoices', label: 'Manage Term Choices', render: 'ManageTermChoices', icon: 'bi-sign-intersection-fill' },
         { id: 'view_designation', label: 'Manage Teacher Designations', render: 'ManageTeacherDesignations', icon: 'bi-person-fill-up' },
-        { id: 'view_institute', label: 'Manage Institutes', render: 'ManageInstitutes', icon: 'bi-house-gear-fill' },
+        { id: 'view_institute', label: 'Manage Institutes', render: 'ManageInstitutes', icon: 'bi-hospital' },
         { id: 'view_degreetype', label: 'Manage Degree Types', render: 'ManageDegreeTypes', icon: 'bi-mortarboard-fill' },
     ];
 

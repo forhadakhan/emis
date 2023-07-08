@@ -17,7 +17,7 @@ const ManageInstitutes = ({ setActiveComponent, breadcrumb }) => {
 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageInstitutes')}>
-            <i className="bi bi-house-gear-fill"></i> Manage Institutes
+            <i className="bi bi-hospital"></i> Manage Institutes
         </button>
     );
 
