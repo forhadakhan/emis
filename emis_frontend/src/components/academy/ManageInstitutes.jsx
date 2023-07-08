@@ -311,12 +311,12 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
 
             <form onSubmit={handleUpdate} className=''>
                 <div className="mb-3">
-                    <label htmlFor="name" className="form-label">
+                    <label htmlFor="name" className="form-label text-secondary">
                         Institute Name
                     </label>
                     <input
                         type="text"
-                        className="form-control border border-darkblue"
+                        className="form-control"
                         id="name"
                         name="name"
                         value={updatedInstitute.name}
@@ -326,12 +326,12 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
                 </div>
                 <div className='row mb-3'>
                     <div className="col-6">
-                        <label htmlFor="acronym" className="form-label">
+                        <label htmlFor="acronym" className="form-label text-secondary">
                             Acronym
                         </label>
                         <input
                             type="text"
-                            className="form-control border border-darkblue"
+                            className="form-control"
                             id="acronym"
                             name="acronym"
                             value={updatedInstitute.acronym}
@@ -340,12 +340,12 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
                         />
                     </div>
                     <div className="col-6">
-                        <label htmlFor="code" className="form-label">
+                        <label htmlFor="code" className="form-label text-secondary">
                             Code
                         </label>
                         <input
                             type="number"
-                            className="form-control border border-darkblue"
+                            className="form-control"
                             id="code"
                             name="code"
                             value={updatedInstitute.code}
@@ -355,11 +355,11 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
                     </div>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="about" className="form-label">
+                    <label htmlFor="about" className="form-label text-secondary">
                         About
                     </label>
                     <textarea
-                        className="form-control border border-darkblue"
+                        className="form-control"
                         id="about"
                         name="about"
                         value={updatedInstitute.about}
@@ -368,11 +368,11 @@ const InstituteDetails = ({ institute, setShowComponent }) => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="history" className="form-label">
+                    <label htmlFor="history" className="form-label text-secondary">
                         History
                     </label>
                     <textarea
-                        className="form-control border border-darkblue"
+                        className="form-control"
                         id="history"
                         name="history"
                         value={updatedInstitute.history}
