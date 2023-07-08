@@ -13,7 +13,6 @@ import { getAccessToken } from '../../utils/auth';
 
 const ManageDegreeTypes = ({ setActiveComponent, breadcrumb }) => {
     const [showComponent, setShowComponent] = useState('DegreeTypeList');
-    const [selectedDegreeType, setSelectedDegreeType] = useState('');
 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageDegreeTypes')}>
@@ -24,13 +23,13 @@ const ManageDegreeTypes = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'DegreeTypeList':
-                return <DegreeTypeList setSelectedDegreeType={setSelectedDegreeType} setShowComponent={setShowComponent} />;
+                return <DegreeTypeList />;
             case 'AddDegreeType':
                 return <AddDegreeType />;
             case 'EditDegreeType':
-                return <EditDegreeType degreeType={selectedDegreeType} setShowComponent={setShowComponent} />;
+                return <EditDegreeType degreeType={selectedDegreeType} />;
             default:
-                return <DegreeTypeList setSelectedDegreeType={setSelectedDegreeType} setShowComponent={setShowComponent} />;
+                return <DegreeTypeList />;
         }
     }
 
@@ -48,7 +47,7 @@ const ManageDegreeTypes = ({ setActiveComponent, breadcrumb }) => {
 
             </div>
 
-            <h2 className="text-center m-5 px-2">Manage DegreeTypes</h2>
+            <h2 className="text-center m-5 px-2">Manage Degree Types</h2>
 
             <nav className="nav nav-pills flex-column flex-sm-row my-4">
                 <button
@@ -73,11 +72,12 @@ const ManageDegreeTypes = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-const DegreeTypeList = ({ setSelectedDegreeType, setShowComponent }) => {
+const DegreeTypeList = () => {
     const [degreeTypes, setDegreeTypes] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedDegreeType, setSelectedDegreeType] = useState('');
     const [selected, setSelected] = useState('');
     const [refresh, setRefresh] = useState(false);
     const accessToken = getAccessToken();
@@ -215,9 +215,143 @@ const DegreeTypeList = ({ setSelectedDegreeType, setShowComponent }) => {
                 />
             </div>
 
+            {showEditModal &&
+                <EditDegreeType
+                    show={showEditModal}
+                    handleClose={() => setShowEditModal(false)}
+                    degreeType={selectedDegreeType}
+                    refresh={refresh}
+                    setRefresh={setRefresh}
+                />}
+
         </div>
     );
 };
+
+
+
+const EditDegreeType = ({ show, handleClose, degreeType, refresh, setRefresh }) => {
+    const [updatedDegreeType, setUpdatedDegreeType] = useState(degreeType);
+    const [updateMessage, setUpdateMessage] = useState('');
+    const accessToken = getAccessToken();
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedDegreeType((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+
+        if (updatedDegreeType === degreeType) {
+            setUpdateMessage('No changes detected!');
+            return;
+        }
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.patch(
+                `${API_BASE_URL}/academy/degree-types/${updatedDegreeType.id}/`,
+                updatedDegreeType,
+                config
+            );
+
+            setUpdateMessage('Updated Successfully');
+            setRefresh(!refresh); // reload the updated data in TermList 
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessages = Object.entries(error.response.data)
+                    .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                            return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                            const errorMessage = Object.values(errorArray).join(' ');
+                            return [`[${key}] ${errorMessage}`];
+                        } else {
+                            return [`[${key}] ${errorArray}`];
+                        }
+                    })
+                    .join('\n');
+
+                if (errorMessages) {
+                    setUpdateMessage(`Failed to submit data,\n${errorMessages}`);
+                } else {
+                    setUpdateMessage('Failed to submit data. Please try again.');
+                }
+            } else {
+                setUpdateMessage('Failed to submit data. Please try again.');
+            }
+            console.error(error);
+        }
+    };
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content border border-beige">
+                        <div className="modal-header bg-darkblue text-beige">
+                            <h5 className="modal-title fs-4"><i className="bi bi-pen"></i> Edit Degree Type </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <form onSubmit={handleUpdate}>
+                                <div className="mb-3">
+                                    <label htmlFor="name" className="form-label text-secondary">Name</label>
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="name"
+                                        name="name"
+                                        value={updatedDegreeType.name}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="name" className="form-label text-secondary">Acronym</label>
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="acronym"
+                                        name="acronym"
+                                        value={updatedDegreeType.acronym}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="name" className="form-label text-secondary">Code</label>
+                                    <input
+                                        type="text"
+                                        className="form-control border border-darkblue"
+                                        id="code"
+                                        name="code"
+                                        value={updatedDegreeType.code}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                                <button type="submit" className="btn btn-primary fw-medium d-flex mx-auto">Update</button>
+                            </form>
+                            {updateMessage && <div className='p-3 text-center'>{updateMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
+
 
 
 const AddDegreeType = () => {
@@ -333,12 +467,6 @@ const AddDegreeType = () => {
         </div>
     );
 };
-
-
-const EditDegreeType = () => {
-
-}
-
 
 
 
