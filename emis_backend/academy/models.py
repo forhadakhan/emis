@@ -137,7 +137,8 @@ class TeacherEnrollment(models.Model):
     designations = models.ManyToManyField(Designation)
     departments = models.ManyToManyField(Department)
     enrolled_by = models.ForeignKey(User, related_name='teacher_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
-    on_duty = models.BooleanField(default=True)
+    updated_by = models.ForeignKey(User, related_name='teacher_enrollment_updated_by', on_delete=models.SET_NULL, blank=True, null=True)
+    on_duty = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -511,7 +512,7 @@ def create_degree_types(sender, **kwargs):
 
 
 #####################################################################
-##################### create_degree_types:
+##################### create_institutes:
 #####################   - dependent on: Institute.
 @receiver(post_migrate)
 def create_institutes(sender, **kwargs):
