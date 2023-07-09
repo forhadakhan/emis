@@ -42,7 +42,7 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
     const columns = [
         {
             name: 'Username',
-            selector: 'fields.username',
+            selector: (row) => row.fields.username,
             sortable: true,
             style: {
                 textTransform: 'uppercase',
@@ -50,17 +50,17 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
         },
         {
             name: 'First Name',
-            selector: 'fields.first_name',
+            selector: (row) => row.fields.first_name,
             sortable: true,
         },
         {
             name: 'Last Name',
-            selector: 'fields.last_name',
+            selector: (row) => row.fields.last_name,
             sortable: true,
         },
         {
             name: 'Email',
-            selector: 'fields.email',
+            selector: (row) => row.fields.email,
             sortable: true,
         },
         {
@@ -75,6 +75,7 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
             ),
         },
     ];
+    
 
     const customStyles = {
         rows: {

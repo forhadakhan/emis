@@ -126,17 +126,17 @@ const TermList = () => {
     const columns = [
         {
             name: 'Name',
-            selector: 'name',
+            selector: (row) => row.name,
             sortable: true,
         },
         {
             name: 'Start',
-            selector: 'start',
+            selector: (row) => row.start,
             sortable: true,
         },
         {
             name: 'End',
-            selector: 'end',
+            selector: (row) => row.end,
             sortable: true,
         },
         {

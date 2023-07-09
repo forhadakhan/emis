@@ -334,17 +334,17 @@ const DepartmentList = ({ setSelectedDepartment, setShowComponent }) => {
     const columns = [
         {
             name: 'Name',
-            selector: 'name',
+            selector: (row) => row.name,
             sortable: true,
         },
         {
             name: 'Acronym',
-            selector: 'acronym',
+            selector: (row) => row.acronym,
             sortable: true,
         },
         {
             name: 'Code',
-            selector: 'code',
+            selector: (row) => row.code,
             sortable: true,
         },
         {

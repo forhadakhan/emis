@@ -119,7 +119,7 @@ export const DesignationList = () => {
     const columns = [
         {
             name: 'Name',
-            selector: 'name',
+            selector: (row) => row.name,
             sortable: true,
         },
         {
