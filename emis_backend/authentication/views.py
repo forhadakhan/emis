@@ -110,7 +110,6 @@ class LoginView(APIView):
                             teacher_id = int(teacher.id)
                             user_data['enrollment'] = TeacherEnrollmentAPIView().enrollment(teacher_id)
                         except Exception as e:
-                            print("failed",e)
                             user_data['enrollment'] = None
 
                 elif user.role == 'student':
