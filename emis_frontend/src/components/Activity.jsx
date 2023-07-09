@@ -1,5 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { getUserRole, hasPermission } from '../utils/auth.js';
+/**
+ * -- Manage Admin and Staff Activity --
+ * 
+ * Calling from: Landing.jsx
+ */
+
+/*******************************************************************************/
+/********************************| START IMPORTS |********************************/
+
+// User Management
 import AddAdministrator from './add-user/AddAdministrator';
 import AddStaff from './add-user/AddStaff';
 import AddTeacher from './add-user/AddTeacher';
@@ -11,14 +19,24 @@ import ManageTeacher from './manage-user/manage-teacher/ManageTeacher';
 import ManageTeacherProfile from './manage-user/manage-teacher/ManageTeacherProfile';
 import ManageStudent from './manage-user/manage-student/ManageStudent';
 import ManageStudentProfile from './manage-user/manage-student/ManageStudentProfile';
+
+// Permissions
 import UserPermissions from './permissions/UserPermissions.jsx';
+
+// Public Messages
 import PublicMessages from './public-messages/PublicMessages.jsx';
+
+// Academy Management
 import ManageTeacherDesignations from './academy/ManageTeacherDesignations.jsx';
 import ManageTermChoices from './academy/ManageTermChoices.jsx';
 import ManageInstitutes from './academy/ManageInstitutes.jsx';
 import ManageDepartments from './academy/ManageDepartments.jsx';
 import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
 import TeacherEnrollment from './academy/TeacherEnrollment.jsx';
+
+/********************************| END IMPORTS |********************************/
+/*******************************************************************************/
+
 
 
 const ActivityComponent = () => {
