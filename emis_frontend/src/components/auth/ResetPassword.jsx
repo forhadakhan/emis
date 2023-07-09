@@ -320,9 +320,9 @@ const ResetEmail = ({ username, setUsername, setPinCode, setResetEmailMessage2, 
                     <div className="text-center my-4">
                         <button className="btn btn-primary w-75 py-2" type="button" onClick={handleResetEmail} disabled={username.length < 1}>
                             {isLoading ? (
-                                <div class="d-flex justify-content-center">
-                                    <div class="spinner-border" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                <div className="d-flex justify-content-center">
+                                    <div className="spinner-border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
                                     </div>
                                 </div>) : (<div> Send </div>)}
                         </button>
