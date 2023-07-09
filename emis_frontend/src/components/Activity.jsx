@@ -18,6 +18,7 @@ import ManageTermChoices from './academy/ManageTermChoices.jsx';
 import ManageInstitutes from './academy/ManageInstitutes.jsx';
 import ManageDepartments from './academy/ManageDepartments.jsx';
 import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
+import TeacherEnrollment from './academy/TeacherEnrollment.jsx';
 
 
 const ActivityComponent = () => {
@@ -70,6 +71,8 @@ const ActivityComponent = () => {
                 return <ManageDepartments setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageDegreeTypes':
                 return <ManageDegreeTypes setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'TeacherEnrollment':
+                return <TeacherEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -124,6 +127,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_institute', label: 'Manage Institutes', render: 'ManageInstitutes', icon: 'bi-hospital' },
         { id: 'view_department', label: 'Manage Departments', render: 'ManageDepartments', icon: 'bi-house-gear-fill' },
         { id: 'view_degreetype', label: 'Manage Degree Types', render: 'ManageDegreeTypes', icon: 'bi-mortarboard-fill' },
+        { id: 'view_teacherenrollment', label: 'Teacher Enrollment', render: 'TeacherEnrollment', icon: 'bi-person-lines-fill' },
     ];
 
     let allowedElements = [];
