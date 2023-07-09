@@ -3,9 +3,10 @@
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from authentication.permissions import IsAdministratorOrStaff
+from authentication.permissions import IsAdministratorOrStaff, IsTeacher
 from authentication.models import User
 from authentication.serializers import UserSerializer
 from teacher.models import Teacher
@@ -30,9 +31,9 @@ from .serializers import (
 
 
 class DesignationAPIView(APIView):
-    permission_classes = [IsAdministratorOrStaff]
 
     def get(self, request):
+        permission_classes = [IsAuthenticated]
         try:
             designations = Designation.objects.all()
             serializer = DesignationSerializer(designations, many=True)
@@ -41,6 +42,7 @@ class DesignationAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             serializer = DesignationSerializer(data=request.data)
             if serializer.is_valid():
@@ -51,6 +53,7 @@ class DesignationAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             designation = get_object_or_404(Designation, pk=pk)
             serializer = DesignationSerializer(designation, data=request.data, partial=True)
@@ -64,6 +67,7 @@ class DesignationAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             designation = get_object_or_404(Designation, pk=pk)
             designation.delete()
@@ -76,9 +80,9 @@ class DesignationAPIView(APIView):
 
 
 class TermChoicesAPIView(APIView):
-    permission_classes = [IsAdministratorOrStaff]
 
     def get(self, request):
+        permission_classes = [IsAuthenticated]
         try:
             term_choices = TermChoices.objects.all()
             serializer = TermChoicesSerializer(term_choices, many=True)
@@ -87,6 +91,7 @@ class TermChoicesAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             serializer = TermChoicesSerializer(data=request.data)
             if serializer.is_valid():
@@ -97,6 +102,7 @@ class TermChoicesAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             term_choice = get_object_or_404(TermChoices, pk=pk)
             serializer = TermChoicesSerializer(term_choice, data=request.data, partial=True)
@@ -110,6 +116,7 @@ class TermChoicesAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             term_choice = get_object_or_404(TermChoices, pk=pk)
             term_choice.delete()
@@ -122,7 +129,9 @@ class TermChoicesAPIView(APIView):
 
 
 class InstituteAPIView(APIView):
+    
     def get(self, request):
+        permission_classes = [IsAuthenticated]
         try:
             institutes = Institute.objects.all()
             serializer = InstituteSerializer(institutes, many=True)
@@ -131,6 +140,7 @@ class InstituteAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             serializer = InstituteSerializer(data=request.data)
             if serializer.is_valid():
@@ -141,6 +151,7 @@ class InstituteAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             institute = get_object_or_404(Institute, pk=pk)
             serializer = InstituteSerializer(institute, data=request.data, partial=True)
@@ -154,6 +165,7 @@ class InstituteAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             institute = get_object_or_404(Institute, pk=pk)
             institute.delete()
@@ -167,6 +179,7 @@ class InstituteAPIView(APIView):
 
 class DepartmentAPIView(APIView):
     def get(self, request):
+        permission_classes = [IsAuthenticated]
         try:
             departments = Department.objects.all()
             serializer = DepartmentSerializer(departments, many=True)
@@ -191,6 +204,7 @@ class DepartmentAPIView(APIView):
             return None
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             serializer = DepartmentSerializer(data=request.data)
             if serializer.is_valid():
@@ -201,6 +215,7 @@ class DepartmentAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             department = get_object_or_404(Department, pk=pk)
             serializer = DepartmentSerializer(department, data=request.data, partial=True)
@@ -214,6 +229,7 @@ class DepartmentAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             department = get_object_or_404(Department, pk=pk)
             department.delete()
@@ -226,7 +242,9 @@ class DepartmentAPIView(APIView):
 
 
 class DegreeTypeAPIView(APIView):
+
     def get(self, request):
+        permission_classes = [IsAuthenticated]
         try:
             degree_types = DegreeType.objects.all()
             serializer = DegreeTypeSerializer(degree_types, many=True)
@@ -235,6 +253,7 @@ class DegreeTypeAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             serializer = DegreeTypeSerializer(data=request.data)
             if serializer.is_valid():
@@ -245,6 +264,7 @@ class DegreeTypeAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             degree_type = get_object_or_404(DegreeType, pk=pk)
             serializer = DegreeTypeSerializer(degree_type, data=request.data, partial=True)
@@ -258,6 +278,7 @@ class DegreeTypeAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             degree_type = get_object_or_404(DegreeType, pk=pk)
             degree_type.delete()
@@ -272,6 +293,7 @@ class DegreeTypeAPIView(APIView):
 class TeacherEnrollmentAPIView(APIView):
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             serializer = TeacherEnrollmentSerializer(data=request.data)
             if serializer.is_valid():
@@ -283,6 +305,7 @@ class TeacherEnrollmentAPIView(APIView):
 
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             teacher_enrollment = get_object_or_404(TeacherEnrollment, pk=pk)
             serializer = TeacherEnrollmentSerializer(teacher_enrollment, data=request.data, partial=True)
@@ -297,6 +320,7 @@ class TeacherEnrollmentAPIView(APIView):
 
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         try:
             teacher_enrollment = get_object_or_404(TeacherEnrollment, pk=pk)
             teacher_enrollment.delete()
