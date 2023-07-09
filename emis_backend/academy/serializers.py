@@ -1,6 +1,7 @@
 # academy/serializers.py 
 
 from rest_framework import serializers
+from teacher.serializers import TeacherSerializer
 from .models import (
     Designation,
     Institute,
@@ -73,9 +74,28 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class TeacherEnrollmentSerializer(serializers.ModelSerializer):
+    teacher = TeacherSerializer()
+    designations = DesignationSerializer(many=True)
+    departments = serializers.SerializerMethodField()
+
     class Meta:
         model = TeacherEnrollment
         fields = '__all__'
+
+    def get_departments(self, obj):
+        departments = obj.departments.all()
+        department_data = DepartmentSerializer(departments, many=True).data
+        return self.filter_department_fields(department_data)
+
+    def filter_department_fields(self, department_data):
+        filtered_data = []
+        fields_to_include = ['id', 'name', 'acronym', 'code']
+        
+        for department in department_data:
+            filtered_department = {key: department[key] for key in fields_to_include if key in department}
+            filtered_data.append(filtered_department)
+        
+        return filtered_data
 
 
 class BatchSerializer(serializers.ModelSerializer):
