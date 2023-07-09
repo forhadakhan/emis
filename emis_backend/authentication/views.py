@@ -19,6 +19,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
+from academy.views import TeacherEnrollmentAPIView
 from administrator.models import Administrator
 from administrator.serializers import AdministratorSerializer
 from staff.models import Staff
@@ -105,6 +106,12 @@ class LoginView(APIView):
                     if teacher is not None:
                         # Add teacher data to the user_data
                         user_data['profile'] = TeacherSerializer(teacher).data
+                        try:
+                            teacher_id = int(teacher.id)
+                            user_data['enrollment'] = TeacherEnrollmentAPIView().enrollment(teacher_id)
+                        except Exception as e:
+                            print("failed",e)
+                            user_data['enrollment'] = None
 
                 elif user.role == 'student':
                     student = Student.objects.filter(user=user).first()
