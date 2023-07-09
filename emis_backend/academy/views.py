@@ -340,5 +340,30 @@ class TeacherEnrollmentAPIView(APIView):
         except User.DoesNotExist:
             return None
         
+    
+    def enrollment(self, teacher_id):
+        try:
+            enrollments = TeacherEnrollment.objects.filter(teacher=teacher_id)
+            serializer = TeacherEnrollmentSerializer(enrollments, many=True)
+
+            data = serializer.data
+            for enrollment_data in data:
+                # Remove the teacher details
+                del enrollment_data['teacher']
+
+                # get enrolled_by user info 
+                enrolled_by_id = enrollment_data['enrolled_by']
+                if enrolled_by_id:
+                    enrollment_data['enrolled_by'] = self.get_user_data(enrolled_by_id)
+
+                # get updated_by user info 
+                updated_by_id = enrollment_data['updated_by']
+                if updated_by_id:
+                    enrollment_data['updated_by'] = self.get_user_data(updated_by_id)
+            return data[0]
+        
+        except Exception as e:
+            return {'message': str(e)}
+
 
 
