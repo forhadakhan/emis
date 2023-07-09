@@ -6,6 +6,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from authentication.permissions import IsAdministratorOrStaff
+from authentication.models import User
+from authentication.serializers import UserSerializer
+from teacher.models import Teacher
 
 from .models import (
     Designation,
@@ -13,6 +16,7 @@ from .models import (
     Institute,
     Department,
     DegreeType,
+    TeacherEnrollment,
 )
 from .serializers import (
     DesignationSerializer,
@@ -20,6 +24,7 @@ from .serializers import (
     TermChoicesSerializer,
     DepartmentSerializer,
     DegreeTypeSerializer,
+    TeacherEnrollmentSerializer,
 )
 
 
@@ -263,5 +268,77 @@ class DegreeTypeAPIView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+class TeacherEnrollmentAPIView(APIView):
+
+    def post(self, request):
+        try:
+            serializer = TeacherEnrollmentSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def patch(self, request, pk):
+        try:
+            teacher_enrollment = get_object_or_404(TeacherEnrollment, pk=pk)
+            serializer = TeacherEnrollmentSerializer(teacher_enrollment, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except TeacherEnrollment.DoesNotExist:
+            return Response({'message': 'Teacher Enrollment not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def delete(self, request, pk):
+        try:
+            teacher_enrollment = get_object_or_404(TeacherEnrollment, pk=pk)
+            teacher_enrollment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except TeacherEnrollment.DoesNotExist:
+            return Response({'message': 'Teacher Enrollment not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    def get(self, request):
+        try:
+            teacher_enrollments = TeacherEnrollment.objects.all()
+            serializer = TeacherEnrollmentSerializer(teacher_enrollments, many=True)
+
+            # Retrieve the nested representations of associated models
+            data = serializer.data
+            for enrollment_data in data:
+                enrolled_by_id = enrollment_data['enrolled_by']
+                if enrolled_by_id:
+                    enrollment_data['enrolled_by'] = self.get_user_data(enrolled_by_id)
+
+                updated_by_id = enrollment_data['updated_by']
+                if updated_by_id:
+                    enrollment_data['updated_by'] = self.get_user_data(updated_by_id)
+
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def get_user_data(self, user_id):
+        try:
+            user = get_object_or_404(User, pk=user_id)
+            user_data = {
+                'username': user.username,
+                'name': f"{user.first_name} {user.middle_name} {user.last_name}",
+                'email': user.email,
+            }
+            return user_data
+        except User.DoesNotExist:
+            return None
+        
 
 
