@@ -9,6 +9,7 @@ from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from academy.views import TeacherEnrollmentAPIView
 from authentication.models import User
 from authentication.serializers import UserSerializer
 from .models import Teacher
@@ -107,7 +108,13 @@ class GetTeacherView(APIView):
             combined_data['fields']['added_by'] = user_added_by
             combined_data['fields']['updated_by'] = user_updated_by
             combined_data['fields']['user'] = user_data
-
+            
+            try:
+                teacher_id = int(teacher.id)
+                combined_data['fields']['enrollment'] = TeacherEnrollmentAPIView().enrollment(teacher_id)
+            except Exception as e:
+                combined_data['fields']['enrollment'] = None
+            
             serialized_data = json.dumps(combined_data, cls=CustomJSONEncoder)
             return HttpResponse(serialized_data, content_type='application/json')
         except Teacher.DoesNotExist:
