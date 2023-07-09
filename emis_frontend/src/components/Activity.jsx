@@ -7,6 +7,9 @@
 /*******************************************************************************/
 /********************************| START IMPORTS |********************************/
 
+import React, { useState, useEffect } from 'react';
+import { getUserRole, hasPermission } from '../utils/auth.js';
+
 // User Management
 import AddAdministrator from './add-user/AddAdministrator';
 import AddStaff from './add-user/AddStaff';
