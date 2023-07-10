@@ -93,7 +93,7 @@ const ActivityComponent = () => {
             case 'ManageDegreeTypes':
                 return <ManageDegreeTypes setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'TeacherEnrollment':
-                return <TeacherEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+                return <TeacherEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb}  setReference={setReference} />;
             default:
                 return (
                     <div className='m-5 text-center'>
