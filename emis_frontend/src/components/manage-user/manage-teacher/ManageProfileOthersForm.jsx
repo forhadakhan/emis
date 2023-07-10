@@ -159,7 +159,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
                                 <img src={getFileLink(formData.photo_id)} className="img-fluid rounded-start mx-auto d-flex" alt="..." />
                             ) : (
                                 <div className="rounded-start-2 mx-auto bg-darkblue text-beige" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }}>
-                                    <span className="fs-4 fw-lighter">Image</span>
+                                    <i className="bi bi-person-bounding-box fs-1"></i>
                                 </div>
                             )}
                         </div>
