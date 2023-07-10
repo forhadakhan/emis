@@ -2,6 +2,8 @@
 
 from rest_framework import serializers
 from teacher.serializers import TeacherSerializer
+from teacher.models import Teacher
+
 from .models import (
     Designation,
     Institute,
@@ -74,6 +76,12 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class TeacherEnrollmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeacherEnrollment
+        fields = '__all__'
+
+
+class TeacherEnrollmentViewSerializer(serializers.ModelSerializer):
     teacher = TeacherSerializer()
     designations = DesignationSerializer(many=True)
     departments = serializers.SerializerMethodField()
