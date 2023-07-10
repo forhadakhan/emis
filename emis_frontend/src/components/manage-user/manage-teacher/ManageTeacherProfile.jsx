@@ -199,7 +199,7 @@ const ManageTeacherProfile = ({ setActiveComponent, reference, breadcrumb }) => 
                 )}
             </div>
             <div className="m-4 border border-beige p-5 rounded-3">
-                <h3 className='text-center m-4 text-darkblue border fs-5 border-darkblue rounded-3 p-2 mx-5 bg-beige'>Core Data</h3>
+                <h3 className='text-center m-4'><span className='badge bg-beige text-darkblue border border-darkblue p-2 fs-5'>Core Data</span></h3>
                 {profileData && profileData.user && (
                     <ManageProfileUserForm data={profileData.user} related_to={profilePK} status={false} />
                 )}
