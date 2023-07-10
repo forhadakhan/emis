@@ -168,16 +168,13 @@ a.text-beige:hover {
     .hoss {
         display: none !important;
     }
-}
-
-
-.content-sm-75 {
-    /* Styles for decreasing content size on small screens */
-    @media (max-width:  767.98px) {
+    .content-sm-75 {
+        /* Styles for decreasing content size on small screens */
         zoom: 0.75;
         /* 0.75 means 75% of the original size */
     }
 }
+
 
 
 /* Hide the default scrollbar */
