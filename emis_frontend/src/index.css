@@ -86,6 +86,21 @@ a.text-beige:hover {
     border-color: rgb(1, 1, 50);
 }
 
+.btn-darkblue2 {
+    color: rgb(238, 212, 132);
+    background-color: rgb(1, 1, 50);
+    border-color: rgb(1, 1, 50);
+    padding-top: 0.1rem;
+}
+
+.btn-darkblue2:hover {
+    color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 40);
+    border-color: rgb(238, 212, 132);
+    padding-top: 0.2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
 .btn-beige {
     color: rgb(1, 1, 50);
     background-color: rgb(238, 212, 132);
@@ -164,13 +179,16 @@ a.text-beige:hover {
 }
 
 @media (max-width: 767.98px) {
+
     /* hide on small screens */
     .hoss {
         display: none !important;
     }
+
     .w-sm-100 {
         width: 100% !important;
     }
+
     .content-sm-75 {
         /* Styles for decreasing content size on small screens */
         transform: scale(0.75);
