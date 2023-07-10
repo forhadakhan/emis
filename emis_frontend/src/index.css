@@ -127,6 +127,7 @@ a.text-beige:hover {
 .mw-350 {
     max-width: 350px;
 }
+
 .w-350 {
     width: 350px;
 }
@@ -143,32 +144,41 @@ a.text-beige:hover {
 }
 
 .crossed {
-    background: 
+    background:
         linear-gradient(to top left,
-            rgba(0,0,0,0) 0%,
-            rgba(0,0,0,0) calc(50% - 0.8px),
-            rgba(0,0,0,1) 50%,
-            rgba(0,0,0,0) calc(50% + 0.8px),
-            rgba(0,0,0,0) 100%),
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0) calc(50% - 0.8px),
+            rgba(0, 0, 0, 1) 50%,
+            rgba(0, 0, 0, 0) calc(50% + 0.8px),
+            rgba(0, 0, 0, 0) 100%),
         linear-gradient(to top right,
-            rgba(0,0,0,0) 0%,
-            rgba(0,0,0,0) calc(50% - 0.8px),
-            rgba(0,0,0,1) 50%,
-            rgba(0,0,0,0) calc(50% + 0.8px),
-            rgba(0,0,0,0) 100%);
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0) calc(50% - 0.8px),
+            rgba(0, 0, 0, 1) 50%,
+            rgba(0, 0, 0, 0) calc(50% + 0.8px),
+            rgba(0, 0, 0, 0) 100%);
 }
 
 *:focus {
     box-shadow: none !important;
 }
 
+@media (max-width: 767.98px) {
+    /* hide on small screens */
+    .hoss {
+        display: none !important;
+    }
+}
+
+
 .content-sm-75 {
     /* Styles for decreasing content size on small screens */
-    @media (max-width: 768px) {
-      zoom: 0.75; /* 0.75 means 75% of the original size */
+    @media (max-width:  767.98px) {
+        zoom: 0.75;
+        /* 0.75 means 75% of the original size */
     }
-  }
-  
+}
+
 
 /* Hide the default scrollbar */
 ::-webkit-scrollbar {
