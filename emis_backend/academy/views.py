@@ -368,6 +368,9 @@ class TeacherEnrollmentAPIView(APIView):
     def enrollment(self, teacher_id):
         try:
             enrollments = TeacherEnrollment.objects.filter(teacher=teacher_id)
+            if not enrollments:
+                return None
+            
             serializer = TeacherEnrollmentSerializer(enrollments, many=True)
 
             data = serializer.data
