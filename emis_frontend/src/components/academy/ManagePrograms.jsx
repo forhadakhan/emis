@@ -76,16 +76,21 @@ const ManagePrograms = ({ setActiveComponent, breadcrumb }) => {
 
     }, []);
 
+    const programDetail = (program) => {
+        setSelectedProgram(program);
+        setShowComponent('ProgramDetails')
+    }
+
     const renderComponent = () => {
         switch (showComponent) {
             case 'ProgramList':
-                return <ProgramList setSelectedProgram={setSelectedProgram} setShowComponent={setShowComponent} departments={departments} degreeTypes={degreeTypes} />;
+                return <ProgramList programDetail={programDetail} departments={departments} degreeTypes={degreeTypes} />;
             case 'AddProgram':
                 return <AddProgram departments={departments} degreeTypes={degreeTypes} />;
             case 'ProgramDetails':
-                return <ProgramDetail program={selectedProgram} setShowComponent={setShowComponent} />;
+                return <ProgramDetail program={selectedProgram} departments={departments} degreeTypes={degreeTypes} />;
             default:
-                return <ProgramList setSelectedProgram={setSelectedProgram} setShowComponent={setShowComponent} departments={departments} degreeTypes={degreeTypes} />;
+                return <ProgramList programDetail={programDetail} departments={departments} degreeTypes={degreeTypes} />;
         }
     }
 
@@ -103,7 +108,7 @@ const ManagePrograms = ({ setActiveComponent, breadcrumb }) => {
 
             </div>
 
-            <h2 className="text-center m-5 px-2">Manage Programs</h2>
+            <h2 className="text-center m-5 px-2 font-merriweather">Manage Programs</h2>
 
             <nav className="nav nav-pills flex-column flex-sm-row my-4">
                 <button
@@ -290,7 +295,7 @@ const AddProgram = ({ departments, degreeTypes }) => {
 };
 
 
-const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degreeTypes }) => {
+const ProgramList = ({ programDetail, departments, degreeTypes }) => {
     const [programs, setPrograms] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [error, setError] = useState('');
@@ -298,7 +303,7 @@ const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degree
     useEffect(() => {
         fetchPrograms();
     }, []);
-    
+
     useEffect(() => {
         setFilteredData(programs);
     }, [programs]);
@@ -314,7 +319,7 @@ const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degree
     };
 
     const handleProgramClick = (program) => {
-        setSelectedProgram(program);
+        programDetail(program);
     };
 
     const getDept = (id) => {
@@ -348,6 +353,11 @@ const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degree
             sortable: true,
         },
         {
+            name: 'Program Name',
+            selector: (row) => row.name,
+            sortable: true,
+        },
+        {
             name: 'Acronym',
             selector: (row) => row.acronym,
             sortable: true,
@@ -355,11 +365,6 @@ const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degree
         {
             name: 'Code',
             selector: (row) => row.code,
-            sortable: true,
-        },
-        {
-            name: 'Name',
-            selector: (row) => row.name,
             sortable: true,
         },
         {
@@ -416,7 +421,7 @@ const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degree
                 getDegree(program.degree_type).toLowerCase().includes(keyword) ||
                 program.name.toLowerCase().includes(keyword) ||
                 program.acronym.toLowerCase().includes(keyword) ||
-                program.code.toString().toLowerCase().includes(keyword) 
+                program.code.toString().toLowerCase().includes(keyword)
         );
         setFilteredData(filteredResults);
     };
@@ -456,8 +461,147 @@ const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degree
 };
 
 
-const ProgramDetail = ({ program }) => {
-    
+const ProgramDetail = ({ program, departments, degreeTypes }) => {
+    const [formData, setFormData] = useState(program);
+    const [isEditing, setIsEditing] = useState(false);
+    const [deactive, setDeactive] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [failedMessage, setFailedMessage] = useState('');
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+        setSuccessMessage('');
+    };
+
+    const handleUpdate = async () => {
+        try {
+            await axios.patch(`${API_BASE_URL}/academy/programs/${program.id}/`, formData);
+            setIsEditing(false);
+            setDeactive(true);
+            setSuccessMessage('Program updated successfully.');
+        } catch (error) {
+            setFailedMessage('Program update failed. Please try again later.');
+            console.error('Error updating program:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`${API_BASE_URL}/academy/programs/${program.id}/`);
+            setSuccessMessage('Program deleted successfully.');
+            setDeactive(true);
+            setIsDelete(false);
+        } catch (error) {
+            setFailedMessage('Program deletion failed. Please try again later.');
+            console.error('Error deleting program:', error);
+        }
+    };
+
+    return (
+        <div>
+            <h2 className='text-center font-merriweather'>
+                <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Program Detail</span>
+            </h2>
+            <div className='d-flex'>
+                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
+            </div>
+            {isDelete &&
+                <div className="container d-flex align-items-center justify-content-center">
+                    <div className="alert alert-info" role="alert">
+                        <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this user?</h6>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
+                            <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
+                        </div>
+                    </div>
+                </div>}
+            {successMessage && (
+                <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-check-circle-fill"> </i>
+                    <strong> {successMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+            {failedMessage && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {failedMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+            <form>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Name:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Acronym:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="acronym"
+                        value={formData.acronym}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Code:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="code"
+                        value={formData.code}
+                        onChange={handleInputChange}
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Degree Type:</label>
+                    <div className="">
+                        <select value={formData.degree_type} name="degree_type" disabled={!isEditing} onChange={handleInputChange} id="dept" className="form-select" aria-label="Departments" required>
+                            <option value="">Select a degree type:(s)</option>
+                            {degreeTypes && degreeTypes.map(degreeType => (
+                                <option key={degreeType.id} value={degreeType.id} className='bg-darkblue text-beige'>
+                                    {degreeType.acronym} {degreeType.code} - {degreeType.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Department:</label>
+                    <div className="">
+                        <select value={formData.department} name="department" disabled={!isEditing} onChange={handleInputChange} id="dept" className="form-select" aria-label="Departments" required>
+                            <option value="">Select a department</option>
+                            {departments && departments.map(department => (
+                                <option key={department.id} value={department.id} className='bg-darkblue text-beige'>
+                                    {department.acronym} {department.code} - {department.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                {isEditing && <>
+                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
+                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={() => setFormData(program)}>Reset</button>
+                </>}
+            </form>
+        </div>
+    );
 };
 
 
