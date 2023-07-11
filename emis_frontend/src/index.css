@@ -1,13 +1,15 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+@import url("http://fonts.googleapis.com/css?family=Merriweather:400,300,700");
 
 html,
 body {
     height: 100%;
+    background-color: rgb(1, 1, 50);
 }
 
-body {
-    background-color: rgb(1, 1, 50);
+.font-merriweather {
+    font-family: 'Merriweather' !important;
 }
 
 .icon-square {
