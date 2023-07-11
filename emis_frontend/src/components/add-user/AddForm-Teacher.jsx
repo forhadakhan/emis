@@ -12,7 +12,7 @@ import FileUploadForm from '../file-handler/FileUploadForm';
 import axios from 'axios';
 
 
-const AddForm = ({ formFields, url }) => {
+const AddForm = ({ formFields, url, setActiveComponent }) => {
     const [formData, setFormData] = useState(formFields);
     const [passwordError, setPasswordError] = useState('');
     const [re_password, setRePassword] = useState('');
@@ -412,9 +412,12 @@ const AddForm = ({ formFields, url }) => {
                     <div className="d-grid gap-2 m-5 px-5 mw-750 mx-auto">
                         {alertMessage && <div id="photo-note" className="alert alert-info mx-auto fw-bold" role="alert">{alertMessage}</div>}
                         {submitSuccess ? (
+                            <>
                             <button type="button" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleAddAnother}>
                                 <i className="bi bi-plus-circle"></i> Add Another
                             </button>
+                            <button className='btn btn-link' onClick={() => setActiveComponent('ManageTeacher')}>Manage Teachers</button>
+                            </>
                         ) : (
                             <>
                                 <button type="button" className="btn btn-darkblue btn-lg p-2 m-2 pt-1" onClick={handleEdit}>
