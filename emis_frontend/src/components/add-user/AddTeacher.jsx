@@ -44,7 +44,7 @@ const AddTeacher = ({ setActiveComponent }) => {
                 Add Teacher
             </h3>
 
-            <AddForm formFields={formFields} url={url} />
+            <AddForm formFields={formFields} url={url} setActiveComponent={setActiveComponent} />
 
         </div>
     );
