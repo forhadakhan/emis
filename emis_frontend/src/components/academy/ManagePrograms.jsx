@@ -11,84 +11,18 @@ import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
 
 const ManagePrograms = ({ setActiveComponent, breadcrumb }) => {
+    const accessToken = getAccessToken();
     const [showComponent, setShowComponent] = useState('ProgramList');
     const [selectedProgram, setSelectedProgram] = useState('');
+    const [departments, setDepartments] = useState([]);
+    const [degreeTypes, setDegreeTypes] = useState([]);
+    const [error, setError] = useState('');
 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManagePrograms')}>
             <i className="bi bi-mortarboard"></i> Manage Programs
         </button>
     );
-
-    const renderComponent = () => {
-        switch (showComponent) {
-            case 'ProgramList':
-                return <ProgramList setSelectedProgram={setSelectedProgram} setShowComponent={setShowComponent} />;
-            case 'AddProgram':
-                return <AddProgram />;
-            case 'ProgramDetails':
-                return <ProgramDetail program={selectedProgram} setShowComponent={setShowComponent} />;
-            default:
-                return <ProgramList />;
-        }
-    }
-
-
-    return (
-        <>
-            <div className="">
-                <nav aria-label="breadcrumb">
-                    <ol className="breadcrumb">
-                        {updatedBreadcrumb.map((item, index) => (
-                            <li className="breadcrumb-item" key={index}>{item}</li>
-                        ))}
-                    </ol>
-                </nav>
-
-            </div>
-
-            <h2 className="text-center m-5 px-2">Manage Programs</h2>
-
-            <nav className="nav nav-pills flex-column flex-sm-row my-4">
-                <button
-                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`}
-                    disabled={showComponent === 'ProgramList'}
-                    onClick={() => setShowComponent('ProgramList')}>
-                    List All Programs
-                </button>
-                <button
-                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`}
-                    disabled={showComponent === 'AddProgram'}
-                    onClick={() => setShowComponent('AddProgram')}>
-                    Add New Program
-                </button>
-            </nav>
-
-            <div className="">
-                {renderComponent()}
-            </div>
-        </>
-    );
-}
-
-
-const AddProgram = () => {
-    const accessToken = getAccessToken();
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
-    const [departments, setDepartments] = useState([]);
-    const [degreeTypes, setDegreeTypes] = useState([]);
-    const [formData, setFormData] = useState({
-        name: '',
-        acronym: '',
-        code: '',
-        degree_type: '',
-        department: '',
-    });
-
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
 
     // fetch degree types for select 
     useEffect(() => {
@@ -141,6 +75,83 @@ const AddProgram = () => {
         }
 
     }, []);
+
+    const renderComponent = () => {
+        switch (showComponent) {
+            case 'ProgramList':
+                return <ProgramList setSelectedProgram={setSelectedProgram} setShowComponent={setShowComponent} departments={departments} degreeTypes={degreeTypes} />;
+            case 'AddProgram':
+                return <AddProgram departments={departments} degreeTypes={degreeTypes} />;
+            case 'ProgramDetails':
+                return <ProgramDetail program={selectedProgram} setShowComponent={setShowComponent} />;
+            default:
+                return <ProgramList setSelectedProgram={setSelectedProgram} setShowComponent={setShowComponent} departments={departments} degreeTypes={degreeTypes} />;
+        }
+    }
+
+
+    return (
+        <>
+            <div className="">
+                <nav aria-label="breadcrumb">
+                    <ol className="breadcrumb">
+                        {updatedBreadcrumb.map((item, index) => (
+                            <li className="breadcrumb-item" key={index}>{item}</li>
+                        ))}
+                    </ol>
+                </nav>
+
+            </div>
+
+            <h2 className="text-center m-5 px-2">Manage Programs</h2>
+
+            <nav className="nav nav-pills flex-column flex-sm-row my-4">
+                <button
+                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`}
+                    disabled={showComponent === 'ProgramList'}
+                    onClick={() => setShowComponent('ProgramList')}>
+                    List All Programs
+                </button>
+                <button
+                    className={`btn border flex-sm-fill text-center nav-link btn-beige m-1 p-2 fw-bold`}
+                    disabled={showComponent === 'AddProgram'}
+                    onClick={() => setShowComponent('AddProgram')}>
+                    Add New Program
+                </button>
+            </nav>
+
+            <div className="">
+                {error && (
+                    <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                        <i className="bi bi-x-octagon-fill"> </i>
+                        <strong> {error} </strong>
+                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                    </div>
+                )}
+
+                {renderComponent()}
+            </div>
+        </>
+    );
+}
+
+
+const AddProgram = ({ departments, degreeTypes }) => {
+    const accessToken = getAccessToken();
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const [formData, setFormData] = useState({
+        name: '',
+        acronym: '',
+        code: '',
+        degree_type: '',
+        department: '',
+    });
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
 
     const resetForm = () => {
         setFormData({
@@ -279,8 +290,169 @@ const AddProgram = () => {
 };
 
 
-const ProgramList = () => {
+const ProgramList = ({ setShowComponent, setSelectedProgram, departments, degreeTypes }) => {
+    const [programs, setPrograms] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [error, setError] = useState('');
 
+    useEffect(() => {
+        fetchPrograms();
+    }, []);
+    
+    useEffect(() => {
+        setFilteredData(programs);
+    }, [programs]);
+
+    const fetchPrograms = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/programs/`);
+            setPrograms(response.data);
+        } catch (error) {
+            setError(' Failed to fetch programs list.');
+            console.error('Error fetching programs:', error);
+        }
+    };
+
+    const handleProgramClick = (program) => {
+        setSelectedProgram(program);
+    };
+
+    const getDept = (id) => {
+        const filteredDepartments = departments.filter(department => department.id === id);
+
+        if (filteredDepartments.length > 0) {
+            const department = filteredDepartments[0];
+            const { acronym, code } = department;
+            return `${acronym}`;
+        }
+
+        return ''; // Return null if no data with the given ID is found
+    }
+
+    const getDegree = (id) => {
+        const filteredDegrees = degreeTypes.filter(degreeType => degreeType.id === id);
+
+        if (filteredDegrees.length > 0) {
+            const degreeType = filteredDegrees[0];
+            const { acronym, code } = degreeType;
+            return `${acronym}`;
+        }
+
+        return ''; // Return empty str if no data with the given ID is found
+    }
+
+    const columns = [
+        {
+            name: 'Degree',
+            selector: (row) => getDegree(row.degree_type),
+            sortable: true,
+        },
+        {
+            name: 'Acronym',
+            selector: (row) => row.acronym,
+            sortable: true,
+        },
+        {
+            name: 'Code',
+            selector: (row) => row.code,
+            sortable: true,
+        },
+        {
+            name: 'Name',
+            selector: (row) => row.name,
+            sortable: true,
+        },
+        {
+            name: 'Department',
+            selector: (row) => getDept(row.department),
+            sortable: true,
+        },
+        {
+            name: 'Actions',
+            button: true,
+            cell: (row) => (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-outline-dark me-2 border-0"
+                    onClick={() => handleProgramClick(row)}
+                >
+                    Details
+                </button>
+            ),
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px', // override the row height
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for head cells
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for data cells
+                paddingRight: '8px',
+                fontWeight: 'bold'
+            },
+        },
+    };
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = programs.filter(
+            (program) =>
+                getDept(program.department).toLowerCase().includes(keyword) ||
+                getDegree(program.degree_type).toLowerCase().includes(keyword) ||
+                program.name.toLowerCase().includes(keyword) ||
+                program.acronym.toLowerCase().includes(keyword) ||
+                program.code.toString().toLowerCase().includes(keyword) 
+        );
+        setFilteredData(filteredResults);
+    };
+
+    return (
+        <div>
+            {error && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+
+            <div className="m-5">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <div className="rounded-4">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    customStyles={customStyles}
+                    pagination
+                    paginationPerPage={10}
+                    paginationRowsPerPageOptions={[10, 20, 30]}
+                    highlightOnHover
+                />
+            </div>
+        </div>
+    );
 };
 
 
