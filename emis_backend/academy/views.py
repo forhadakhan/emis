@@ -26,6 +26,7 @@ from .serializers import (
     DepartmentSerializer,
     DegreeTypeSerializer,
     TeacherEnrollmentSerializer,
+    TeacherEnrollmentViewSerializer,
 )
 
 
@@ -334,7 +335,7 @@ class TeacherEnrollmentAPIView(APIView):
     def get(self, request):
         try:
             teacher_enrollments = TeacherEnrollment.objects.all()
-            serializer = TeacherEnrollmentSerializer(teacher_enrollments, many=True)
+            serializer = TeacherEnrollmentViewSerializer(teacher_enrollments, many=True)
 
             # Retrieve the nested representations of associated models
             data = serializer.data
@@ -371,7 +372,7 @@ class TeacherEnrollmentAPIView(APIView):
             if not enrollments:
                 return None
             
-            serializer = TeacherEnrollmentSerializer(enrollments, many=True)
+            serializer = TeacherEnrollmentViewSerializer(enrollments, many=True)
 
             data = serializer.data
             for enrollment_data in data:
