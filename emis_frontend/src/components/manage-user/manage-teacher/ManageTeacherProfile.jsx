@@ -232,7 +232,7 @@ const ManageTeacherProfile = ({ setActiveComponent, reference, breadcrumb }) => 
                             <div className="modal-content bg-danger border border-beige text-white">
                                 <div className="modal-header">
                                     <h5 className="modal-title fs-4"><i className="bi bi-exclamation-octagon-fill"></i> Failed </h5>
-                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={showDeleteErrorModal(false)}>
+                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={setShowDeleteErrorModal(false)}>
                                         <i className="bi bi-x-lg"></i>
                                     </button>
                                 </div>
