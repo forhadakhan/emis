@@ -13,7 +13,7 @@ from academy.views import TeacherEnrollmentAPIView
 from authentication.models import User
 from authentication.serializers import UserSerializer
 from .models import Teacher
-from .serializers import TeacherSerializer
+from .serializers import TeacherSerializer, TeacherViewSetSerializer
 from authentication.views import UserDeleteView
 from rest_framework.views import APIView
 
@@ -23,7 +23,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     queryset = Teacher.objects.all()
-    serializer_class = TeacherSerializer
+    serializer_class = TeacherViewSetSerializer
 
     def create(self, request, *args, **kwargs):
         teacher_data = request.data.copy()
@@ -33,6 +33,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
         user_serializer = UserSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user = user_serializer.save()
+        
 
         teacher_data['user'] = user.id
 
