@@ -35,7 +35,7 @@ import ManageTermChoices from './academy/ManageTermChoices.jsx';
 import ManageInstitutes from './academy/ManageInstitutes.jsx';
 import ManageDepartments from './academy/ManageDepartments.jsx';
 import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
-import TeacherEnrollment from './academy/TeacherEnrollment.jsx';
+import TeacherEnrollment from './academy/ManageTeacherEnrollment.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
