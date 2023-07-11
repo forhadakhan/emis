@@ -14,6 +14,8 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
     const [isReadonly, setIsReadonly] = useState(true);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
     function convertDate(dateString) {
         if (dateString) {
             const date = new Date(dateString);
@@ -23,6 +25,7 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
             return '';
         }
     }
+
     const [source, setSource] = useState({
         username: data.username,
         first_name: data.first_name,
@@ -34,6 +37,7 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
         is_active: data.is_active,
         id: data.id,
     });
+
     const [formData, setFormData] = useState(source);
 
     const [fixedData] = useState({
@@ -50,6 +54,7 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
     };
 
     const handleSubmit = (e) => {
+        setIsLoading(true);
         e.preventDefault();
         const accessToken = getAccessToken();
         const updatedData = formData;
@@ -70,9 +75,11 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
         }).then(response => {
             setShowSuccessModal(true);
             setSource(response.data);
+            setIsLoading(false);
         }).catch(error => {
             setShowErrorModal(true);
             console.error(error);
+            setIsLoading(false);
         });
     };
 
@@ -139,14 +146,6 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
                     />
                 </div>
 
-                {/* <div className="mb-3">
-                    <label className="form-label h6 me-4" >Role</label>
-                    <select className="form-select" name="role" onChange={handleChange} disabled={isReadonly} aria-label="role-select">
-                        <option selected={formData.role === "staff"} value="staff">Staff</option>
-                        <option selected={formData.role === "administrator"} value="administrator">Administrator</option>
-                    </select>
-                </div> */}
-
                 <div className="my-4 input-group form-check-reverse form-switch text-start">
                     <label className="form-check-label form-label h6 me-4" htmlFor="flexStaffSwitchCheckChecked">
                         Staff Status  (readonly/fullaccess)
@@ -190,7 +189,9 @@ const ManageProfileUserForm = ({ data, related_to, status }) => {
                     </div>
                 ) : (
                     <div className="d-grid gap-2 m-5">
-                        <button type="button" onClick={handleSubmit} className="btn btn-darkblue"><i className="bi bi-person-bounding-box"></i> Update</button>
+                        <button type="button" onClick={handleSubmit} className="btn btn-darkblue">
+                            {isLoading ? <span className="spinner-grow spinner-grow-sm" role="status"></span> : <i className="bi bi-person-bounding-box fst-normal"> Update </i>}
+                        </button>
                         <button type="button" className="btn btn-darkblue pt-1" onClick={() => { setIsReadonly(true); setFormData(source); }}><i className="bi bi-clipboard-x"></i> Cancel</button>
                     </div>
                 )}
