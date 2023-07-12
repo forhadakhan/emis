@@ -78,6 +78,13 @@ class SemesterSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SemesterNestedSerializer(serializers.ModelSerializer):
+    programs = ProgramNestedSerializer(many=True, read_only=True)
+    class Meta:
+        model = Semester
+        fields = '__all__'
+
+
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
