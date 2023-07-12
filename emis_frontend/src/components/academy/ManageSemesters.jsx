@@ -385,7 +385,175 @@ const AddSemester = ({ programs, termChoices }) => {
 
 
 const SemesterList = ({ semesterDetail, programs, termChoices }) => {
-    
+    const accessToken = getAccessToken();
+    const [semesters, setSemesters] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        fetchSemesters();
+    }, []);
+
+    useEffect(() => {
+        setFilteredData(semesters);
+    }, [semesters]);
+
+    const fetchSemesters = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/semesters/`, config);
+            setSemesters(response.data);
+        } catch (error) {
+            setError(' Failed to fetch semesters list.');
+            console.error('Error fetching semesters:', error);
+        }
+    };
+
+    const handleSemesterClick = (semester) => {
+        semesterDetail(semester);
+    };
+
+    const getTerm = (id) => {
+        const term = termChoices.find(trem => trem.id === id);
+
+        if (term) return term.name;
+
+        return ''; // Return null if no data with the given ID is found
+    }
+
+
+    const columns = [
+        {
+            name: 'Term',
+            selector: (row) => `${getTerm(row.term)}`,
+            sortable: true,
+        },
+        {
+            name: 'Year',
+            selector: (row) => row.year,
+            sortable: true,
+        },
+        {
+            name: 'Code',
+            selector: (row) => row.code,
+            sortable: true,
+        },
+        {
+            name: 'Open',
+            selector: (row) => row.is_open ? 'Yes' : 'No',
+            sortable: true,
+        },
+        {
+            name: 'Finished',
+            selector: (row) => row.is_finished ? 'Yes' : 'No',
+            sortable: true,
+        },
+        {
+            name: 'Actions',
+            button: true,
+            cell: (row) => (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-outline-dark me-2 border-0"
+                    onClick={() => handleSemesterClick(row)}
+                >
+                    Details
+                </button>
+            ),
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px', // override the row height
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for head cells
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for data cells
+                paddingRight: '8px',
+                fontWeight: 'bold'
+            },
+        },
+    };
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = semesters.filter(
+            (semester) =>
+                getTerm(semester.term).toLowerCase().includes(keyword) ||
+                semester.year.toString().toLowerCase().includes(keyword) ||
+                semester.code.toString().toLowerCase().includes(keyword) ||
+                ((semester.is_open && (keyword === 'open')) ||
+                    (!semester.is_open && (keyword === '!open' || keyword === 'not open'))) ||
+                ((semester.is_finished && (keyword === 'finished')) ||
+                    (!semester.is_finished && (keyword === '!finished' || keyword === 'not finished')))
+        );
+        setFilteredData(filteredResults);
+    };
+
+    return (
+        <div>
+            {error && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
+                    <option value="">No Filter</option>
+                    <option value="open">Open</option>
+                    <option value="!open">Not Open</option>
+                    <option value="finished">Finished</option>
+                    <option value="!finished">Not Finished</option>
+                </select>
+            </div>
+
+            <div className="m-5">
+                <input
+                    type="text"
+                    placeholder="Search with any field e.g. availability/duration ..."
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <div className="rounded-4">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    customStyles={customStyles}
+                    pagination
+                    paginationPerPage={10}
+                    paginationRowsPerPageOptions={[10, 20, 30]}
+                    highlightOnHover
+                />
+            </div>
+        </div>
+    );
 };
 
 
