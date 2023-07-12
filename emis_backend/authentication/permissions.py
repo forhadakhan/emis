@@ -66,7 +66,6 @@ class IsAdministratorOrStaffOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         # Check if the user is authenticated
         is_authenticated = IsAuthenticated().has_permission(request, view)
-
         if is_authenticated and request.user.role:
             # Check if the user's role is 'administrator' or 'staff'
             return (request.user.role == 'administrator') or (request.user.role == 'staff')
