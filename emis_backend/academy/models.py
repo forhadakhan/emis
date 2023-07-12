@@ -74,9 +74,13 @@ class Program(models.Model):
     name = models.CharField(max_length=124)
     acronym = models.CharField(max_length=16, unique=True)
     code = models.IntegerField(unique=True)
+    duration = models.CharField(max_length=24, blank=True)
+    required_credits = models.IntegerField(null=True)
+    availability = models.CharField(max_length=32, blank=True)
+    entry_period = models.CharField(max_length=64, blank=True)
     details = models.TextField(blank=True)
-    degree_type = models.OneToOneField(DegreeType, on_delete=models.CASCADE, null=True)
-    department = models.OneToOneField(Department, on_delete=models.CASCADE, null=True)
+    degree_type = models.ForeignKey(DegreeType, on_delete=models.CASCADE, null=True)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.acronym
@@ -418,6 +422,11 @@ def create_degree_types(sender, **kwargs):
                 'name': 'Bachelor of Science',
                 'acronym': 'BSc',
                 'code': '108'
+            },
+            {
+                'name': 'Bachelor of Social Science',
+                'acronym': 'BSS',
+                'code': '109'
             },
             {
                 'name': 'Doctor of Business Administration',
