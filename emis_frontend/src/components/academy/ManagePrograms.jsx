@@ -171,9 +171,15 @@ const AddProgram = ({ departments, degreeTypes }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
 
         try {
-            const response = await axios.post(`${API_BASE_URL}/academy/programs/`, formData);
+            const response = await axios.post(`${API_BASE_URL}/academy/programs/`, formData, config);
             // clear form
             resetForm();
             setMessage('Program added successfully.');
@@ -486,7 +492,7 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
                 </div>
             )}
 
-            <div className="m-5">
+            <div className="my-5 mx-md-5">
                 <input
                     type="text"
                     placeholder="Search with any field e.g. availability/duration ..."
@@ -512,6 +518,7 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
 
 
 const ProgramDetail = ({ program, departments, degreeTypes }) => {
+    const accessToken = getAccessToken();
     const [formData, setFormData] = useState(program);
     const [isEditing, setIsEditing] = useState(false);
     const [deactive, setDeactive] = useState(false);
@@ -538,7 +545,13 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
         }
 
         try {
-            await axios.patch(`${API_BASE_URL}/academy/programs/${program.id}/`, formData);
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+            await axios.patch(`${API_BASE_URL}/academy/programs/${program.id}/`, formData, config);
             setIsEditing(false);
             setDeactive(true);
             setSuccessMessage('Program updated successfully.');
@@ -549,8 +562,14 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
     };
 
     const handleDelete = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
         try {
-            await axios.delete(`${API_BASE_URL}/academy/programs/${program.id}/`);
+            await axios.delete(`${API_BASE_URL}/academy/programs/${program.id}/`, config);
             setSuccessMessage('Program deleted successfully.');
             setDeactive(true);
             setIsDelete(false);
@@ -583,14 +602,14 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
                 <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-check-circle-fill"> </i>
                     <strong> {successMessage} </strong>
-                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
                 </div>
             )}
             {failedMessage && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
                     <strong> {failedMessage} </strong>
-                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
                 </div>
             )}
             <form>
