@@ -413,3 +413,24 @@ class ProgramViewSet(ModelViewSet):
 
 
 
+class SemesterViewSet(ModelViewSet):
+    queryset = Semester.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return SemesterNestedSerializer
+        return SemesterSerializer 
+
+    def get_permissions(self):
+        """
+        We can achieve the same outcomes by applying IsAdministratorOrStaffOrReadOnly for whole view. 
+        """
+        if self.action in ['update', 'partial_update', 'destroy', 'create']:
+            self.permission_classes = [IsAdministratorOrStaff, ]
+        else:
+            self.permission_classes = []
+        return super(SemesterViewSet, self).get_permissions()
+
+
+
+
