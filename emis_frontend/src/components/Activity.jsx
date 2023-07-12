@@ -37,6 +37,7 @@ import ManageDepartments from './academy/ManageDepartments.jsx';
 import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
 import TeacherEnrollment from './academy/ManageTeacherEnrollment.jsx';
 import ManagePrograms from './academy/ManagePrograms.jsx';
+import ManageSemesters from './academy/ManageSemesters.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
@@ -97,6 +98,8 @@ const ActivityComponent = () => {
                 return <TeacherEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb}  setReference={setReference} />;
             case 'ManagePrograms':
                 return <ManagePrograms setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'ManageSemesters':
+                return <ManageSemesters setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -153,6 +156,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_teacherenrollment', label: 'Teacher Enrollment', render: 'TeacherEnrollment', icon: 'bi-person-lines-fill' },
         { id: 'view_degreetype', label: 'Manage Degree Types', render: 'ManageDegreeTypes', icon: 'bi-mortarboard-fill' },
         { id: 'view_program', label: 'Manage Programs', render: 'ManagePrograms', icon: 'bi-mortarboard' },
+        { id: 'view_semester', label: 'Manage Semesters', render: 'ManageSemesters', icon: 'bi-calendar2-range-fill' },
     ];
 
     let allowedElements = [];
