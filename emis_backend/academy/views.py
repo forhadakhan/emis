@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from authentication.permissions import IsAdministratorOrStaff, IsTeacher
+from authentication.permissions import IsAdministratorOrStaff, IsAdministratorOrStaffOrReadOnly, IsTeacher
 from authentication.models import User
 from authentication.serializers import UserSerializer
 from teacher.models import Teacher
@@ -20,6 +20,7 @@ from .models import (
     DegreeType,
     TeacherEnrollment,
     Program,
+    Semester,
 )
 from .serializers import (
     DesignationSerializer,
@@ -31,6 +32,8 @@ from .serializers import (
     TeacherEnrollmentViewSerializer,
     ProgramSerializer,
     ProgramNestedSerializer,
+    SemesterSerializer,
+    SemesterNestedSerializer,
 )
 
 
@@ -400,6 +403,7 @@ class TeacherEnrollmentAPIView(APIView):
 
 
 class ProgramViewSet(ModelViewSet):
+    permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     queryset = Program.objects.all()
 
     def get_serializer_class(self):
