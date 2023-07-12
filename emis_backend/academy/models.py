@@ -107,13 +107,16 @@ class TermChoices(models.Model):
 class Semester(models.Model):
     term = models.ForeignKey(TermChoices, on_delete=models.CASCADE)
     year = models.IntegerField()
-    code = models.IntegerField()
+    code = models.IntegerField(unique=True)
     is_open = models.BooleanField(default=True)
-    is_finished = models.BooleanField(default=True)
+    is_finished = models.BooleanField(default=False)
     programs = models.ManyToManyField(Program, blank=True)
 
     def __str__(self):
         return f'{self.term.name} {self.year}'
+
+    class Meta:
+        unique_together = ['term', 'year']
 #####################################################################
 
 
