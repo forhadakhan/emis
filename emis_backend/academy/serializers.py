@@ -57,6 +57,15 @@ class ProgramSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ProgramNestedSerializer(serializers.ModelSerializer):
+    degree_type = DegreeTypeSerializer(read_only=True)
+    department = DepartmentSerializer(read_only=True)
+
+    class Meta:
+        model = Program
+        fields = '__all__'
+
+
 class TermChoicesSerializer(serializers.ModelSerializer):
     class Meta:
         model = TermChoices
