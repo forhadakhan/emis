@@ -6,6 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from authentication.permissions import IsAdministratorOrStaff, IsTeacher
 from authentication.models import User
 from authentication.serializers import UserSerializer
@@ -18,6 +19,7 @@ from .models import (
     Department,
     DegreeType,
     TeacherEnrollment,
+    Program,
 )
 from .serializers import (
     DesignationSerializer,
@@ -27,6 +29,8 @@ from .serializers import (
     DegreeTypeSerializer,
     TeacherEnrollmentSerializer,
     TeacherEnrollmentViewSerializer,
+    ProgramSerializer,
+    ProgramNestedSerializer,
 )
 
 
@@ -392,6 +396,16 @@ class TeacherEnrollmentAPIView(APIView):
         
         except Exception as e:
             return {'message': str(e)}
+
+
+
+class ProgramViewSet(ModelViewSet):
+    queryset = Program.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return ProgramNestedSerializer
+        return ProgramSerializer 
 
 
 
