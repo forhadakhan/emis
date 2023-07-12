@@ -143,15 +143,22 @@ const ManagePrograms = ({ setActiveComponent, breadcrumb }) => {
 
 const AddProgram = ({ departments, degreeTypes }) => {
     const accessToken = getAccessToken();
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
-    const [formData, setFormData] = useState({
+    const form = {
         name: '',
         acronym: '',
         code: '',
         degree_type: '',
         department: '',
-    });
+        duration: '',
+        required_credits: '',
+        availability: '',
+        entry_period: '',
+        details: '',
+    }
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const [formData, setFormData] = useState(form);
+
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -159,13 +166,7 @@ const AddProgram = ({ departments, degreeTypes }) => {
 
 
     const resetForm = () => {
-        setFormData({
-            name: '',
-            acronym: '',
-            code: '',
-            degree_type: '',
-            department: '',
-        });
+        setFormData(form);
     }
 
     const handleSubmit = async (e) => {
@@ -285,6 +286,61 @@ const AddProgram = ({ departments, degreeTypes }) => {
                                 </select>
                             </div>
                         </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Duration:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="duration"
+                                value={formData.duration}
+                                onChange={handleInputChange}
+                                placeholder='e.g. 4 years / 6 months'
+                            />
+                        </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Credits: (min)</label>
+                            <input
+                                type="number"
+                                className="form-control"
+                                name="required_credits"
+                                value={formData.required_credits}
+                                onChange={handleInputChange}
+                                placeholder='e.g. 150'
+                            />
+                        </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Availability:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="availability"
+                                value={formData.availability}
+                                onChange={handleInputChange}
+                                placeholder='e.g. Day/Evening/Morning'
+                            />
+                        </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Entry Time:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="entry_period"
+                                value={formData.entry_period}
+                                onChange={handleInputChange}
+                                placeholder='e.g. January/July'
+                            />
+                        </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Details:</label>
+                            <textarea
+                                type="textarea"
+                                className="form-control"
+                                name="details"
+                                value={formData.details}
+                                onChange={handleInputChange}
+                                rows="4"
+                            />
+                        </div>
                     </div>
                     <button type="submit" className="btn btn-darkblue2 mx-auto m-4 d-flex">Add Program</button>
                     <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
@@ -348,23 +404,13 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
 
     const columns = [
         {
-            name: 'Degree',
-            selector: (row) => getDegree(row.degree_type),
+            name: 'Program',
+            selector: (row) => `${row.code} - ${getDegree(row.degree_type)} in ${row.acronym}`,
             sortable: true,
         },
         {
-            name: 'Program Name',
-            selector: (row) => row.name,
-            sortable: true,
-        },
-        {
-            name: 'Acronym',
-            selector: (row) => row.acronym,
-            sortable: true,
-        },
-        {
-            name: 'Code',
-            selector: (row) => row.code,
+            name: 'Duration',
+            selector: (row) => row.duration,
             sortable: true,
         },
         {
@@ -421,6 +467,10 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
                 getDegree(program.degree_type).toLowerCase().includes(keyword) ||
                 program.name.toLowerCase().includes(keyword) ||
                 program.acronym.toLowerCase().includes(keyword) ||
+                program.duration.toLowerCase().includes(keyword) ||
+                program.availability.toLowerCase().includes(keyword) ||
+                program.entry_period.toLowerCase().includes(keyword) ||
+                program.required_credits.toString().toLowerCase().includes(keyword) ||
                 program.code.toString().toLowerCase().includes(keyword)
         );
         setFilteredData(filteredResults);
@@ -439,7 +489,7 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
             <div className="m-5">
                 <input
                     type="text"
-                    placeholder="Search"
+                    placeholder="Search with any field e.g. availability/duration ..."
                     onChange={handleSearch}
                     className="form-control text-center border border-darkblue"
                 />
@@ -476,9 +526,17 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
         setSuccessMessage('');
+        setFailedMessage('');
     };
 
     const handleUpdate = async () => {
+        setSuccessMessage('');
+        setFailedMessage('');
+        if (program === formData) {
+            setFailedMessage('No changes to update.');
+            return;
+        }
+
         try {
             await axios.patch(`${API_BASE_URL}/academy/programs/${program.id}/`, formData);
             setIsEditing(false);
@@ -503,7 +561,7 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
     };
 
     return (
-        <div>
+        <div className='mb-5 pb-5'>
             <h2 className='text-center font-merriweather'>
                 <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Program Detail</span>
             </h2>
@@ -594,6 +652,66 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
                             ))}
                         </select>
                     </div>
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Duration:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="duration"
+                        value={formData.duration}
+                        onChange={handleInputChange}
+                        placeholder='e.g. 4 years / 6 months'
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Credits: (min)</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        name="required_credits"
+                        value={formData.required_credits}
+                        onChange={handleInputChange}
+                        placeholder='e.g. 150'
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Availability:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="availability"
+                        value={formData.availability}
+                        onChange={handleInputChange}
+                        placeholder='e.g. Day/Evening/Morning'
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Entry Time:</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        name="entry_period"
+                        value={formData.entry_period}
+                        onChange={handleInputChange}
+                        placeholder='e.g. January/July'
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Details:</label>
+                    <textarea
+                        type="textarea"
+                        className="form-control"
+                        name="details"
+                        value={formData.details}
+                        onChange={handleInputChange}
+                        rows="4"
+                        disabled={!isEditing}
+                    />
                 </div>
                 {isEditing && <>
                     <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
