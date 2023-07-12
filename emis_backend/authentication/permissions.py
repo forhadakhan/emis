@@ -1,6 +1,6 @@
 # autentication/permissions.py
 
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 
 
 
@@ -15,6 +15,7 @@ class IsAdministrator(BasePermission):
             
         return False
 
+    # Handle deny permission in case user is not expected 
     def handle_permission_denied(self, request, message='Permission denied'):
         if request.user.role:
             role = request.user.role.capitalize()
@@ -22,6 +23,20 @@ class IsAdministrator(BasePermission):
             return Response({'detail': f"{message}. {error_message}"}, status=status.HTTP_403_FORBIDDEN)
             
         return Response({'detail': message}, status=status.HTTP_403_FORBIDDEN)
+
+
+
+class IsAdministratorOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        # Check if the user is authenticated
+        is_authenticated = IsAuthenticated().has_permission(request, view)
+
+        if is_authenticated and request.user.role:
+            # Check if the user's role is 'administrator'
+            return request.user.role == 'administrator'
+
+        # Allow safe methods (GET, HEAD, OPTIONS) for all users, even if not authenticated
+        return request.method in SAFE_METHODS
 
 
 
@@ -36,6 +51,7 @@ class IsAdministratorOrStaff(BasePermission):
             
         return False
 
+    # Handle deny permission in case user is not expected 
     def handle_permission_denied(self, request, message='Permission denied'):
         if request.user.role:
             role = request.user.role.capitalize()
@@ -43,6 +59,20 @@ class IsAdministratorOrStaff(BasePermission):
             return Response({'detail': f"{message}. {error_message}"}, status=status.HTTP_403_FORBIDDEN)
             
         return Response({'detail': message}, status=status.HTTP_403_FORBIDDEN)
+
+
+
+class IsAdministratorOrStaffOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        # Check if the user is authenticated
+        is_authenticated = IsAuthenticated().has_permission(request, view)
+
+        if is_authenticated and request.user.role:
+            # Check if the user's role is 'administrator' or 'staff'
+            return (request.user.role == 'administrator') or (request.user.role == 'staff')
+            
+        # Allow safe methods (GET, HEAD, OPTIONS) for all users, even if not authenticated
+        return request.method in SAFE_METHODS
 
 
 
