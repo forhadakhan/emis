@@ -558,7 +558,270 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
 
 
 const SemesterDetail = ({ semester, programs, termChoices }) => {
-    
+    const accessToken = getAccessToken();
+    const [formData, setFormData] = useState(semester);
+    const [isEditing, setIsEditing] = useState(false);
+    const [deactive, setDeactive] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [failedMessage, setFailedMessage] = useState('');
+    const [selectedPrograms, setSelectedPrograms] = useState([]);
+
+
+    useEffect(() => {
+        // Filter out programs based on IDs from semester.programs
+        const filteredPrograms = programs.filter(program => semester.programs.includes(program.id));
+        setSelectedPrograms(filteredPrograms);
+    }, [])
+
+    useEffect(() => {
+        const programIds = selectedPrograms.map(program => program.id);
+        setFormData({ ...formData, programs: programIds });
+    }, [selectedPrograms])
+
+    const handleProgramSelect = (e) => {
+        const programId = e.target.value;
+        const selectedProgram = programs.find(permission => permission.id === parseInt(programId));
+
+        // Add the selected program to the list of selectedPrograms
+        setSelectedPrograms(prevPrograms => {
+            const alreadySelected = prevPrograms.find(program => program.id === selectedProgram.id);
+            if (!alreadySelected) {
+                return [...prevPrograms, selectedProgram];
+            }
+            return prevPrograms;
+        });
+    };
+
+    const handleProgramRemove = (programId) => {
+        setSelectedPrograms(prevPrograms => (
+            prevPrograms.filter(program => program.id !== programId)
+        ));
+    }
+
+
+    const handleAllSelect = () => {
+        // Check if all programs are already selected
+        const allSelected = programs.every(program => selectedPrograms.some(selected => selected.id === program.id));
+
+        // Add all programs to the list of selectedPrograms if not already selected
+        if (!allSelected) {
+            setSelectedPrograms(prevPrograms => [...prevPrograms, ...programs]);
+        }
+    };
+
+
+    const setIsOpen = () => {
+        let open = formData.is_open;
+        setFormData({ ...formData, is_open: !open });
+    }
+
+    const setFinished = () => {
+        let finished = formData.is_finished;
+        setFormData({ ...formData, is_finished: !finished });
+    }
+
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+
+    const resetForm = () => {
+        setFormData(semester);
+        setSelectedPrograms([]);
+    };
+
+
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+        setSuccessMessage('');
+        setFailedMessage('');
+    };
+
+    const handleUpdate = async () => {
+        setSuccessMessage('');
+        setFailedMessage('');
+
+        if (JSON.stringify(semester) === JSON.stringify(formData)) {
+            setFailedMessage('No changes to update.');
+            return;
+        }
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+
+        try {
+            await axios.patch(`${API_BASE_URL}/academy/semesters/${semester.id}/`, formData, config);
+            setIsEditing(false);
+            setDeactive(true);
+            setSuccessMessage('Semester updated successfully.');
+        } catch (error) {
+            setFailedMessage('Semester update failed. Please try again later.');
+            console.error('Error updating semester:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+        try {
+            await axios.delete(`${API_BASE_URL}/academy/semesters/${semester.id}/`, config);
+            setSuccessMessage('Semester deleted successfully.');
+            setDeactive(true);
+            setIsDelete(false);
+        } catch (error) {
+            setFailedMessage('Semester deletion failed. Please try again later.');
+            console.error('Error deleting semester:', error);
+        }
+    };
+
+    return (
+        <div className='mb-5 pb-5'>
+            <h2 className='text-center font-merriweather'>
+                <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Semester Detail</span>
+            </h2>
+            <div className='d-flex'>
+                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
+            </div>
+            {isDelete &&
+                <div className="container d-flex align-items-center justify-content-center">
+                    <div className="alert alert-info" role="alert">
+                        <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this user?</h6>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
+                            <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
+                        </div>
+                    </div>
+                </div>}
+            {successMessage && (
+                <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-check-circle-fill"> </i>
+                    <strong> {successMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
+                </div>
+            )}
+            {failedMessage && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {failedMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
+                </div>
+            )}
+            <form>
+                <div className='row'>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Term:</label>
+                        <div className="">
+                            <select value={formData.term} disabled={!isEditing} name="term" onChange={handleInputChange} id="term" className="form-select" aria-label="Programs" required>
+                                <option value="">Select a term:</option>
+                                {termChoices && termChoices.map(termChoice => (
+                                    <option key={termChoice.id} value={termChoice.id} className='bg-darkblue text-beige'>
+                                        {termChoice.name}: {termChoice.start} - {termChoice.end}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Year:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            name="year"
+                            value={formData.year}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Code:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            name="code"
+                            value={formData.code}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <label htmlFor="programs" className="form-label">Program(s):</label>
+                        <div className="">
+                            <select value='' disabled={!isEditing} onChange={handleProgramSelect} id="programs" className="form-select" aria-label="Programs">
+                                <option value="">Select program(s)</option>
+                                {programs && programs.map(program => (
+                                    <option key={program.id} value={program.id} className='bg-darkblue text-beige'>
+                                        {program.acronym} {program.code} - {program.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                    {selectedPrograms && selectedPrograms.length === 0 && (
+                        <>
+                            <h5 className='text-center col-sm-12 col-md-8 my-2 fs-6 text-secondary mx-auto'>No program(s) selected.</h5>
+                            <button className="btn btn-link" disabled={!isEditing} type='button' onClick={handleAllSelect}>Select all</button>
+                        </>
+                    )}
+                    {selectedPrograms && selectedPrograms.length > 0 && (
+                        <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                            <label htmlFor="selectedPrograms" className="form-label text-secondary">Selected Programs (<button className="btn btn-link p-0 pb-1" disabled={!isEditing} type='button' onClick={() => setSelectedPrograms([])}>remove all</button>)</label>
+                            <div className="p-2 rounded-1">
+                                {selectedPrograms.map(program => (
+                                    <div key={program.id} id="selectedPrograms" className="bg-beige text-darkblue d-inline-block border rounded-3 m-1 p-2">
+                                        <span>{program.acronym} {program.code} </span>
+                                        <span className='hoss'> - {program.name}</span>
+                                        {isEditing &&
+                                            <button
+                                                type="button"
+                                                disabled={!isEditing}
+                                                className="btn border-0 border-start p-0 m-0 ms-2"
+                                                onClick={() => handleProgramRemove(program.id)}
+                                            >
+                                                <i className="bi bi-x-lg px-2"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <div className="input-group p-1 rounded">
+                            <label htmlFor='open' className="form-check-label me-3 ms-2 fw-bold">Open? </label>
+                            <div className="form-check form-switch">
+                                <input disabled={!isEditing} className="form-check-input p-2 border border-darkblue" defaultChecked={formData.is_open} value={formData.is_open} onClick={() => setIsOpen()} type="checkbox" role="switch" id="open" style={{ width: '6em', height: '1em' }} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <div className="input-group p-1 rounded">
+                            <label htmlFor='finished' className="form-check-label me-3 ms-2 fw-bold">Finished? </label>
+                            <div className="form-check form-switch">
+                                <input disabled={!isEditing} className="form-check-input p-2 border border-darkblue" defaultChecked={formData.is_finished} value={formData.is_finished} onClick={() => setFinished()} type="checkbox" role="switch" id="finished" style={{ width: '6em', height: '1em' }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {isEditing && <>
+                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
+                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                </>}
+            </form>
+        </div>
+    );
 };
 
 
