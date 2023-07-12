@@ -2,7 +2,9 @@
 
 app_name = 'academy'
 
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ProgramViewSet
 
 from .views import (
     DesignationAPIView,
@@ -11,7 +13,11 @@ from .views import (
     DepartmentAPIView,
     DegreeTypeAPIView,
     TeacherEnrollmentAPIView,
+    ProgramViewSet,
 )
+
+router = DefaultRouter()
+router.register(r'programs', ProgramViewSet)
 
 
 urlpatterns = [
@@ -27,5 +33,6 @@ urlpatterns = [
     path('degree-types/<int:pk>/', DegreeTypeAPIView.as_view(), name='degree-type-pk'),  
     path('teacher-enrollment/', TeacherEnrollmentAPIView.as_view(), name='teacher-enrollment'),  
     path('teacher-enrollment/<int:pk>/', TeacherEnrollmentAPIView.as_view(), name='teacher-enrollment-pk'),  
+    path('', include(router.urls)),
 ]
 
