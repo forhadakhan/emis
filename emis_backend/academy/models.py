@@ -287,7 +287,7 @@ class Result(models.Model):
     ]
 
     course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    total_marks = models.PositiveIntegerField()
+    total_marks = models.FloatField(null=True, blank=True)
     max_marks = models.PositiveIntegerField()
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
     is_published = models.BooleanField(default=False)
