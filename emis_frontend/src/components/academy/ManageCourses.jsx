@@ -17,7 +17,6 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
     const [selectedCourse, setSelectedCourse] = useState('');
     const [programs, setPrograms] = useState([]);
     const [courses, setCourses] = useState([]);
-    const [course, setCourse] = useState('');
     const [error, setError] = useState('');
 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -90,7 +89,7 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
             case 'AddCourse':
                 return <AddCourse programs={programs} courses={courses} />;
             case 'CourseDetails':
-                return <CourseDetail setCoures={selectedCourse} programs={programs} courses={courses} />;
+                return <CourseDetail viewCourse={selectedCourse} programs={programs} courses={courses} />;
             default:
                 return <CourseList courseDetail={courseDetail} programs={programs} />;
         }
@@ -143,9 +142,6 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-const CourseDetail = () => {
-
-}
 
 const AddCourse = ({ courses, programs }) => {
     const accessToken = getAccessToken();
@@ -335,7 +331,7 @@ const AddCourse = ({ courses, programs }) => {
 };
 
 
-const CourseList = ({ programDetail }) => {
+const CourseList = ({ courseDetail }) => {
     const accessToken = getAccessToken();
     const [programs, setPrograms] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -359,15 +355,14 @@ const CourseList = ({ programDetail }) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/academy/courses/`, config);
             setPrograms(response.data);
-            console.log(response.data);
         } catch (error) {
             setError(' Failed to fetch courses list.');
             console.error('Error fetching courses:', error);
         }
     };
 
-    const handleCourseClick = (program) => {
-        programDetail(program);
+    const handleCourseClick = (course) => {
+        courseDetail(course);
     };
 
     const hasPrerequisites = (prerequisites) => {
@@ -377,7 +372,7 @@ const CourseList = ({ programDetail }) => {
     const columns = [
         {
             name: 'Name',
-            selector: (row) => `${row.acronym} - ${row.name}`, 
+            selector: (row) => `${row.acronym} - ${row.name}`,
             sortable: true,
             width: '40%',
         },
@@ -496,6 +491,230 @@ const CourseList = ({ programDetail }) => {
     );
 };
 
+
+const CourseDetail = ({ viewCourse, programs, courses }) => {
+    const accessToken = getAccessToken();
+    const [formData, setFormData] = useState(viewCourse);
+    const [isEditing, setIsEditing] = useState(false);
+    const [deactive, setDeactive] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [failedMessage, setFailedMessage] = useState('');
+    const [selectedCourses, setSelectedCourses] = useState([]);
+    const [selectedPrograms, setSelectedPrograms] = useState([]);
+
+
+    const programOptions = programs.map(program => ({
+        value: program.id,
+        label: `${program.acronym} ${program.code} - ${program.name}`
+    }));
+
+    const courseOptions = courses.map(c => ({
+        value: c.id,
+        label: `${c.acronym} ${c.code} - ${c.name}`,
+        isDisabled: viewCourse && viewCourse.id === c.id
+    }));
+
+
+    const setDetails = () => {
+        // Set details from ids of prerequisite courses and related programs of the selected course. 
+
+        const filteredPrerequisites = courseOptions.filter(courseOption => viewCourse.prerequisites.includes(courseOption.value));
+        setSelectedCourses(filteredPrerequisites);
+
+        const filteredPrograms = programOptions.filter(programOption => viewCourse.programs.includes(programOption.value));
+        setSelectedPrograms(filteredPrograms);
+    }
+
+    const resetForm = () => {
+        setFormData(viewCourse);
+        setDetails();
+    }
+
+    useEffect(() => {
+        setDetails();
+    }, [])
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleProgramChange = (selectedOptions) => {
+        setSelectedPrograms(selectedOptions);
+        const programIds = selectedOptions.map(program => program.value);
+        setFormData({ ...formData, programs: programIds });
+    };
+
+    const handleCourseChange = (selectedOptions) => {
+        setSelectedCourses(selectedOptions);
+        const courseIds = selectedOptions.map(course => course.value);
+        setFormData({ ...formData, prerequisites: courseIds });
+    };
+
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+        setSuccessMessage('');
+        setFailedMessage('');
+    };
+
+    const handleUpdate = async () => {
+        setSuccessMessage('');
+        setFailedMessage('');
+        if (JSON.stringify(viewCourse) === JSON.stringify(formData)) {
+            setFailedMessage('No changes to update.');
+            return;
+        }
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+            await axios.patch(`${API_BASE_URL}/academy/courses/${viewCourse.id}/`, formData, config);
+            setIsEditing(false);
+            setDeactive(true);
+            setSuccessMessage('Course updated successfully.');
+        } catch (error) {
+            setFailedMessage('Course update failed. Please try again later.');
+            console.error('Error updating course:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            await axios.delete(`${API_BASE_URL}/academy/courses/${viewCourse.id}/`, config);
+            setSuccessMessage('Course deleted successfully.');
+            setDeactive(true);
+            setIsDelete(false);
+            setIsEditing(false);
+        } catch (error) {
+            setFailedMessage('Course deletion failed. Please try again later.');
+            console.error('Error deleting course:', error);
+        }
+    };
+
+
+    return (
+        <div className='mb-5 pb-5'>
+            <h2 className='text-center font-merriweather'>
+                <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Course Detail</span>
+            </h2>
+            <div className='d-flex'>
+                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
+            </div>
+            {isDelete &&
+                <div className="container d-flex align-items-center justify-content-center">
+                    <div className="alert alert-info" role="alert">
+                        <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this user?</h6>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
+                            <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
+                        </div>
+                    </div>
+                </div>}
+            {successMessage && (
+                <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-check-circle-fill"> </i>
+                    <strong> {successMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
+                </div>
+            )}
+            {failedMessage && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {failedMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
+                </div>
+            )}
+
+            <form>
+                <div className='row'>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Course name:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Acronym:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="acronym"
+                            value={formData.acronym}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Code:</label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            name="code"
+                            value={formData.code}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Credit: </label>
+                        <input
+                            type="number"
+                            className="form-control"
+                            name="credit"
+                            value={formData.credit}
+                            onChange={handleInputChange}
+                            placeholder='e.g. 3'
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Select Prerequisites: </label>
+                        <Select
+                            options={courseOptions}
+                            isMulti
+                            value={selectedCourses}
+                            onChange={handleCourseChange}
+                            isDisabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">For which program(s): </label>
+                        <Select
+                            options={programOptions}
+                            isMulti
+                            value={selectedPrograms}
+                            onChange={handleProgramChange}
+                            isDisabled={!isEditing}
+                        />
+                    </div>
+                </div>
+                {isEditing && <>
+                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
+                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                </>}
+            </form>
+        </div>
+    );
+};
 
 
 export default ManageCourses;
