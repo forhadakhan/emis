@@ -15,11 +15,13 @@ from .views import (
     TeacherEnrollmentAPIView,
     ProgramViewSet,
     SemesterViewSet,
+    CourseViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'programs', ProgramViewSet)
 router.register(r'semesters', SemesterViewSet)
+router.register(r'courses', CourseViewSet)
 
 
 urlpatterns = [
