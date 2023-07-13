@@ -21,6 +21,7 @@ from .models import (
     TeacherEnrollment,
     Program,
     Semester,
+    Course,
 )
 from .serializers import (
     DesignationSerializer,
@@ -34,6 +35,8 @@ from .serializers import (
     ProgramNestedSerializer,
     SemesterSerializer,
     SemesterNestedSerializer,
+    CourseSerializer,
+    CourseNestedSerializer,
 )
 
 
@@ -430,6 +433,17 @@ class SemesterViewSet(ModelViewSet):
         else:
             self.permission_classes = []
         return super(SemesterViewSet, self).get_permissions()
+
+
+
+class CourseViewSet(ModelViewSet):
+    # permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
+    queryset = Course.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return CourseNestedSerializer
+        return CourseSerializer 
 
 
 
