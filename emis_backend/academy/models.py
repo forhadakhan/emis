@@ -178,6 +178,14 @@ class BatchAndSection(models.Model):
 ##################### StudentEnrollment:
 #####################   - dependent on: Student, BatchAndSection, User 
 class StudentEnrollment(models.Model):
+    YEAR_CHOICES = [
+        ("FR", "Freshman"),
+        ("SO", "Sophomore"),
+        ("JR", "Junior"),
+        ("SR", "Senior"),
+        ("GR", "Graduate"),
+    ]
+    year = models.CharField(max_length=2, choices=YEAR_CHOICES, default='FR')
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     batch = models.ForeignKey(BatchAndSection, on_delete=models.CASCADE)
     enrolled_by = models.ForeignKey(User, related_name='student_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
