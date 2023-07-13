@@ -127,7 +127,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100)
     acronym = models.CharField(max_length=16, unique=True)
     code = models.IntegerField(unique=True)
-    credit = models.IntegerField()
+    credit = models.FloatField()
     prerequisites = models.ManyToManyField('self', blank=True)
     programs = models.ManyToManyField(Program, blank=True)
 
@@ -250,7 +250,7 @@ class AssignmentSubmission(models.Model):
     file_ids = models.TextField(blank=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     max_files = models.PositiveIntegerField(null=True, blank=True)
-    marks = models.PositiveIntegerField(null=True, blank=True)
+    marks = models.FloatField(null=True, blank=True)
     remarks = models.TextField(blank=True)
 
     def __str__(self):
