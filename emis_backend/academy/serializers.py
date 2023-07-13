@@ -91,6 +91,19 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CourseNestedSerializer(serializers.ModelSerializer):
+    prerequisites = serializers.SerializerMethodField()
+    programs = ProgramNestedSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+    def get_prerequisites(self, obj):
+        prerequisites = CourseNestedSerializer(obj.prerequisites.all(), many=True).data
+        return prerequisites
+
+
 class TeacherEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeacherEnrollment
