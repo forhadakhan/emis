@@ -39,6 +39,7 @@ import TeacherEnrollment from './academy/ManageTeacherEnrollment.jsx';
 import ManagePrograms from './academy/ManagePrograms.jsx';
 import ManageSemesters from './academy/ManageSemesters.jsx';
 import ManageCourses from './academy/ManageCourses.jsx';
+import ManageBatches from './academy/ManageBatches.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
@@ -103,6 +104,8 @@ const ActivityComponent = () => {
                 return <ManageSemesters setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageCourses':
                 return <ManageCourses setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'ManageBatches':
+                return <ManageBatches setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -161,6 +164,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_program', label: 'Manage Programs', render: 'ManagePrograms', icon: 'bi-mortarboard' },
         { id: 'view_semester', label: 'Manage Semesters', render: 'ManageSemesters', icon: 'bi-calendar2-range-fill' },
         { id: 'view_course', label: 'Manage Courses', render: 'ManageCourses', icon: 'bi-journal-medical' },
+        { id: 'view_batch', label: 'Manage Batches', render: 'ManageBatches', icon: 'bi-book-half' },
     ];
 
     let allowedElements = [];
