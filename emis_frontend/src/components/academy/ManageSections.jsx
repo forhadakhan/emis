@@ -58,13 +58,13 @@ const ManageSections = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'SectionList':
-                return <SectionList batchDetail={sectionDetail} batches={batches} />;
+                return <SectionList batchDetail={sectionDetail} batches={batches} accessToken={accessToken} />;
             case 'AddSection':
                 return <AddSection batches={batches} accessToken={accessToken} />;
             case 'SectionDetails':
                 return <SectionDetail viewSection={selectedSection} batches={batches} />;
             default:
-                return <SectionList batchDetail={sectionDetail} batches={batches} />;
+                return <SectionList batchDetail={sectionDetail} batches={batches} accessToken={accessToken} />;
         }
     }
 
@@ -254,10 +254,152 @@ const AddSection = ({ accessToken, batches }) => {
 
 
 
+const SectionList = ({ sectionDetail, batches, accessToken }) => {
+    const [sections, setSections] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [error, setError] = useState('');
 
-const SectionList = () => {
+    useEffect(() => {
+        fetchSections();
+    }, []);
 
-}
+    useEffect(() => {
+        setFilteredData(sections);
+    }, [sections]);
+
+    const fetchSections = async () => {
+        if(!accessToken) {
+            setError(`Failed action. Please refresh or 'sign out' and 'sign in'.`);
+            return;
+        }
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/sections/`, config);
+            setSections(response.data);
+        } catch (error) {
+            setError(' Failed to fetch section list.');
+            console.error('Error fetching sections:', error);
+        }
+    };
+
+    const getBatch = (id) => {
+        const batch = batches.find((batch) => batch.id === id);
+        return batch ? `${batch.number} - Session: ${batch.session}` : null;
+    };
+
+
+    const handleSectionClick = (section) => {
+        sectionDetail(section);
+    };
+
+
+    const columns = [
+        {
+            name: 'Batch',
+            selector: (row) => getBatch(row.batch),
+            sortable: true,
+        },
+        {
+            name: 'Section',
+            selector: (row) => row.name,
+            sortable: true,
+        },
+        {
+            name: 'Seats',
+            selector: (row) => `${row.available_seats}/${row.max_seats}`,
+            sortable: true,
+        },
+        {
+            name: 'Actions',
+            button: true,
+            cell: (row) => (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-outline-dark me-2 border-0"
+                    onClick={() => handleSectionClick(row)}
+                >
+                    Details
+                </button>
+            ),
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px', // override the row height
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for head cells
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for data cells
+                paddingRight: '8px',
+                fontWeight: 'bold'
+            },
+        },
+    };
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = sections.filter(
+            (section) =>
+                getBatch(section.batch).toLowerCase().includes(keyword) ||
+                section.name.toLowerCase().includes(keyword) ||
+                `${section.available_seats}/${section.max_seats}`.toLowerCase().includes(keyword) ||
+                section.max_seats.toString().toLowerCase().includes(keyword)
+        );
+        setFilteredData(filteredResults);
+    };
+
+    return (
+        <div>
+            {error && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+
+            <div className="my-5 mx-md-5">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <div className="rounded-4">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    customStyles={customStyles}
+                    pagination
+                    paginationPerPage={10}
+                    paginationRowsPerPageOptions={[10, 20, 30]}
+                    highlightOnHover
+                />
+            </div>
+        </div>
+    );
+};
 
 
 
