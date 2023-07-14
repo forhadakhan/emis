@@ -16,12 +16,14 @@ from .views import (
     ProgramViewSet,
     SemesterViewSet,
     CourseViewSet,
+    BatchViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'programs', ProgramViewSet)
 router.register(r'semesters', SemesterViewSet)
 router.register(r'courses', CourseViewSet)
+router.register(r'batches', BatchViewSet)
 
 
 urlpatterns = [
