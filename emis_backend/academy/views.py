@@ -22,6 +22,7 @@ from .models import (
     Program,
     Semester,
     Course,
+    Batch,
 )
 from .serializers import (
     DesignationSerializer,
@@ -37,6 +38,8 @@ from .serializers import (
     SemesterNestedSerializer,
     CourseSerializer,
     CourseNestedSerializer,
+    BatchSerializer,
+    BatchNestedSerializer,
 )
 
 
@@ -437,13 +440,26 @@ class SemesterViewSet(ModelViewSet):
 
 
 class CourseViewSet(ModelViewSet):
-    # permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
+    permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     queryset = Course.objects.all()
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return CourseNestedSerializer
         return CourseSerializer 
+
+
+
+class BatchViewSet(ModelViewSet):
+    # permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
+    queryset = Batch.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return BatchNestedSerializer
+        return BatchSerializer 
+
+
 
 
 
