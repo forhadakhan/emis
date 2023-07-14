@@ -164,6 +164,9 @@ class Batch(models.Model):
     def __str__(self):
         return f'{self.department}: Batch {self.number}'
 
+    class Meta:
+        unique_together = ['number', 'program']
+
 
 class BatchAndSection(models.Model):
     batch = models.ForeignKey(Batch, related_name='sections', on_delete=models.CASCADE)
