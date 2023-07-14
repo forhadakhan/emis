@@ -115,9 +115,149 @@ const ManageBatches = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-const AddBatch = () => {
+const AddBatch = ({ programs }) => {
+    const accessToken = getAccessToken();
+    const form = {
+        number: '',
+        session: '',
+        program: '',
+    }
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const [formData, setFormData] = useState(form);
+    const [selectedProgram, setSelectedProgram] = useState('');
 
-}
+
+    const programOptions = programs.map(program => ({
+        value: program.id,
+        label: `${program.acronym} ${program.code} - ${program.name}`
+    }));
+
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+
+    const handleProgramChange = (selectedOption) => {
+        setSelectedProgram(selectedOption);
+        setFormData({ ...formData, program: selectedOption.value });
+    };
+
+
+    const resetForm = () => {
+        setFormData(form);
+        setSelectedProgram([]);
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        // return;
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/academy/batches/`, formData, config);
+            // clear form
+            resetForm();
+            setMessage('Batch added successfully.');
+            setError('');
+        } catch (error) {
+            if (error.response && error.response.data) {
+                const errorMessages = Object.entries(error.response.data)
+                    .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                            if (errorArray == 'The fields number, program must make a unique set.') {
+                                return "Probably this batch already exists"
+                            }
+                            return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                            const errorMessage = Object.values(errorArray).join(' ');
+                            return [`[${key}] ${errorMessage}`];
+                        } else {
+                            return [`[${key}] ${errorArray}`];
+                        }
+                    })
+                    .join('\n');
+
+                if (errorMessages) {
+                    setError(`Error creating Batch. \n${errorMessages}`);
+                } else {
+                    setError('Error creating Batch. Please try again.');
+                }
+            } else {
+                setError('Error creating Batch. Please try again.');
+            }
+            setMessage('');
+            console.error('Error creating Batch:', error);
+        }
+    };
+
+    return (
+        <div>
+
+            {message && (
+                <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-check-circle-fill"> </i>
+                    <strong> {message} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setMessage('')}></button>
+                </div>
+            )}
+            {error && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+
+            <div className="">
+                <form onSubmit={handleSubmit}>
+                    <div className='row'>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Batch number:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="number"
+                                value={formData.number}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Session:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                name="session"
+                                value={formData.session}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Program: </label>
+                            <Select
+                                options={programOptions}
+                                isMulti={false}
+                                value={selectedProgram}
+                                onChange={handleProgramChange}
+                            />
+                        </div>
+                    </div>
+                    <button type="submit" className="btn btn-darkblue2 mx-auto m-4 d-flex">Add Batch</button>
+                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 
 const BatchList = () => {
 
