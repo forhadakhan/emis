@@ -403,11 +403,179 @@ const BatchList = ({ batchDetail, programs }) => {
     );
 };
 
-const BatchDetail = () => {
 
-}
+const BatchDetail = ({ viewBatch, programs, batches }) => {
+    const accessToken = getAccessToken();
+    const [formData, setFormData] = useState(viewBatch);
+    const [isEditing, setIsEditing] = useState(false);
+    const [deactive, setDeactive] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [failedMessage, setFailedMessage] = useState('');
+    const [selectedProgram, setSelectedProgram] = useState([]);
 
 
+    const programOptions = programs.map(program => ({
+        value: program.id,
+        label: `${program.acronym} ${program.code} - ${program.name}`
+    }));
+
+
+    const setDetails = () => {
+        // Set batch details from id of viewBatch.program. 
+        const filteredProgram = programOptions.find(programOption => viewBatch.program === programOption.value);
+        setSelectedProgram(filteredProgram);
+    }
+
+    const resetForm = () => {
+        setFormData(viewBatch);
+        setDetails();
+    }
+
+    useEffect(() => {
+        setDetails();
+    }, [])
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleProgramChange = (selectedOption) => {
+        setSelectedProgram(selectedOption);
+        setFormData({ ...formData, program: selectedOption.value });
+    };
+
+
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+        setSuccessMessage('');
+        setFailedMessage('');
+    };
+
+    const handleUpdate = async () => {
+        setSuccessMessage('');
+        setFailedMessage('');
+        if (JSON.stringify(viewBatch) === JSON.stringify(formData)) {
+            setFailedMessage('No changes to update.');
+            return;
+        }
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+            await axios.patch(`${API_BASE_URL}/academy/batches/${viewBatch.id}/`, formData, config);
+            setIsEditing(false);
+            setDeactive(true);
+            setSuccessMessage('Batch updated successfully.');
+        } catch (error) {
+            setFailedMessage('Batch update failed. Please try again later.');
+            console.error('Error updating batch:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            await axios.delete(`${API_BASE_URL}/academy/batches/${viewBatch.id}/`, config);
+            setSuccessMessage('Batch deleted successfully.');
+            setDeactive(true);
+            setIsDelete(false);
+            setIsEditing(false);
+        } catch (error) {
+            setFailedMessage('Batch deletion failed. Please try again later.');
+            console.error('Error deleting batch:', error);
+        }
+    };
+
+
+    return (
+        <div className='mb-5 pb-5'>
+            <h2 className='text-center font-merriweather'>
+                <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Batch Detail</span>
+            </h2>
+            <div className='d-flex'>
+                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
+            </div>
+            {isDelete &&
+                <div className="container d-flex align-items-center justify-content-center">
+                    <div className="alert alert-info" role="alert">
+                        <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this data?</h6>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
+                            <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
+                        </div>
+                    </div>
+                </div>}
+            {successMessage && (
+                <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-check-circle-fill"> </i>
+                    <strong> {successMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
+                </div>
+            )}
+            {failedMessage && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {failedMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
+                </div>
+            )}
+
+            <form>
+                <div className='row'>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Batch number:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="number"
+                            value={formData.number}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Session:</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            name="session"
+                            value={formData.session}
+                            onChange={handleInputChange}
+                            required
+                            disabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Program: </label>
+                        <Select
+                            options={programOptions}
+                            isMulti={false}
+                            value={selectedProgram}
+                            onChange={handleProgramChange}
+                            isDisabled={!isEditing}
+                        />
+                    </div>
+                </div>
+                {isEditing && <>
+                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
+                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                </>}
+            </form>
+        </div>
+    );
+};
 
 
 export default ManageBatches;
