@@ -141,6 +141,14 @@ class BatchSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class BatchNestedSerializer(serializers.ModelSerializer):
+    program = ProgramNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Batch
+        fields = '__all__'
+
+
 class BatchAndSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = BatchAndSection
