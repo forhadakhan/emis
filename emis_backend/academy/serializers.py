@@ -15,7 +15,7 @@ from .models import (
     Course,
     TeacherEnrollment,
     Batch,
-    BatchAndSection,
+    Section,
     StudentEnrollment,
     CourseOffer,
     CourseEnrollment,
@@ -141,18 +141,25 @@ class BatchSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SectionSerializer(serializers.ModelSerializer):
+    available_seats = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Section
+        fields = '__all__'
+
+    def get_available_seats(self, obj):
+        return obj.get_available_seats()
+
+
 class BatchNestedSerializer(serializers.ModelSerializer):
     program = ProgramNestedSerializer(read_only=True)
+    sections = SectionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Batch
         fields = '__all__'
 
-
-class BatchAndSectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BatchAndSection
-        fields = '__all__'
 
 
 class StudentEnrollmentSerializer(serializers.ModelSerializer):
