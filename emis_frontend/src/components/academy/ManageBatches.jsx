@@ -60,13 +60,13 @@ const ManageBatches = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'BatchList':
-                return <BatchList batchDetail={batchDetail} programs={programs} />;
+                return <BatchList batchDetail={batchDetail} />;
             case 'AddBatch':
                 return <AddBatch programs={programs} />;
             case 'BatchDetails':
                 return <BatchDetail viewBatch={selectedBatch} programs={programs} />;
             default:
-                return <BatchList batchDetail={batchDetail} programs={programs} />;
+                return <BatchList batchDetail={batchDetail} />;
         }
     }
 
@@ -123,6 +123,7 @@ const AddBatch = ({ programs }) => {
         number: '',
         session: '',
         program: '',
+        status: true,
     }
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -146,6 +147,9 @@ const AddBatch = ({ programs }) => {
         setFormData({ ...formData, program: selectedOption.value });
     };
 
+    const handleSwitch = (e) => {
+        setFormData({ ...formData, [e.target.name]: !formData[e.target.name] });
+    };
 
     const resetForm = () => {
         setFormData(form);
@@ -221,6 +225,15 @@ const AddBatch = ({ programs }) => {
                 <form onSubmit={handleSubmit}>
                     <div className='row'>
                         <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                            <label className="text-secondary py-1">Program: </label>
+                            <Select
+                                options={programOptions}
+                                isMulti={false}
+                                value={selectedProgram}
+                                onChange={handleProgramChange}
+                            />
+                        </div>
+                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
                             <label className="text-secondary py-1">Batch number:</label>
                             <input
                                 type="text"
@@ -242,14 +255,20 @@ const AddBatch = ({ programs }) => {
                                 required
                             />
                         </div>
-                        <div className=" col-sm-12 col-md-8 my-2  mx-auto">
-                            <label className="text-secondary py-1">Program: </label>
-                            <Select
-                                options={programOptions}
-                                isMulti={false}
-                                value={selectedProgram}
-                                onChange={handleProgramChange}
-                            />
+                        <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                            <div className="my-4 input-group form-check-reverse form-switch text-start">
+                                <label className="form-check-label form-label text-secondary me-4" htmlFor="flexStaffSwitchCheckChecked">
+                                    Status(open/closed):
+                                </label>
+                                <input
+                                    className="form-check-input border p-2 rounded-3 border border-secondary"
+                                    type="checkbox"
+                                    name="status"
+                                    onChange={handleSwitch}
+                                    checked={formData.status}
+                                    style={{ width: "6em" }}
+                                />
+                            </div>
                         </div>
                     </div>
                     <button type="submit" className="btn btn-darkblue2 mx-auto m-4 d-flex">Add Batch</button>
@@ -261,7 +280,7 @@ const AddBatch = ({ programs }) => {
 };
 
 
-const BatchList = ({ batchDetail, programs }) => {
+const BatchList = ({ batchDetail }) => {
     const accessToken = getAccessToken();
     const [batches, setBatches] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -292,7 +311,15 @@ const BatchList = ({ batchDetail, programs }) => {
         }
     };
 
-    
+
+    const getBatch = (data) => {
+        return `${data.program ? data.program.acronym : ''} ${getOrdinal(data.number)}`;
+    };
+
+    const getStatus = (data) => {
+        return data.status ? <i class="bi bi-toggle-on fs-6 fw-light"> Active </i> : <i class="bi bi-toggle-off fs-6 fw-light"> Inactive </i>;
+    };
+
     const getSections = (sections) => {
         const totalSections = sections.length;
         const sectionNames = sections.map(obj => obj.name).join(", ");
@@ -317,8 +344,12 @@ const BatchList = ({ batchDetail, programs }) => {
 
     const columns = [
         {
+            name: 'Status',
+            selector: (row) => getStatus(row),
+        },
+        {
             name: 'Batch',
-            selector: (row) => `${row.program ? row.program.acronym : ''} ${getOrdinal(row.number)}`,
+            selector: (row) => getBatch(row),
             sortable: true,
         },
         {
@@ -383,8 +414,10 @@ const BatchList = ({ batchDetail, programs }) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = batches.filter(
             (batch) =>
-                getProgram(batch.program).toLowerCase().includes(keyword) ||
+                getBatch(batch).toLowerCase().includes(keyword) ||
+                batch.program.acronym.toLowerCase().includes(keyword) ||
                 batch.session.toLowerCase().includes(keyword) ||
+                batch.status.toString().toLowerCase().includes(keyword) ||
                 batch.number.toString().toLowerCase().includes(keyword)
         );
         setFilteredData(filteredResults);
@@ -399,6 +432,17 @@ const BatchList = ({ batchDetail, programs }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
                 </div>
             )}
+
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
+                    <option value="">No Filter</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
 
             <div className="my-5 mx-md-5">
                 <input
@@ -463,11 +507,14 @@ const BatchDetail = ({ viewBatch, programs }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleSwitch = (e) => {
+        setFormData({ ...formData, [e.target.name]: !formData[e.target.name] });
+    };
+
     const handleProgramChange = (selectedOption) => {
         setSelectedProgram(selectedOption);
         setFormData({ ...formData, program: selectedOption.value });
     };
-
 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
@@ -582,6 +629,16 @@ const BatchDetail = ({ viewBatch, programs }) => {
             <form>
                 <div className='row'>
                     <div className=" col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Program: </label>
+                        <Select
+                            options={programOptions}
+                            isMulti={false}
+                            value={selectedProgram}
+                            onChange={handleProgramChange}
+                            isDisabled={!isEditing}
+                        />
+                    </div>
+                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
                         <label className="text-secondary py-1">Batch number:</label>
                         <input
                             type="text"
@@ -605,21 +662,29 @@ const BatchDetail = ({ viewBatch, programs }) => {
                             disabled={!isEditing}
                         />
                     </div>
-                    <div className=" col-sm-12 col-md-8 my-2  mx-auto">
-                        <label className="text-secondary py-1">Program: </label>
-                        <Select
-                            options={programOptions}
-                            isMulti={false}
-                            value={selectedProgram}
-                            onChange={handleProgramChange}
-                            isDisabled={!isEditing}
-                        />
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <div className="my-4 input-group form-check-reverse form-switch text-start">
+                            <label className="form-check-label form-label text-secondary me-4" htmlFor="flexStaffSwitchCheckChecked">
+                                Status(open/closed):
+                            </label>
+                            <input
+                                className="form-check-input border p-2 rounded-3 border border-secondary"
+                                type="checkbox"
+                                name="status"
+                                onChange={handleSwitch}
+                                checked={formData.status}
+                                style={{ width: "6em" }}
+                                disabled={!isEditing}
+                            />
+                        </div>
                     </div>
                 </div>
-                {isEditing && <>
-                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
-                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
-                </>}
+                {isEditing && <div className='d-flex'>
+                    <div className="btn-group gap-1 m-4 mx-auto">
+                        <button type="button" className="btn btn-darkblue2" onClick={handleUpdate}>Update Batch</button>
+                        <button type="button" className="btn btn-dark btn-sm" onClick={resetForm}>Reset</button>
+                    </div>
+                </div>}
             </form>
 
             {sections && <div className='col-sm-12 col-md-8 my-2  mx-auto'>
