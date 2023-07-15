@@ -9,6 +9,7 @@ import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
+import { getOrdinal } from '../../utils/utils.js';
 import Select from 'react-select'
 import { AddSection, SectionDetail } from './ManageSections.jsx';
 
@@ -291,9 +292,21 @@ const BatchList = ({ batchDetail, programs }) => {
         }
     };
 
-    const getProgram = (id) => {
-        const program = programs.find((program) => program.id === id);
-        return program ? program.name : null;
+    
+    const getSections = (sections) => {
+        const totalSections = sections.length;
+        const sectionNames = sections.map(obj => obj.name).join(", ");
+        return <div>
+            <span className='bedge bg-beige text-darkblue rounded px-2 mx-2'>{totalSections}</span>
+            <span>{sectionNames}</span>
+        </div>;
+    };
+
+    const getSeats = (sections) => {
+        const totalMaxSeats = sections.reduce((accumulator, obj) => accumulator + obj.max_seats, 0);
+        const totalAvailableSeats = sections.reduce((accumulator, obj) => accumulator + obj.available_seats, 0);
+
+        return <div>{totalAvailableSeats}/{totalMaxSeats}</div>;
     };
 
 
@@ -304,8 +317,8 @@ const BatchList = ({ batchDetail, programs }) => {
 
     const columns = [
         {
-            name: 'Number',
-            selector: (row) => row.number,
+            name: 'Batch',
+            selector: (row) => `${row.program ? row.program.acronym : ''} ${getOrdinal(row.number)}`,
             sortable: true,
         },
         {
@@ -314,10 +327,16 @@ const BatchList = ({ batchDetail, programs }) => {
             sortable: true,
         },
         {
-            name: 'Program',
-            selector: (row) => row.program ? row.program.name : '',
+            name: 'Sections',
+            selector: (row) => row.sections.length,
             sortable: true,
-            width: '50%',
+            cell: (row) => getSections(row.sections),
+        },
+        {
+            name: 'Seats',
+            selector: (row) => row.sections.reduce((accumulator, obj) => accumulator + obj.max_seats, 0),
+            sortable: true,
+            cell: (row) => getSeats(row.sections),
         },
         {
             name: 'Actions',
@@ -384,7 +403,7 @@ const BatchList = ({ batchDetail, programs }) => {
             <div className="my-5 mx-md-5">
                 <input
                     type="text"
-                    placeholder="Search with any field e.g. availability/duration ..."
+                    placeholder="Search..."
                     onChange={handleSearch}
                     className="form-control text-center border border-darkblue"
                 />
