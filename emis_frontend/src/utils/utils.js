@@ -29,14 +29,25 @@ export const getOrdinal = (number) => {
     const parsedNumber = parseInt(number, 10);
 
     if (isNaN(parsedNumber)) {
-        //   throw new Error('Input should be a valid number.');
+        // throw new Error('Input should be a valid number.');
         return NaN;
     }
 
     const suffixes = ['th', 'st', 'nd', 'rd'];
     const absNumber = Math.abs(parsedNumber);
+    const lastTwoDigits = absNumber % 100;
     const lastDigit = absNumber % 10;
-    const suffix = suffixes[lastDigit] || suffixes[0];
+    const suffix =
+        lastTwoDigits >= 11 && lastTwoDigits <= 13
+            ? 'th'
+            : suffixes[lastDigit] || suffixes[0];
 
-    return parsedNumber + suffix;
-}
+    const ordinalNumber =
+        parsedNumber < 0
+            ? '-' + absNumber + suffix
+            : absNumber + suffix;
+
+    return ordinalNumber;
+};
+
+
