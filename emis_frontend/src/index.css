@@ -99,8 +99,7 @@ a.text-beige:hover {
     color: rgb(255, 255, 255);
     background-color: rgb(0, 0, 40);
     border-color: rgb(238, 212, 132);
-    padding-top: 0.2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.4);
 }
 
 .btn-beige {
