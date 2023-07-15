@@ -154,7 +154,7 @@ class TeacherEnrollment(models.Model):
 
 
 #####################################################################
-##################### Batch, BatchAndSection:
+##################### Batch, Section:
 #####################   - dependent on: Program.  
 class Batch(models.Model):
     number = models.IntegerField()
@@ -168,18 +168,26 @@ class Batch(models.Model):
         unique_together = ['number', 'program']
 
 
-class BatchAndSection(models.Model):
-    batch = models.ForeignKey(Batch, related_name='sections', on_delete=models.CASCADE)
-    section = models.CharField(max_length=2)
+class Section(models.Model):
+    name = models.CharField(max_length=50)
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name='sections')
+    max_seats = models.PositiveIntegerField(default=10)
 
     def __str__(self):
-        return f'{self.batch} - Section {self.section}'
+        return f'{self.batch}: Section {self.name}'
+
+    class Meta:
+        unique_together = ['name', 'batch']
+
+    def get_available_seats(self):
+        enrolled_count = StudentEnrollment.objects.filter(batch_section=self).count()
+        return self.max_seats - enrolled_count
 #####################################################################
 
 
 #####################################################################
 ##################### StudentEnrollment:
-#####################   - dependent on: Student, BatchAndSection, User 
+#####################   - dependent on: Student, Section, User 
 class StudentEnrollment(models.Model):
     YEAR_CHOICES = [
         ("FR", "Freshman"),
@@ -190,13 +198,13 @@ class StudentEnrollment(models.Model):
     ]
     year = models.CharField(max_length=2, choices=YEAR_CHOICES, default='FR')
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    batch = models.ForeignKey(BatchAndSection, on_delete=models.CASCADE)
+    batch_section = models.ForeignKey(Section, on_delete=models.CASCADE, blank=True, null=True)
     enrolled_by = models.ForeignKey(User, related_name='student_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'Student Enrollment: {self.student} - {self.department} ({self.batch})'
+        return f'Student Enrollment: {self.student} - {self.batch_section}'
 #####################################################################
 
 
