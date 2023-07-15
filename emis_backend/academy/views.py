@@ -463,6 +463,12 @@ class BatchViewSet(ModelViewSet):
 
 
 
+class SectionViewSet(ModelViewSet):
+    permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
+    permission_classes = [IsAdministratorOrStaffOrReadOnly]
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+
 
 
 
