@@ -12,6 +12,7 @@ import { getAccessToken } from '../../utils/auth.js';
 import { getOrdinal } from '../../utils/utils.js';
 import Select from 'react-select'
 
+
 const ManageSections = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
     const [showComponent, setShowComponent] = useState('SectionList');
@@ -116,11 +117,10 @@ const ManageSections = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-
-const AddSection = ({ accessToken, batches }) => {
+const AddSection = ({ accessToken, batches = [], batch = null }) => {
     const form = {
         name: '',
-        batch: '',
+        batch: batch ? batch : '',
         max_seats: '',
     }
     const [formData, setFormData] = useState(form);
@@ -159,8 +159,7 @@ const AddSection = ({ accessToken, batches }) => {
 
         try {
             const response = await axios.post(`${API_BASE_URL}/academy/sections/`, formData, config);
-            console.log('Section added:', response.data);
-            setMessage('Batch added successfully.');
+            setMessage('Section added successfully.');
             setError('');
             resetForm();
         } catch (error) {
@@ -213,15 +212,17 @@ const AddSection = ({ accessToken, batches }) => {
             )}
 
             <form onSubmit={handleSubmit}>
-                <div className="col-sm-12 col-md-8 my-2  mx-auto">
-                    <label className="text-secondary py-1">Batch: </label>
-                    <Select
-                        options={batchOptions}
-                        isMulti={false}
-                        value={selectedBatch}
-                        onChange={handleBatchChange}
-                    />
-                </div>
+                {(batches.length > 0) &&
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Batch: </label>
+                        <Select
+                            options={batchOptions}
+                            isMulti={false}
+                            value={selectedBatch}
+                            onChange={handleBatchChange}
+                        />
+                    </div>
+                }
                 <div className="col-sm-12 col-md-8 my-2  mx-auto">
                     <label className="text-secondary py-1" htmlFor="sectionName">Section Name</label>
                     <input
@@ -246,8 +247,12 @@ const AddSection = ({ accessToken, batches }) => {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-darkblue2 mx-auto m-4 d-flex">Add Section</button>
-                <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                <div className="d-flex">
+                    <div className="btn-group gap-1 m-4 mx-auto">
+                        <button type="submit" className="btn btn-darkblue2 ">Add Section</button>
+                        <button type="button" className="btn btn-dark btn-sm" onClick={resetForm}>Reset</button>
+                    </div>
+                </div>
             </form>
         </div>
     );
@@ -267,7 +272,7 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
     useEffect(() => {
         setFilteredData(sections);
     }, [sections]);
-    
+
 
     const fetchSections = async () => {
         if (!accessToken) {
@@ -405,7 +410,7 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
 
 
 
-const SectionDetail = ({ viewSection, batches, accessToken }) => {
+const SectionDetail = ({ viewSection, batches = [], accessToken }) => {
     const [formData, setFormData] = useState(viewSection);
     const [isEditing, setIsEditing] = useState(false);
     const [deactive, setDeactive] = useState(false);
@@ -539,19 +544,22 @@ const SectionDetail = ({ viewSection, batches, accessToken }) => {
                 </div>
             )}
 
-            <h4 className='text-center text-secondary p-4 fs-5'>{getDetails()}</h4>
+            {(batches.length > 0) &&
+                <h4 className='text-center text-secondary p-4 fs-5'>{getDetails()}</h4>
+            }
 
             <form>
-                <div className="col-sm-12 col-md-8 my-2  mx-auto">
-                    <label className="text-secondary py-1">Batch: </label>
-                    <Select
-                        options={batchOptions}
-                        isMulti={false}
-                        value={selectedBatch}
-                        onChange={handleBatchChange}
-                        isDisabled={!isEditing}
-                    />
-                </div>
+                {(batches.length > 0) &&
+                    <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                        <label className="text-secondary py-1">Batch: </label>
+                        <Select
+                            options={batchOptions}
+                            isMulti={false}
+                            value={selectedBatch}
+                            onChange={handleBatchChange}
+                        />
+                    </div>
+                }
                 <div className="col-sm-12 col-md-8 my-2  mx-auto">
                     <label className="text-secondary py-1" htmlFor="sectionName">Section Name</label>
                     <input
@@ -579,8 +587,12 @@ const SectionDetail = ({ viewSection, batches, accessToken }) => {
                     />
                 </div>
                 {isEditing && <>
-                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
-                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                    <div className="d-flex">
+                        <div className="btn-group gap-1 m-4 mx-auto">
+                            <button type="button" className="btn btn-darkblue2" onClick={handleUpdate}>Update</button>
+                            <button type="button" className="btn btn-dark btn-sm" onClick={resetForm}>Reset</button>
+                        </div>
+                    </div>
                 </>}
             </form>
         </div>
@@ -590,5 +602,5 @@ const SectionDetail = ({ viewSection, batches, accessToken }) => {
 
 
 
-
+export { AddSection, SectionDetail };
 export default ManageSections;
