@@ -265,6 +265,7 @@ const BatchList = ({ batchDetail, programs }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [error, setError] = useState('');
 
+
     useEffect(() => {
         fetchBatches();
     }, []);
@@ -282,7 +283,7 @@ const BatchList = ({ batchDetail, programs }) => {
         };
         try {
             const response = await axios.get(`${API_BASE_URL}/academy/batches/`, config);
-            setBatches(response.data);
+            setBatches(response.data);            
         } catch (error) {
             setError(' Failed to fetch batch list.');
             console.error('Error fetching batches:', error);
@@ -313,7 +314,7 @@ const BatchList = ({ batchDetail, programs }) => {
         },
         {
             name: 'Program',
-            selector: (row) => getProgram(row.program),
+            selector: (row) => row.program ? row.program.name : '',
             sortable: true,
             width: '50%',
         },
@@ -404,7 +405,7 @@ const BatchList = ({ batchDetail, programs }) => {
 };
 
 
-const BatchDetail = ({ viewBatch, programs, batches }) => {
+const BatchDetail = ({ viewBatch, programs }) => {
     const accessToken = getAccessToken();
     const [formData, setFormData] = useState(viewBatch);
     const [isEditing, setIsEditing] = useState(false);
@@ -423,7 +424,7 @@ const BatchDetail = ({ viewBatch, programs, batches }) => {
 
     const setDetails = () => {
         // Set batch details from id of viewBatch.program. 
-        const filteredProgram = programOptions.find(programOption => viewBatch.program === programOption.value);
+        const filteredProgram = programOptions.find(programOption => viewBatch.program.id === programOption.value);
         setSelectedProgram(filteredProgram);
     }
 
