@@ -10,6 +10,7 @@ import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
 import Select from 'react-select'
+import { AddSection, SectionDetail } from './ManageSections.jsx';
 
 const ManageBatches = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
@@ -283,7 +284,7 @@ const BatchList = ({ batchDetail, programs }) => {
         };
         try {
             const response = await axios.get(`${API_BASE_URL}/academy/batches/`, config);
-            setBatches(response.data);            
+            setBatches(response.data);
         } catch (error) {
             setError(' Failed to fetch batch list.');
             console.error('Error fetching batches:', error);
@@ -411,9 +412,11 @@ const BatchDetail = ({ viewBatch, programs }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [deactive, setDeactive] = useState(false);
     const [isDelete, setIsDelete] = useState(false);
+    const [isAddSection, setIsAddSection] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [failedMessage, setFailedMessage] = useState('');
     const [selectedProgram, setSelectedProgram] = useState([]);
+    const sections = viewBatch.sections;
 
 
     const programOptions = programs.map(program => ({
@@ -456,7 +459,7 @@ const BatchDetail = ({ viewBatch, programs }) => {
     const handleUpdate = async () => {
         setSuccessMessage('');
         setFailedMessage('');
-        const updateForm = {...formData, program: selectedProgram.value};
+        const updateForm = { ...formData, program: selectedProgram.value };
         if (JSON.stringify(viewBatch) === JSON.stringify(formData)) {
             setFailedMessage('No changes to update.');
             return;
@@ -599,6 +602,38 @@ const BatchDetail = ({ viewBatch, programs }) => {
                     <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
                 </>}
             </form>
+
+            {sections && <div className='col-sm-12 col-md-8 my-2  mx-auto'>
+                <h3 className="mt-5 text-center fs-6 font-merriweather fw-bold text-secondary">Sections</h3>
+
+                <button className='btn btn-sm btn-beige m-2 d-flex mx-auto p-1 px-3 border' onClick={() => setIsAddSection(!isAddSection)}>Add Section</button>
+
+                {(sections.length > 0) && <div className='m-1 my-4'>
+                    <div className="d-flex justify-content-center">
+                        <div className="btn-group gap-1">
+                            <button className='btn btn-light border mb-2 disabled'>Available Sections : </button>
+                            {sections.map(section => (
+                                <button
+                                    key={section.id}
+                                    className="btn btn-light border mb-2"
+                                    onClick={() => {
+                                        // Handle button click event here
+                                        console.log(`Button for section ${section.name} clicked.`);
+                                    }}
+                                >
+                                    <strong> {section.name} </strong>
+                                    <span className='badge bg-secondary text-wrap'> {`${section.available_seats}/${section.max_seats}`} </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div></div>}
+
+                {isAddSection && <div className='border rounded'>
+                    <button className='m-1 badge border-0 bg-danger d-flex ms-auto' onClick={() => setIsAddSection(!isAddSection)}>Close</button>
+                    <AddSection accessToken={accessToken} batch={viewBatch.id} />
+                </div>}
+            </div>}
+
         </div>
     );
 };
