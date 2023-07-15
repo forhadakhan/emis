@@ -456,6 +456,7 @@ const BatchDetail = ({ viewBatch, programs }) => {
     const handleUpdate = async () => {
         setSuccessMessage('');
         setFailedMessage('');
+        const updateForm = {...formData, program: selectedProgram.value};
         if (JSON.stringify(viewBatch) === JSON.stringify(formData)) {
             setFailedMessage('No changes to update.');
             return;
@@ -468,13 +469,37 @@ const BatchDetail = ({ viewBatch, programs }) => {
                     'Content-Type': 'application/json',
                 },
             };
-            await axios.patch(`${API_BASE_URL}/academy/batches/${viewBatch.id}/`, formData, config);
+            await axios.patch(`${API_BASE_URL}/academy/batches/${viewBatch.id}/`, updateForm, config);
             setIsEditing(false);
             setDeactive(true);
             setSuccessMessage('Batch updated successfully.');
         } catch (error) {
-            setFailedMessage('Batch update failed. Please try again later.');
-            console.error('Error updating batch:', error);
+            if (error.response && error.response.data) {
+                const errorMessages = Object.entries(error.response.data)
+                    .flatMap(([key, errorArray]) => {
+                        if (Array.isArray(errorArray)) {
+                            if (errorArray == 'The fields number, program must make a unique set.') {
+                                return "Probably a similar batch already exists"
+                            }
+                            return errorArray.map(error => `[${key}] ${error}`);
+                        } else if (typeof errorArray === 'object') {
+                            const errorMessage = Object.values(errorArray).join(' ');
+                            return [`[${key}] ${errorMessage}`];
+                        } else {
+                            return [`[${key}] ${errorArray}`];
+                        }
+                    })
+                    .join('\n');
+
+                if (errorMessages) {
+                    setFailedMessage(`Error updating Batch. \n${errorMessages}`);
+                } else {
+                    setFailedMessage('Error updating Batch. Please try again.');
+                }
+            } else {
+                setFailedMessage('Error updating Batch. Please try again.');
+            }
+            console.error('Error updating Batch:', error);
         }
     };
 
