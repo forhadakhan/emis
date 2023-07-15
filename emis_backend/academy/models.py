@@ -157,7 +157,7 @@ class TeacherEnrollment(models.Model):
 ##################### Batch, Section:
 #####################   - dependent on: Program.  
 class Batch(models.Model):
-    number = models.IntegerField()
+    number = models.PositiveIntegerField()
     program = models.ForeignKey(Program, related_name='batch', on_delete=models.SET_NULL, blank=True, null=True)
     session = models.CharField(max_length=9, blank=True)
     status = models.BooleanField(default=True)
