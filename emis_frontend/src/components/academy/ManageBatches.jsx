@@ -317,7 +317,7 @@ const BatchList = ({ batchDetail }) => {
     };
 
     const getStatus = (data) => {
-        return data.status ? <i class="bi bi-toggle-on fs-6 fw-light"> Active </i> : <i class="bi bi-toggle-off fs-6 fw-light"> Inactive </i>;
+        return data.status ? <i className="bi bi-toggle-on fs-6 fw-light"> Active </i> : <i className="bi bi-toggle-off fs-6 fw-light"> Inactive </i>;
     };
 
     const getSections = (sections) => {
@@ -471,16 +471,42 @@ const BatchList = ({ batchDetail }) => {
 
 const BatchDetail = ({ viewBatch, programs }) => {
     const accessToken = getAccessToken();
-    const [formData, setFormData] = useState(viewBatch);
+    const [batch, setBatch] = useState(viewBatch);
+    const [formData, setFormData] = useState(batch);
     const [isEditing, setIsEditing] = useState(false);
     const [deactive, setDeactive] = useState(false);
+    const [reload, setReload] = useState(1);
     const [isDelete, setIsDelete] = useState(false);
     const [isAddSection, setIsAddSection] = useState(false);
+    const [isEditSection, setIsEditSection] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [failedMessage, setFailedMessage] = useState('');
+    const [selectedSection, setSelectedSection] = useState('');
     const [selectedProgram, setSelectedProgram] = useState([]);
-    const sections = viewBatch.sections;
+    const sections = batch.sections;
 
+
+    const fetchBatch = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/batches/${viewBatch.id}`, config);
+            setBatch(response.data);
+            setFormData(response.data);
+        } catch (error) {
+            setError(' Failed to fetch batch.');
+            console.error('Error fetching batch:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchBatch();
+        console.log('reload')
+    }, [reload])
 
     const programOptions = programs.map(program => ({
         value: program.id,
@@ -490,12 +516,12 @@ const BatchDetail = ({ viewBatch, programs }) => {
 
     const setDetails = () => {
         // Set batch details from id of viewBatch.program. 
-        const filteredProgram = programOptions.find(programOption => viewBatch.program.id === programOption.value);
+        const filteredProgram = programOptions.find(programOption => batch.program.id === programOption.value);
         setSelectedProgram(filteredProgram);
     }
 
     const resetForm = () => {
-        setFormData(viewBatch);
+        setFormData(batch);
         setDetails();
     }
 
@@ -522,11 +548,22 @@ const BatchDetail = ({ viewBatch, programs }) => {
         setFailedMessage('');
     };
 
+    const handleSectionDetails = (section) => {
+        setSelectedSection(section);
+        setIsAddSection(false);
+        setIsEditSection(true);
+    }
+
+    const handleSectionAdd = () => {
+        setIsEditSection(false);
+        setIsAddSection(!isAddSection)
+    }
+
     const handleUpdate = async () => {
         setSuccessMessage('');
         setFailedMessage('');
         const updateForm = { ...formData, program: selectedProgram.value };
-        if (JSON.stringify(viewBatch) === JSON.stringify(formData)) {
+        if (JSON.stringify(batch) === JSON.stringify(formData)) {
             setFailedMessage('No changes to update.');
             return;
         }
@@ -538,7 +575,7 @@ const BatchDetail = ({ viewBatch, programs }) => {
                     'Content-Type': 'application/json',
                 },
             };
-            await axios.patch(`${API_BASE_URL}/academy/batches/${viewBatch.id}/`, updateForm, config);
+            await axios.patch(`${API_BASE_URL}/academy/batches/${batch.id}/`, updateForm, config);
             setIsEditing(false);
             setDeactive(true);
             setSuccessMessage('Batch updated successfully.');
@@ -580,7 +617,7 @@ const BatchDetail = ({ viewBatch, programs }) => {
             },
         };
         try {
-            await axios.delete(`${API_BASE_URL}/academy/batches/${viewBatch.id}/`, config);
+            await axios.delete(`${API_BASE_URL}/academy/batches/${batch.id}/`, config);
             setSuccessMessage('Batch deleted successfully.');
             setDeactive(true);
             setIsDelete(false);
@@ -598,9 +635,14 @@ const BatchDetail = ({ viewBatch, programs }) => {
                 <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Batch Detail</span>
             </h2>
             <div className='d-flex'>
-                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
-                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
             </div>
+
+            <button className='btn btn-sm btn-light p-0 px-2 my-3 d-flex mx-auto' onClick={() => { setReload(reload + 1) }}>
+                <small><i className="bi bi-arrow-clockwise"></i> Reload </small>
+            </button>
+
             {isDelete &&
                 <div className="container d-flex align-items-center justify-content-center">
                     <div className="alert alert-info" role="alert">
@@ -687,12 +729,18 @@ const BatchDetail = ({ viewBatch, programs }) => {
                 </div>}
             </form>
 
+            <hr className='border border-beige border-3 opacity-75 rounded-3' />
+
             {sections && <div className='col-sm-12 col-md-8 my-2  mx-auto'>
                 <h3 className="mt-5 text-center fs-6 font-merriweather fw-bold text-secondary">Sections</h3>
 
-                <button className='btn btn-sm btn-beige m-2 d-flex mx-auto p-1 px-3 border' onClick={() => setIsAddSection(!isAddSection)}>Add Section</button>
+                <button className='btn btn-sm btn-beige m-2 d-flex mx-auto p-1 px-3 border' onClick={handleSectionAdd}>Add Section</button>
 
-                {(sections.length > 0) && <div className='m-1 my-4'>
+                <button className='btn btn-sm btn-light p-0 px-2 my-1 d-flex mx-auto' onClick={() => { setReload(reload + 1) }}>
+                    <small><i className="bi bi-arrow-clockwise"></i> Reload </small>
+                </button>
+
+                {(sections.length > 0) && <div className='m-1 my-3'>
                     <div className="d-flex justify-content-center">
                         <div className="btn-group gap-1">
                             <button className='btn btn-light border mb-2 disabled'>Available Sections : </button>
@@ -700,10 +748,8 @@ const BatchDetail = ({ viewBatch, programs }) => {
                                 <button
                                     key={section.id}
                                     className="btn btn-light border mb-2"
-                                    onClick={() => {
-                                        // Handle button click event here
-                                        console.log(`Button for section ${section.name} clicked.`);
-                                    }}
+                                    onClick={() => { handleSectionDetails(section) }}
+                                    disabled={isEditSection}
                                 >
                                     <strong> {section.name} </strong>
                                     <span className='badge bg-secondary text-wrap'> {`${section.available_seats}/${section.max_seats}`} </span>
@@ -713,8 +759,13 @@ const BatchDetail = ({ viewBatch, programs }) => {
                     </div></div>}
 
                 {isAddSection && <div className='border rounded'>
-                    <button className='m-1 badge border-0 bg-danger d-flex ms-auto' onClick={() => setIsAddSection(!isAddSection)}>Close</button>
-                    <AddSection accessToken={accessToken} batch={viewBatch.id} />
+                    <button className='m-1 badge border-0 bg-danger d-flex ms-auto' onClick={handleSectionAdd}>Close</button>
+                    <AddSection accessToken={accessToken} batch={batch.id} />
+                </div>}
+
+                {isEditSection && <div className='border rounded'>
+                    <button className='m-1 badge border-0 bg-danger d-flex ms-auto' onClick={() => setIsEditSection(!isEditSection)}>Close</button>
+                    <SectionDetail accessToken={accessToken} viewSection={selectedSection} />
                 </div>}
             </div>}
 
