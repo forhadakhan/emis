@@ -9,6 +9,7 @@ import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
+import { getOrdinal } from '../../utils/utils.js';
 import Select from 'react-select'
 
 const ManageSections = ({ setActiveComponent, breadcrumb }) => {
@@ -58,13 +59,13 @@ const ManageSections = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'SectionList':
-                return <SectionList batchDetail={sectionDetail} batches={batches} accessToken={accessToken} />;
+                return <SectionList sectionDetail={sectionDetail} batches={batches} accessToken={accessToken} />;
             case 'AddSection':
                 return <AddSection batches={batches} accessToken={accessToken} />;
             case 'SectionDetails':
-                return <SectionDetail viewSection={selectedSection} batches={batches} />;
+                return <SectionDetail viewSection={selectedSection} batches={batches} accessToken={accessToken} />;
             default:
-                return <SectionList batchDetail={sectionDetail} batches={batches} accessToken={accessToken} />;
+                return <SectionList sectionDetail={sectionDetail} batches={batches} accessToken={accessToken} />;
         }
     }
 
@@ -134,7 +135,7 @@ const AddSection = ({ accessToken, batches }) => {
 
     const batchOptions = batches.map(batch => ({
         value: batch.id,
-        label: `${batch.number} [Session: ${batch.session}]`
+        label: `${batch.program.acronym} ${batch.number} [Session: ${batch.session}]`
     }));
 
     const handleBatchChange = (selectedOption) => {
@@ -266,9 +267,10 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
     useEffect(() => {
         setFilteredData(sections);
     }, [sections]);
+    
 
     const fetchSections = async () => {
-        if(!accessToken) {
+        if (!accessToken) {
             setError(`Failed action. Please refresh or 'sign out' and 'sign in'.`);
             return;
         }
@@ -289,7 +291,7 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
 
     const getBatch = (id) => {
         const batch = batches.find((batch) => batch.id === id);
-        return batch ? `${batch.number} - Session: ${batch.session}` : null;
+        return batch ? `${batch.program.acronym} ${getOrdinal(batch.number)} - Session: ${batch.session}` : null;
     };
 
 
@@ -403,9 +405,187 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
 
 
 
-const SectionDetail = () => {
+const SectionDetail = ({ viewSection, batches, accessToken }) => {
+    const [formData, setFormData] = useState(viewSection);
+    const [isEditing, setIsEditing] = useState(false);
+    const [deactive, setDeactive] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
+    const [selectedBatch, setSelectedBatch] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [failedMessage, setFailedMessage] = useState('');
+    const batch = batches.find((batch) => batch.id === viewSection.batch);
 
-}
+
+    const batchOptions = batches.map(batch => ({
+        value: batch.id,
+        label: `${batch.program.acronym} ${batch.number} [Session: ${batch.session}]`
+    }));
+
+
+    const setDetails = () => {
+        // Set batch details from id of viewSection.batch. 
+        const filteredProgram = batchOptions.find(batchOption => viewSection.batch === batchOption.value);
+        setSelectedBatch(filteredProgram);
+    }
+
+    const getDetails = () => {
+        return `Batch: ${(batch.program.acronym)} ${batch.number}, Section: ${viewSection.name} (${viewSection.available_seats}/${viewSection.max_seats})`;
+    }
+
+    useEffect(() => {
+        setDetails();
+    }, [])
+
+
+    const handleBatchChange = (selectedOption) => {
+        setSelectedBatch(selectedOption);
+        setFormData({ ...formData, batch: selectedOption.value });
+    };
+
+
+    const resetForm = () => {
+        setFormData(viewSection);
+        setDetails();
+    }
+
+
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+
+    const handleEditToggle = () => {
+        setIsEditing(!isEditing);
+        setSuccessMessage('');
+        setFailedMessage('');
+    };
+
+    const handleUpdate = async () => {
+        setSuccessMessage('');
+        setFailedMessage('');
+        if (JSON.stringify(viewSection) === JSON.stringify(formData)) {
+            setFailedMessage('No changes to update.');
+            return;
+        }
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+            await axios.patch(`${API_BASE_URL}/academy/sections/${viewSection.id}/`, formData, config);
+            setIsEditing(false);
+            setDeactive(true);
+            setSuccessMessage('Section updated successfully.');
+        } catch (error) {
+            setFailedMessage('Section update failed. Please try again later.');
+            console.error('Error updating section:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            await axios.delete(`${API_BASE_URL}/academy/sections/${viewSection.id}/`, config);
+            setSuccessMessage('Section deleted successfully.');
+            setDeactive(true);
+            setIsDelete(false);
+            setIsEditing(false);
+        } catch (error) {
+            setFailedMessage('Section deletion failed. Please try again later.');
+            console.error('Error deleting section:', error);
+        }
+    };
+
+
+    return (
+        <div className='mb-5 pb-5'>
+            <h2 className='text-center font-merriweather'>
+                <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Section Detail</span>
+            </h2>
+            <div className='d-flex'>
+                <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
+                <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
+            </div>
+            {isDelete &&
+                <div className="container d-flex align-items-center justify-content-center">
+                    <div className="alert alert-info" role="alert">
+                        <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this data?</h6>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
+                            <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
+                        </div>
+                    </div>
+                </div>}
+            {successMessage && (
+                <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-check-circle-fill"> </i>
+                    <strong> {successMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
+                </div>
+            )}
+            {failedMessage && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {failedMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
+                </div>
+            )}
+
+            <h4 className='text-center text-secondary p-4 fs-5'>{getDetails()}</h4>
+
+            <form>
+                <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Batch: </label>
+                    <Select
+                        options={batchOptions}
+                        isMulti={false}
+                        value={selectedBatch}
+                        onChange={handleBatchChange}
+                        isDisabled={!isEditing}
+                    />
+                </div>
+                <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1" htmlFor="sectionName">Section Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="sectionName"
+                        name='name'
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                        disabled={!isEditing}
+                    />
+                </div>
+                <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1" htmlFor="maxSeats">Max Seats</label>
+                    <input
+                        type="number"
+                        className="form-control"
+                        id="maxSeats"
+                        name='max_seats'
+                        value={formData.max_seats}
+                        onChange={handleInputChange}
+                        required
+                        disabled={!isEditing}
+                    />
+                </div>
+                {isEditing && <>
+                    <button type="button" className="btn btn-darkblue2 mx-auto m-4 d-flex" onClick={handleUpdate}>Update</button>
+                    <button type="button" className="btn btn-dark mx-auto m-4 btn-sm d-flex" onClick={resetForm}>Reset</button>
+                </>}
+            </form>
+        </div>
+    );
+};
 
 
 
