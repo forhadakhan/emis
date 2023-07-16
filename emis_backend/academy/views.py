@@ -480,4 +480,13 @@ class SectionViewSet(ModelViewSet):
 
 
 
+class SectionByBatchAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, batch_id):
+        sections = Section.objects.filter(batch_id=batch_id)
+        serializer = SectionSerializer(sections, many=True)
+        return Response(serializer.data)
+
+
+
 
