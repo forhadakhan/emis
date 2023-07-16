@@ -44,3 +44,9 @@ class UserSerializer(serializers.ModelSerializer):
 
         return user
 
+
+
+class UserBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'role', 'email']
