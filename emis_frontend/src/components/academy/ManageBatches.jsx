@@ -505,7 +505,6 @@ const BatchDetail = ({ viewBatch, programs }) => {
 
     useEffect(() => {
         fetchBatch();
-        console.log('reload')
     }, [reload])
 
     const programOptions = programs.map(program => ({
