@@ -40,7 +40,7 @@ const TeacherEnrollmentForm = ({ teacherId, teacher, departments, designations, 
 
     const handleDepartmentSelect = (e) => {
         const departmentId = e.target.value;
-        const selectedDepartment = departments.find(permission => permission.id === parseInt(departmentId));
+        const selectedDepartment = departments.find(department => department.id === parseInt(departmentId));
 
         // Add the selected department to the list of selectedDepartments
         setSelectedDepartments(prevDepartments => {
@@ -168,16 +168,16 @@ const TeacherEnrollmentForm = ({ teacherId, teacher, departments, designations, 
                 <div className="col-sm-12 col-md-8 mx-auto my-5">
                     <div className="row g-0">
                         <div className="col-md-3">
+                            <div className={`rounded-2 mx-auto ${teacher.photo_id ? '' : 'bg-darkblue'} text-beige`}  style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }}>
                             {teacher.photo_id ? (
                                 <img src={getFileLink(teacher.photo_id)} className="img-fluid rounded mx-auto d-flex border" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }} alt="..." />
                             ) : (
-                                <div className="rounded-2 mx-auto bg-darkblue text-beige" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }}>
-                                    <i className="bi bi-person-bounding-box fs-1"></i>
-                                </div>
+                                <i className="bi bi-person-bounding-box fs-1"></i>
                             )}
+                            </div>
                         </div>
                         <div className="col-md-9 p-3">
-                            <div className="ms-3">
+                            <div className="ms-5">
                                 <p><span className="badge bg-darkblue text-beige">{teacher.acronym}</span></p>
                                 {teacher.user && <>
                                     <h4 className="">{`${teacher.user.first_name} ${teacher.user.middle_name} ${teacher.user.last_name}`}</h4>
@@ -295,7 +295,7 @@ const TeacherEnrollmentForm = ({ teacherId, teacher, departments, designations, 
                     <div className="container d-flex align-items-center justify-content-center">
                         <div className="alert alert-warning border border-danger p-2 my-3" role="alert">
                             <h6 className='text-center me-2 d-inline'>Are  you sure?</h6>
-                            <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
+                            <div className="btn-group text-center mx-auto" role="group" aria-label="Delete">
                                 <button type="button" className="btn btn-danger" onClick={handleEnrollmentDelete}> Yes </button>
                                 <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(false)}> No </button>
                             </div>
