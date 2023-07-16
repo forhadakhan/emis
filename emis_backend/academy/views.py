@@ -42,6 +42,7 @@ from .serializers import (
     BatchSerializer,
     BatchNestedSerializer,
     SectionSerializer,
+    StudentEnrollmentSerializer,
 )
 
 
@@ -463,8 +464,16 @@ class BatchViewSet(ModelViewSet):
 
 
 
+class BatchesByProgramAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, program_id):
+        batches = Batch.objects.filter(program_id=program_id, status=True)
+        serializer = BatchSerializer(batches, many=True)
+        return Response(serializer.data)
+
+
+
 class SectionViewSet(ModelViewSet):
-    permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     permission_classes = [IsAdministratorOrStaffOrReadOnly]
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
