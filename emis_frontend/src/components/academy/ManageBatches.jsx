@@ -129,11 +129,11 @@ const AddBatch = ({ programs }) => {
     const [error, setError] = useState('');
     const [formData, setFormData] = useState(form);
     const [selectedProgram, setSelectedProgram] = useState('');
-
+    console.log(programs)
 
     const programOptions = programs.map(program => ({
         value: program.id,
-        label: `${program.acronym} ${program.code} - ${program.name}`
+        label: `${program.acronym} ${program.code} - ${program.degree_type.acronym} in ${program.name}`
     }));
 
 
@@ -313,7 +313,7 @@ const BatchList = ({ batchDetail }) => {
 
 
     const getBatch = (data) => {
-        return `${data.program ? data.program.acronym : ''} ${getOrdinal(data.number)}`;
+        return `${data.program.degree_type.acronym} in ${data.program ? data.program.acronym : ''} ${getOrdinal(data.number)}`;
     };
 
     const getStatus = (data) => {
@@ -507,9 +507,10 @@ const BatchDetail = ({ viewBatch, programs }) => {
         fetchBatch();
     }, [reload])
 
+
     const programOptions = programs.map(program => ({
         value: program.id,
-        label: `${program.acronym} ${program.code} - ${program.name}`
+        label: `${program.acronym} ${program.code} - ${program.degree_type.acronym} in ${program.name}`
     }));
 
 
