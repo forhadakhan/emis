@@ -40,6 +40,8 @@ const ViewProfile = ({ componentController, user, profile }) => {
     useEffect(() => {
         if (userRole === 'student') {
             const enrollmentData = getEnrollmentData();
+            if (!enrollmentData.is_active) { return }
+
             setEnrollment(enrollmentData);
 
             const fetchProgram = async () => {
@@ -62,6 +64,9 @@ const ViewProfile = ({ componentController, user, profile }) => {
                 }
             }
             fetchProgram();
+        } else if (userRole === 'teacher') {
+            const enrollmentData = getEnrollmentData();
+            setEnrollment(enrollmentData);
         }
     }, [])
 
@@ -77,7 +82,7 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             {enrollment && enrollment.year && <span className="text-capitalize">{YEAR_CHOICES[enrollment.year]} </span>}
                             <span className="text-capitalize">{['administrator', 'teacher', 'student', 'staff'].includes(user.role) ? user.role : 'None'} </span>
                         </div>
-                        
+
 
                         {/* Profile Photo */}
                         <div style={divStyle} className="border rounded-3 bg-light">
@@ -98,13 +103,22 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             <i className="bi bi-gear"></i> Profile Settings
                         </button>
 
+
+                        {/* Teacher Status */}
+                        {(userRole === 'teacher') && enrollment && <>
+                            {enrollment.on_duty
+                                ? <small className='badge bg-success'>On Duty</small>
+                                : <small className='badge bg-danger'>Not On Duty</small>
+                            }
+                        </>}
+
                     </div>
                 </div>
 
                 <div className="col-md-8 border-start-2 border-light">
 
                     {/* No Enrollment Alert */}
-                    {(!enrollment || !enrollment.is_active) && <>
+                    {(!enrollment) && <>
                         <div className="alert alert-primary text-center fw-bold" role="alert">
                             No active enrollment found.
                         </div>
@@ -149,6 +163,31 @@ const ViewProfile = ({ componentController, user, profile }) => {
                                 </div>
                             </div>
 
+                        </>}
+
+
+                        {/* Teacher Enrollment Information */}
+                        {(userRole === 'teacher') && enrollment && <>
+                            <div className="row mt-2">
+                                <div className="">
+                                    <h6 className='text-secondary fw-normal'>Designation(s):</h6>
+                                    {enrollment.designations.map((designation) => (
+                                        <div key={designation.id}>
+                                            <p className='badge bg-beige text-darkblue fs-5 d-inline-block fw-normal'>{designation.name}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="row mt-2">
+                                <div className="">
+                                    <h6 className='text-secondary fw-normal'>Department(s):</h6>
+                                    {enrollment.departments.map((department) => (
+                                        <div key={department.id}>
+                                            <p className='fs-5'>{department.name} ({department.acronym} {department.code})</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </>}
 
 
