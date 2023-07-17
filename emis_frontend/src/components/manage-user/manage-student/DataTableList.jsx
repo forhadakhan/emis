@@ -1,5 +1,5 @@
 /**
- * Calling From:  ManageStudents.jsx; 
+ * Calling From:  StudentController.jsx; 
  * Calling To: DataTable  
  */
 
@@ -7,21 +7,21 @@
 import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
 import '../../../index.css';
-import * as bootstrap from 'bootstrap'
+import { getUserRole, hasPermission } from '../../../utils/auth';
 
 
-const DataTableList = ({ source, setReference, setActiveComponent }) => {
+const DataTableList = ({ studentUsers, setUser, setActiveComponent, setReference, hideProfile }) => {
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
+    const isAdmin = getUserRole() === 'administrator';
 
     useEffect(() => {
-        setData(source);
-    }, [source]);
+        setData(studentUsers);
+    }, [studentUsers]);
 
     useEffect(() => {
         setFilteredData(data);
     }, [data]);
-
 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
@@ -38,15 +38,11 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
         setFilteredData(filteredResults);
     };
 
-
     const columns = [
         {
             name: 'Username',
             selector: (row) => row.fields.username,
             sortable: true,
-            style: {
-                textTransform: 'uppercase',
-            },
         },
         {
             name: 'First Name',
@@ -64,18 +60,36 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
             sortable: true,
         },
         {
-            name: 'Profile',
+            name: 'Actions',
             cell: (row) => (
                 <div className='mx-auto'>
-                    <button type="button" className="btn btn-outline-dark me-2" onClick={() => handleClick(row.pk)}>
-                        <i className="bi bi-eye-fill fs-5"></i>
-                    </button>
-                    {/* {!row.fields.is_active && <i className="bi bi-slash-square"></i>} */}
+                    {(isAdmin || hasPermission('view_student')) && !hideProfile && 
+                        // view profle action button 
+                        <button
+                            type="button"
+                            className="btn btn-outline-dark me-2 border-0"
+                            onClick={() => handleProfile(row.pk)}
+                            data-bs-toggle="tooltip"
+                            data-bs-title="Manage Profile"
+                        >
+                            <i className="bi bi-eye-fill fs-5"></i>
+                        </button>}
+                    {(isAdmin || hasPermission('view_studentenrollment')) && 
+                        // student enrollment action button 
+                        <button
+                            type="button"
+                            className="btn btn-outline-dark me-2 border-0"
+                            onClick={() => handleEnrollment(row.pk)}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            data-bs-title="Manage Enrollment"
+                        >
+                            <i className="bi bi-person-lines-fill"></i>
+                        </button>}
                 </div>
             ),
         },
     ];
-    
 
     const customStyles = {
         rows: {
@@ -103,9 +117,12 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
         },
     };
 
+    const handleEnrollment = (teacher) => {
+        setUser(teacher);
+    };
 
-    const handleClick = (pk) => {
-        setReference(pk)
+    const handleProfile = (teacher) => {
+        setReference(teacher);
         setActiveComponent("ManageStudentProfile");
     };
 
@@ -116,7 +133,7 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
                     Filter:
                 </label>
                 <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
-                    <option value="" selected>No Filter</option>
+                    <option value="">No Filter</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="blocked">Blocked</option>
@@ -130,7 +147,6 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
                     onChange={handleSearch}
                     className="form-control text-center border border-darkblue"
                 />
-
             </div>
 
             <DataTable
@@ -143,7 +159,6 @@ const DataTableList = ({ source, setReference, setActiveComponent }) => {
         </div>
     );
 };
-
 
 
 
