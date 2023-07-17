@@ -135,7 +135,7 @@ const AddSection = ({ accessToken, batches = [], batch = null }) => {
 
     const batchOptions = batches.map(batch => ({
         value: batch.id,
-        label: `${batch.program.acronym} ${batch.number} [Session: ${batch.session}]`
+        label: `${batch.program.degree_type.acronym} in ${batch.program.acronym} ${batch.number} [Session: ${batch.session}]`
     }));
 
     const handleBatchChange = (selectedOption) => {
@@ -296,7 +296,12 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
 
     const getBatch = (id) => {
         const batch = batches.find((batch) => batch.id === id);
-        return batch ? `${batch.program.acronym} ${getOrdinal(batch.number)} - Session: ${batch.session}` : null;
+        return batch ? `${batch.program.degree_type.acronym} in ${batch.program.acronym} ${getOrdinal(batch.number)}` : null;
+    };
+
+    const getSession = (id) => {
+        const batch = batches.find((batch) => batch.id === id);
+        return batch ? `${batch.session}` : null;
     };
 
 
@@ -309,6 +314,11 @@ const SectionList = ({ sectionDetail, batches, accessToken }) => {
         {
             name: 'Batch',
             selector: (row) => getBatch(row.batch),
+            sortable: true,
+        },
+        {
+            name: 'Session',
+            selector: (row) => getSession(row.batch),
             sortable: true,
         },
         {
@@ -423,7 +433,7 @@ const SectionDetail = ({ viewSection, batches = [], accessToken }) => {
 
     const batchOptions = batches.map(batch => ({
         value: batch.id,
-        label: `${batch.program.acronym} ${batch.number} [Session: ${batch.session}]`
+        label: `${batch.program.degree_type.acronym} in ${batch.program.acronym} ${batch.number} [Session: ${batch.session}]`
     }));
 
 
@@ -557,6 +567,7 @@ const SectionDetail = ({ viewSection, batches = [], accessToken }) => {
                             isMulti={false}
                             value={selectedBatch}
                             onChange={handleBatchChange}
+                            isDisabled={!isEditing}
                         />
                     </div>
                 }
