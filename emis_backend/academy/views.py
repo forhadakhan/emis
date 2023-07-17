@@ -424,6 +424,21 @@ class ProgramViewSet(ModelViewSet):
 
 
 
+class ProgramAPIView(APIView):
+    permission_classes = [IsAdministratorOrStaffOrReadOnly]
+
+    def get(self, request, program_id=None):
+        if program_id is not None:
+            program = get_object_or_404(Program, id=program_id)
+            serializer = ProgramSerializer(program)
+            return Response(serializer.data)
+
+        programs = Program.objects.all()
+        serializer = ProgramSerializer(programs, many=True)
+        return Response(serializer.data)
+
+
+
 class SemesterViewSet(ModelViewSet):
     queryset = Semester.objects.all()
 
