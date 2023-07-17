@@ -517,7 +517,7 @@ class SectionByBatchAPIView(APIView):
 
 
 class StudentEnrollmentAPIView(APIView):
-    permission_classes = [IsAdministratorOrStaffOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, enrollment_id=None, student_id=None):
         if student_id is not None:
