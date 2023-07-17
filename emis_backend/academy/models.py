@@ -201,6 +201,7 @@ class StudentEnrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     batch_section = models.ForeignKey(Section, on_delete=models.CASCADE, blank=True, null=True)
     enrolled_by = models.ForeignKey(User, related_name='student_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
+    updated_by = models.ForeignKey(User, related_name='student_enrollment_updated_by', on_delete=models.SET_NULL, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 
