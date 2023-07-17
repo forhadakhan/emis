@@ -146,19 +146,17 @@ export const getProfileData = () => {
 };
 
 // set enrollment data
-const setEnrollmentData = async (userRole, profileId) => {
+const setStudentEnrollmentData = async (profileId) => {
     // fetch enrollment data
     try {
         const accessToken = getAccessToken();
-        const profile = userRole === 'student' ? 'students' : 'other-profile'; 
+        const url = `${API_BASE_URL}/academy/students/${profileId}/enrollment/`;
 
-        const response = await axios.get(
-            `${API_BASE_URL}/academy/${profile}/${profileId}/enrollment/`,
-            {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            }
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        }
         );
 
         const data = response.data;
@@ -169,6 +167,10 @@ const setEnrollmentData = async (userRole, profileId) => {
         // localStorage.setItem('enrollment', '');
         // console.error('Error fetching enrollment data:', error);
     }
+}
+const setTeacherEnrollmentData = (enrollment) => {
+    const encryptedData = encryptData(JSON.stringify(enrollment));
+    localStorage.setItem('enrollment', encryptedData);
 }
 
 // Function to get the enrollment data from localStorage
@@ -193,16 +195,21 @@ export const saveLoginResponse = (data) => {
     const { refresh } = data;
     setRefreshToken(refresh);
 
-    // Save the user data (if needed)
+    // Save the user data 
     const { user } = data;
     setUserData(user);
 
-    // Save the user data (if needed)
+    // Save the teacher enrollment data if exists 
+    if (user.role === 'teacher' && data.enrollment) {
+        setTeacherEnrollmentData(data.enrollment);
+    }  
+
+    // Save the user profile data 
     if (data.profile) {
         const { profile } = data;
         setProfileData(profile);
-        if(user.role === 'student' || user.role === 'teacher') {
-            setEnrollmentData(user.role, profile.id)
+        if (user.role === 'student') {
+            setStudentEnrollmentData(profile.id)
         }
     } else {
         const profile = '';
