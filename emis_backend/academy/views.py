@@ -416,7 +416,7 @@ class ProgramViewSet(ModelViewSet):
     queryset = Program.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action in ['retrieve', 'list']:
             return ProgramNestedSerializer
         return ProgramSerializer 
 
