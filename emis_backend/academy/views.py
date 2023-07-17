@@ -504,13 +504,19 @@ class SectionByBatchAPIView(APIView):
 class StudentEnrollmentAPIView(APIView):
     permission_classes = [IsAdministratorOrStaffOrReadOnly]
 
-    def get(self, request, enrollment_id=None):
-        if enrollment_id is None:
-            enrollments = StudentEnrollment.objects.all()
-            serializer = StudentEnrollmentSerializer(enrollments, many=True)
-        else:
+    def get(self, request, enrollment_id=None, student_id=None):
+        if student_id is not None:
+            enrollment = get_object_or_404(StudentEnrollment, student_id=student_id)
+            serializer = StudentEnrollmentViewSerializer(enrollment)
+            return Response(serializer.data)
+        
+        if enrollment_id is not None:
             enrollment = get_object_or_404(StudentEnrollment, id=enrollment_id)
             serializer = StudentEnrollmentSerializer(enrollment)
+            return Response(serializer.data)
+
+        enrollments = StudentEnrollment.objects.all()
+        serializer = StudentEnrollmentSerializer(enrollments, many=True)
         return Response(serializer.data)
 
     def post(self, request):
