@@ -74,10 +74,12 @@ const ViewProfile = ({ componentController, user, profile }) => {
 
                         <div className='bg-darkblue text-beige rounded-2 my-4' style={{ width: '200px', height: '25px' }}>
                             {/* <i className="bi bi-person-fill-gear  me-2"></i> */}
-                            <span className="text-capitalize">{YEAR_CHOICES[enrollment.year]} </span>
+                            {enrollment && enrollment.year && <span className="text-capitalize">{YEAR_CHOICES[enrollment.year]} </span>}
                             <span className="text-capitalize">{['administrator', 'teacher', 'student', 'staff'].includes(user.role) ? user.role : 'None'} </span>
                         </div>
+                        
 
+                        {/* Profile Photo */}
                         <div style={divStyle} className="border rounded-3 bg-light">
                             {profile.photo_id ? (
                                 <img
@@ -90,21 +92,28 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             )}
                         </div>
 
+
+                        {/* Settings Button */}
                         <button className="btn btn-sm btn-beige profile-button my-4 rounded-2" onClick={() => componentController('settings')} type="button" style={{ width: '200px' }}>
                             <i className="bi bi-gear"></i> Profile Settings
                         </button>
 
                     </div>
                 </div>
+
                 <div className="col-md-8 border-start-2 border-light">
 
+                    {/* No Enrollment Alert */}
                     {(!enrollment || !enrollment.is_active) && <>
                         <div className="alert alert-primary text-center fw-bold" role="alert">
                             No active enrollment found.
                         </div>
                     </>}
 
+
                     <div className="p-3 py-5">
+
+                        {/* User Information */}
                         <div className="row mt-2">
                             <div className="col-md-12">
                                 <h6 className='text-secondary fw-normal'>Name</h6>
@@ -118,6 +127,8 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             </div>
                         </div>
 
+
+                        {/* Student Enrollment Information */}
                         {(userRole === 'student') && enrollment && enrollment.is_active && <>
                             <div className="row mt-2">
                                 <div className="col-md-6">
@@ -140,6 +151,8 @@ const ViewProfile = ({ componentController, user, profile }) => {
 
                         </>}
 
+
+                        {/* Teacher Designation Information */}
                         {profile.designation &&
                             <div className="row mt-2">
                                 <div className="col-md-6">
@@ -154,6 +167,8 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             </div>
                         </div>
 
+
+                        {/* Profile Information */}
                         {profile &&
                             <div>
                                 <div className="row mt-2">
@@ -207,6 +222,7 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             </div>}
 
 
+                        {/* Student Guardian Information */}
                         {(userRole === 'student') && <>
                             <div className="my-5 p-3 rounded-5 border-start border-5 border-beige">
                                 <div className="row mt-2">
@@ -235,6 +251,7 @@ const ViewProfile = ({ componentController, user, profile }) => {
                                 </div>
                             </div>
                         </>}
+
                     </div>
                 </div>
 
