@@ -463,6 +463,16 @@ class BatchViewSet(ModelViewSet):
         return BatchSerializer
 
 
+class BatchActiveViewSet(ModelViewSet):
+    permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
+    queryset = Batch.objects.filter(status=True)
+
+    def get_serializer_class(self):
+        if self.action in ['retrieve', 'list']:
+            return BatchNestedSerializer
+        return BatchSerializer
+
+
 
 class BatchesByProgramAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -486,7 +496,6 @@ class SectionByBatchAPIView(APIView):
         sections = Section.objects.filter(batch_id=batch_id)
         serializer = SectionSerializer(sections, many=True)
         return Response(serializer.data)
-
 
 
 
