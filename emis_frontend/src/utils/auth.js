@@ -125,8 +125,6 @@ export const hasPermission = (codename) => {
 };
 
 
-
-
 // Function to get the user data from localStorage
 export const getUserData = () => {
     const encryptedUser = localStorage.getItem('user');
@@ -147,6 +145,43 @@ export const getProfileData = () => {
     return null;
 };
 
+// set enrollment data
+const setEnrollmentData = async (userRole, profileId) => {
+    // fetch enrollment data
+    try {
+        const accessToken = getAccessToken();
+        const profile = userRole === 'student' ? 'students' : 'other-profile'; 
+
+        const response = await axios.get(
+            `${API_BASE_URL}/academy/${profile}/${profileId}/enrollment/`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            }
+        );
+
+        const data = response.data;
+        // Encrypt and store the enrollment data in localStorage
+        const encryptedData = encryptData(JSON.stringify(data));
+        localStorage.setItem('enrollment', encryptedData);
+    } catch (error) {
+        // localStorage.setItem('enrollment', '');
+        // console.error('Error fetching enrollment data:', error);
+    }
+}
+
+// Function to get the enrollment data from localStorage
+export const getEnrollmentData = () => {
+    const encryptedData = localStorage.getItem('enrollment');
+    if (encryptedData) {
+        const data = JSON.parse(decryptData(encryptedData));
+        return data;
+    }
+    return '';
+};
+
+
 // Function to save the login response data
 export const saveLoginResponse = (data) => {
     // console.log(data);
@@ -166,6 +201,9 @@ export const saveLoginResponse = (data) => {
     if (data.profile) {
         const { profile } = data;
         setProfileData(profile);
+        if(user.role === 'student' || user.role === 'teacher') {
+            setEnrollmentData(user.role, profile.id)
+        }
     } else {
         const profile = '';
         setProfileData(profile);
