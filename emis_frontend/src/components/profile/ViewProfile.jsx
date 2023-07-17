@@ -207,8 +207,34 @@ const ViewProfile = ({ componentController, user, profile }) => {
                             </div>}
 
 
-                        <div className="mt-5 text-center">
-                        </div>
+                        {(userRole === 'student') && <>
+                            <div className="my-5 p-3 rounded-5 border-start border-5 border-beige">
+                                <div className="row mt-2">
+                                    <div className="col-md-6">
+                                        <h6 className='text-secondary fw-normal'>Guardian Name</h6>
+                                        <p className='fs-5'>{profile.guardian_name}</p>
+                                    </div>
+                                </div>
+                                <div className="row mt-2">
+                                    <div className="col-md-6">
+                                        <h6 className='text-secondary fw-normal'>Guardian Relationship</h6>
+                                        <p className='fs-5'>{profile.guardian_relationship}</p>
+                                    </div>
+                                </div>
+                                <div className="row mt-2">
+                                    <div className="col-md-6">
+                                        <h6 className='text-secondary fw-normal'>Guardian Phone</h6>
+                                        <p className='fs-5'>{profile.guardian_phone}</p>
+                                    </div>
+                                </div>
+                                <div className="row mt-2">
+                                    <div className="col-md-6">
+                                        <h6 className='text-secondary fw-normal'>Guardian Email</h6>
+                                        <p className='fs-5'>{profile.guardian_email}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </>}
                     </div>
                 </div>
 
