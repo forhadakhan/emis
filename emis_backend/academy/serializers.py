@@ -1,6 +1,9 @@
 # academy/serializers.py 
 
 from rest_framework import serializers
+from authentication.serializers import UserBriefSerializer
+from student.models import Student
+from student.serializers import StudentSerializer
 from teacher.serializers import TeacherSerializer
 from teacher.models import Teacher
 
@@ -143,13 +146,24 @@ class BatchSerializer(serializers.ModelSerializer):
 
 class SectionSerializer(serializers.ModelSerializer):
     available_seats = serializers.SerializerMethodField()
+    batch_data = serializers.SerializerMethodField()
 
     class Meta:
         model = Section
         fields = '__all__'
 
     def get_available_seats(self, obj):
-        return obj.get_available_seats()
+        enrolled_count = StudentEnrollment.objects.filter(batch_section=obj).count()
+        return obj.max_seats - enrolled_count
+
+    def get_batch_data(self, obj):
+        try:
+            batch = Batch.objects.get(id=obj.batch.id)
+            batch_serializer = BatchSerializer(batch)
+            return batch_serializer.data
+        except Batch.DoesNotExist:
+            return None
+
 
 
 class BatchNestedSerializer(serializers.ModelSerializer):
@@ -163,6 +177,16 @@ class BatchNestedSerializer(serializers.ModelSerializer):
 
 
 class StudentEnrollmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentEnrollment
+        fields = '__all__'
+
+
+class StudentEnrollmentViewSerializer(serializers.ModelSerializer):
+    batch_section = SectionSerializer(read_only=True)
+    enrolled_by = UserBriefSerializer(read_only=True)
+    updated_by = UserBriefSerializer(read_only=True)
+
     class Meta:
         model = StudentEnrollment
         fields = '__all__'
