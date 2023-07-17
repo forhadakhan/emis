@@ -22,6 +22,7 @@ from .views import (
     SectionViewSet,
     SectionByBatchAPIView,
     StudentEnrollmentAPIView,
+    ProgramAPIView,
 )
 
 router = DefaultRouter()
@@ -44,6 +45,7 @@ urlpatterns = [
     path('departments/<int:pk>/', DepartmentAPIView.as_view(), name='department-pk'),  
     path('degree-types/', DegreeTypeAPIView.as_view(), name='degree-types'),  
     path('degree-types/<int:pk>/', DegreeTypeAPIView.as_view(), name='degree-type-pk'),  
+    path('programs/<int:program_id>/', ProgramAPIView.as_view(), name='get-program'),
     path('teacher-enrollment/', TeacherEnrollmentAPIView.as_view(), name='teacher-enrollment'),  
     path('teacher-enrollment/<int:pk>/', TeacherEnrollmentAPIView.as_view(), name='teacher-enrollment-pk'),  
     path('student-enrollment/', StudentEnrollmentAPIView.as_view(), name='student-enrollment'),  
