@@ -1,6 +1,7 @@
 # student/views.py
 
 import json
+from academy.views import StudentEnrollmentAPIView
 from datetime import date
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
@@ -105,6 +106,12 @@ class GetStudentView(APIView):
             combined_data['fields']['added_by'] = user_added_by
             combined_data['fields']['updated_by'] = user_updated_by
             combined_data['fields']['user'] = user_data
+            
+            try:
+                student_id = int(student.id)
+                combined_data['fields']['enrollment'] = StudentEnrollmentAPIView().enrollment(student_id)
+            except Exception as e:
+                combined_data['fields']['enrollment'] = None
 
             serialized_data = json.dumps(combined_data, cls=CustomJSONEncoder)
             return HttpResponse(serialized_data, content_type='application/json')
