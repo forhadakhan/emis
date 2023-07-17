@@ -24,6 +24,7 @@ from .models import (
     Course,
     Batch,
     Section,
+    StudentEnrollment,
 )
 from .serializers import (
     DesignationSerializer,
@@ -43,6 +44,7 @@ from .serializers import (
     BatchNestedSerializer,
     SectionSerializer,
     StudentEnrollmentSerializer,
+    StudentEnrollmentViewSerializer,
 )
 
 
@@ -496,6 +498,63 @@ class SectionByBatchAPIView(APIView):
         sections = Section.objects.filter(batch_id=batch_id)
         serializer = SectionSerializer(sections, many=True)
         return Response(serializer.data)
+
+
+
+class StudentEnrollmentAPIView(APIView):
+    permission_classes = [IsAdministratorOrStaffOrReadOnly]
+
+    def get(self, request, enrollment_id=None):
+        if enrollment_id is None:
+            enrollments = StudentEnrollment.objects.all()
+            serializer = StudentEnrollmentSerializer(enrollments, many=True)
+        else:
+            enrollment = get_object_or_404(StudentEnrollment, id=enrollment_id)
+            serializer = StudentEnrollmentSerializer(enrollment)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = StudentEnrollmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, enrollment_id):
+        enrollment = get_object_or_404(StudentEnrollment, id=enrollment_id)
+        serializer = StudentEnrollmentSerializer(enrollment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, enrollment_id):
+        enrollment = get_object_or_404(StudentEnrollment, id=enrollment_id)
+        serializer = StudentEnrollmentSerializer(enrollment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, enrollment_id):
+        enrollment = get_object_or_404(StudentEnrollment, id=enrollment_id)
+        enrollment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def enrollment(self, student_id):
+        try:
+            enrollments = StudentEnrollment.objects.filter(student=student_id)
+            if not enrollments:
+                return None
+            
+            serializer = StudentEnrollmentViewSerializer(enrollments, many=True)
+
+            data = serializer.data
+            return data[0]
+        
+        except Exception as e:
+            return {'message': str(e)}
+
 
 
 
