@@ -17,6 +17,7 @@ from .views import (
     SemesterViewSet,
     CourseViewSet,
     BatchViewSet,
+    BatchActiveViewSet,
     BatchesByProgramAPIView,
     SectionViewSet,
     SectionByBatchAPIView,
@@ -27,6 +28,7 @@ router.register(r'programs', ProgramViewSet)
 router.register(r'semesters', SemesterViewSet)
 router.register(r'courses', CourseViewSet)
 router.register(r'batches', BatchViewSet)
+router.register(r'active-batches', BatchActiveViewSet)
 router.register(r'sections', SectionViewSet)
 
 
