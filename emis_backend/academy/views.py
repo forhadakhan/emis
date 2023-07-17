@@ -3,7 +3,7 @@
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -425,12 +425,12 @@ class ProgramViewSet(ModelViewSet):
 
 
 class ProgramAPIView(APIView):
-    permission_classes = [IsAdministratorOrStaffOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, program_id=None):
         if program_id is not None:
             program = get_object_or_404(Program, id=program_id)
-            serializer = ProgramSerializer(program)
+            serializer = ProgramNestedSerializer(program)
             return Response(serializer.data)
 
         programs = Program.objects.all()
