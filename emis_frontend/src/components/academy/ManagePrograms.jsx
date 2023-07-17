@@ -519,12 +519,20 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
 
 const ProgramDetail = ({ program, departments, degreeTypes }) => {
     const accessToken = getAccessToken();
-    const [formData, setFormData] = useState(program);
+    const [formData, setFormData] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [deactive, setDeactive] = useState(false);
     const [isDelete, setIsDelete] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [failedMessage, setFailedMessage] = useState('');
+
+    useEffect(() => {
+        setFormData({ 
+            ...program, 
+            ['degree_type']: program.degree_type.id,
+            ['department']: program.department.id,
+        });
+    }, []);
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
