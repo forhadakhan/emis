@@ -1,54 +1,54 @@
 /**
  * -- Manage Admin and Staff Activity --
  * 
- * Calling from: Landing.jsx
+ * Calling from: ActivityController.jsx
  */
 
 /*******************************************************************************/
 /********************************| START IMPORTS |********************************/
 
-import React, { useState, useEffect } from 'react';
-import { getUserRole, hasPermission } from '../utils/auth.js';
+import React, { useState } from 'react';
+import { getUserRole, hasPermission } from '../../utils/auth.js';
 
 // User Management
-import AddAdministrator from './add-user/AddAdministrator';
-import AddStaff from './add-user/AddStaff';
-import AddTeacher from './add-user/AddTeacher';
-import AddStudent from './add-user/AddStudent';
-import ManageAdministrator from './manage-user/manage-administrator-&-staff/ManageAdministrator';
-import ManageStaff from './manage-user/manage-administrator-&-staff/ManageStaff';
-import ManageProfile from './manage-user/manage-administrator-&-staff/ManageProfile';
-import ManageTeacher from './manage-user/manage-teacher/ManageTeacher';
-import ManageTeacherProfile from './manage-user/manage-teacher/ManageTeacherProfile';
-import ManageStudent from './manage-user/manage-student/ManageStudent';
-import ManageStudentProfile from './manage-user/manage-student/ManageStudentProfile';
+import AddAdministrator from '../add-user/AddAdministrator';
+import AddStaff from '../add-user/AddStaff';
+import AddTeacher from '../add-user/AddTeacher';
+import AddStudent from '../add-user/AddStudent';
+import ManageAdministrator from '../manage-user/manage-administrator-&-staff/ManageAdministrator';
+import ManageStaff from '../manage-user/manage-administrator-&-staff/ManageStaff';
+import ManageProfile from '../manage-user/manage-administrator-&-staff/ManageProfile';
+import ManageTeacher from '../manage-user/manage-teacher/ManageTeacher';
+import ManageTeacherProfile from '../manage-user/manage-teacher/ManageTeacherProfile';
+import ManageStudent from '../manage-user/manage-student/ManageStudent';
+import ManageStudentProfile from '../manage-user/manage-student/ManageStudentProfile';
 
 // Permissions
-import UserPermissions from './permissions/UserPermissions.jsx';
+import UserPermissions from '../permissions/UserPermissions.jsx';
 
 // Public Messages
-import PublicMessages from './public-messages/PublicMessages.jsx';
+import PublicMessages from '../public-messages/PublicMessages.jsx';
 
 // Academy Management
-import ManageTeacherDesignations from './academy/ManageTeacherDesignations.jsx';
-import ManageTermChoices from './academy/ManageTermChoices.jsx';
-import ManageInstitutes from './academy/ManageInstitutes.jsx';
-import ManageDepartments from './academy/ManageDepartments.jsx';
-import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
-import TeacherEnrollment from './academy/ManageTeacherEnrollment.jsx';
-import ManagePrograms from './academy/ManagePrograms.jsx';
-import ManageSemesters from './academy/ManageSemesters.jsx';
-import ManageCourses from './academy/ManageCourses.jsx';
-import ManageBatches from './academy/ManageBatches.jsx';
-import ManageSections from './academy/ManageSections.jsx';
-import StudentEnrollment from './academy/ManageStudentEnrollment.jsx';
+import ManageTeacherDesignations from '../academy/ManageTeacherDesignations.jsx';
+import ManageTermChoices from '../academy/ManageTermChoices.jsx';
+import ManageInstitutes from '../academy/ManageInstitutes.jsx';
+import ManageDepartments from '../academy/ManageDepartments.jsx';
+import ManageDegreeTypes from '../academy/ManageDegreeTypes.jsx';
+import TeacherEnrollment from '../academy/ManageTeacherEnrollment.jsx';
+import ManagePrograms from '../academy/ManagePrograms.jsx';
+import ManageSemesters from '../academy/ManageSemesters.jsx';
+import ManageCourses from '../academy/ManageCourses.jsx';
+import ManageBatches from '../academy/ManageBatches.jsx';
+import ManageSections from '../academy/ManageSections.jsx';
+import StudentEnrollment from '../academy/ManageStudentEnrollment.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
 
 
 
-const ActivityComponent = () => {
+const ManagerialActivity = () => {
     const [activeComponent, setActiveComponent] = useState('main');
     const [reference, setReference] = useState(null);
     const [userType, setUserType] = useState(``);
@@ -231,4 +231,4 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
 
 
 
-export default ActivityComponent;
+export default ManagerialActivity;
