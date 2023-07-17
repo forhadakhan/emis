@@ -296,29 +296,6 @@ class Exam(models.Model):
 
 
 #####################################################################
-##################### Result:
-#####################   - dependent on: CourseEnrollment.
-class Result(models.Model):
-    STATUS_CHOICES = [
-        ('ongoing', 'Ongoing'),
-        ('pass', 'Pass'),
-        ('fail', 'Fail'),
-        ('retake', 'Retake'),
-        ('supplementary', 'Supplementary'),
-    ]
-
-    course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    total_marks = models.FloatField(null=True, blank=True)
-    max_marks = models.PositiveIntegerField()
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
-    is_published = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'Result for {self.course_enrollment}'
-#####################################################################
-
-
-#####################################################################
 ##################### GPATable:
 #####################   - independent
 class GPATable(models.Model):
@@ -344,6 +321,29 @@ class CGPATable(models.Model):
 
     def __str__(self):
         return f"{self.letter_grade}: {self.grade_point}"
+#####################################################################
+
+
+#####################################################################
+##################### Result:
+#####################   - dependent on: CourseEnrollment.
+class Result(models.Model):
+    STATUS_CHOICES = [
+        ('ongoing', 'Ongoing'),
+        ('pass', 'Pass'),
+        ('fail', 'Fail'),
+        ('retake', 'Retake'),
+        ('supplementary', 'Supplementary'),
+    ]
+
+    course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
+    total_marks = models.FloatField(null=True, blank=True)
+    max_marks = models.PositiveIntegerField()
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
+    is_published = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Result for {self.course_enrollment}'
 #####################################################################
 
 
