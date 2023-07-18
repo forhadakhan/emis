@@ -11,7 +11,7 @@ import { getOrdinal } from '../../../utils/utils.js';
 import Select from 'react-select'
 
 
-const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAction, handleBack }) => {
+const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batches, handleAction, handleBack }) => {
     const accessToken = getAccessToken();
     const loggedUser = getUserId();
     const yearChoices = [
@@ -25,6 +25,7 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
         year: yearChoices[0].value,
         student: studentId,
         batch_section: '',
+        semester: '',
         enrolled_by: loggedUser,
         is_active: true,
     }
@@ -36,15 +37,22 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
     const [formData, setFormData] = useState(initForm);
     const [selectedYear, setSelectedYear] = useState(yearChoices[0]);
     const [selectedProgram, setSelectedProgram] = useState('');
+    const [selectedSemester, setSelectedSemester] = useState('');
     const [selectedBatch, setSelectedBatch] = useState('');
     const [selectedSection, setSelectedSection] = useState('');
     const [batchOptions, setBatchOptions] = useState([]);
     const [sectionOptions, setSectionOptions] = useState([]);
 
-
+    
     const programOptions = programs.map(program => ({
         value: program.id,
         label: `${program.acronym} ${program.code} - ${program.degree_type.acronym} in ${program.name}`
+    }));
+
+    const semestermOptions = semesters.map(semester => ({
+        value: semester.id,
+        isDisabled: !semester.is_open,
+        label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})`
     }));
 
     const setEnrollmentData = () => {
@@ -52,6 +60,7 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
         const data = {
             student: student.enrollment.student,
             year: student.enrollment.year,
+            semester: student.enrollment.semester,
             enrolled_by: student.enrollment.enrolled_by.id,
             updated_by: loggedUser,
             batch_section: student.enrollment.batch_section.id,
@@ -59,16 +68,28 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
         }
         setFormData(data)
         const year = yearChoices.find((year) => year.value === student.enrollment.year);
-        const sectionId = student.enrollment.batch_section.id;
+        const sectionId = data.batch_section;
         const batchId = student.enrollment.batch_section.batch;
         // const programId = student.enrollment.batch_section.batch_data.program;
         // const program = programs.find((program) => program.id === programId);
+        const semester = semesters.find((semester) => semester.id === data.semester);
         const batch = batches.find((batch) => batch.id === batchId);
         const section = batch.sections.find((section) => section.id === sectionId);
         setSelectedYear(year);
         // setSelectedProgram({ value:programId, label: `${program.acronym} ${program.code}: ${program.name}` });
         setSelectedBatch({ isDisabled: true, value: batchId, label: `${batch.program.acronym} ${getOrdinal(batch.number)} (Session: ${batch.session})` });
         setSelectedSection({ isDisabled: true, value: sectionId, label: `${section.name} (${section.available_seats}/${section.max_seats})` });
+        setSelectedSemester( semester 
+            ? { 
+                isDisabled: true, 
+                value: data.semester, 
+                label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})` } 
+            : {
+                isDisabled: true, 
+                value: '', 
+                label: `Enrolled semester may be closed.`
+
+            });        
         setIsEnrollmented(true);
     }
 
@@ -82,6 +103,7 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
             setSelectedProgram('');
             setSelectedBatch('');
             setSelectedSection('');
+            setSelectedSemester('');
             setBatchOptions([]);
             setSectionOptions([]);
         }
@@ -90,6 +112,13 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
     if (student.enrollment && !enrollmentId) {
         setEnrollmentData();
     }
+
+    const handleSemesterChange = (selectedOption) => {
+        setSelectedSemester(selectedOption);
+        if (parseInt(selectedOption.value)) {
+            setFormData({ ...formData, semester: parseInt(selectedOption.value) });
+        }
+    };
 
     const handleProgramChange = (selectedOption) => {
         setSelectedProgram(selectedOption);
@@ -255,6 +284,17 @@ const StudentEnrollmentForm = ({ studentId, student, programs, batches, handleAc
                         isMulti={false}
                         value={selectedYear}
                         onChange={handleYearChange}
+                    />
+                </div>
+
+                <div className="col-sm-12 col-md-8 my-2  mx-auto">
+                    <label className="text-secondary py-1">Semester: </label>
+                    <Select
+                        options={semestermOptions}
+                        isMulti={false}
+                        value={selectedSemester}
+                        placeholder='Running Semesters'
+                        onChange={handleSemesterChange}
                     />
                 </div>
 
