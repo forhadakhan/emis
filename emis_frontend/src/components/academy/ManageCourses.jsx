@@ -26,60 +26,64 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
     );
 
     // fetch existing courses  
+    const fetchCourses = async () => {
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.get(`${API_BASE_URL}/academy/courses/`, config);
+            setCourses(response.data);
+        } catch (error) {
+            setError(' Failed to fetch courses list.');
+            console.error(error);
+        }
+    };
     useEffect(() => {
         setError('');
-        const fetchDepartments = async () => {
-            try {
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                const response = await axios.get(`${API_BASE_URL}/academy/courses/`, config);
-                setCourses(response.data);
-            } catch (error) {
-                setError(' Failed to fetch courses list.');
-                console.error(error);
-            }
-        };
-
         if (courses.length === 0) {
-            fetchDepartments();
+            fetchCourses();
         }
 
     }, []);
+
 
     // fetch programs for select 
+    const fetchPrograms = async () => {
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.get(`${API_BASE_URL}/academy/programs/`, config);
+            setPrograms(response.data);
+        } catch (error) {
+            setError(' Failed to fetch programs/courses list.');
+            console.error(error);
+        }
+    };
     useEffect(() => {
         setError('');
-        const fetchDepartments = async () => {
-            try {
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                const response = await axios.get(`${API_BASE_URL}/academy/programs/`, config);
-                setPrograms(response.data);
-            } catch (error) {
-                setError(' Failed to fetch programs/courses list.');
-                console.error(error);
-            }
-        };
-
         if (programs.length === 0) {
-            fetchDepartments();
+            fetchPrograms();
         }
 
     }, []);
+
 
     const courseDetail = (course) => {
         setSelectedCourse(course);
         setShowComponent('CourseDetails')
+    }
+
+    const reloadCourses = () => {
+        fetchCourses();
     }
 
     const renderComponent = () => {
@@ -87,7 +91,7 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
             case 'CourseList':
                 return <CourseList courseDetail={courseDetail} programs={programs} />;
             case 'AddCourse':
-                return <AddCourse programs={programs} courses={courses} />;
+                return <AddCourse programs={programs} courses={courses} reloadCourses={reloadCourses} />;
             case 'CourseDetails':
                 return <CourseDetail viewCourse={selectedCourse} programs={programs} courses={courses} />;
             default:
@@ -143,7 +147,7 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
 
 
 
-const AddCourse = ({ courses, programs }) => {
+const AddCourse = ({ courses, programs, reloadCourses }) => {
     const accessToken = getAccessToken();
     const form = {
         name: '',
@@ -238,6 +242,18 @@ const AddCourse = ({ courses, programs }) => {
         }
     };
 
+    const reloadPrerequisites = (
+        <>
+            <button type='button' className='btn btn-light text-secondary d-inline p-0 px-1 m-1' onClick={reloadCourses}>
+                <small>
+                    <i className="bi bi-arrow-clockwise"> </i>
+                    Reload
+                </small>
+            </button>
+        </>
+    );
+
+
     return (
         <div>
 
@@ -306,6 +322,7 @@ const AddCourse = ({ courses, programs }) => {
                         </div>
                         <div className=" col-sm-12 col-md-8 my-2  mx-auto">
                             <label className="text-secondary py-1">Select Prerequisites: </label>
+                            {reloadPrerequisites}
                             <Select
                                 options={courseOptions}
                                 isMulti
