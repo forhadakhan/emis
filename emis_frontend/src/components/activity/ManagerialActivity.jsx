@@ -8,40 +8,40 @@
 /********************************| START IMPORTS |********************************/
 
 import React, { useState } from 'react';
-import { getUserRole, hasPermission } from '../utils/auth.js';
+import { getUserRole, hasPermission } from '../../utils/auth.js';
 
 // User Management
-import AddAdministrator from './add-user/AddAdministrator.jsx';
-import AddStaff from './add-user/AddStaff.jsx';
-import AddTeacher from './add-user/AddTeacher.jsx';
-import AddStudent from './add-user/AddStudent.jsx';
-import ManageAdministrator from './manage-user/manage-administrator-&-staff/ManageAdministrator.jsx';
-import ManageStaff from './manage-user/manage-administrator-&-staff/ManageStaff.jsx';
-import ManageProfile from './manage-user/manage-administrator-&-staff/ManageProfile.jsx';
-import ManageTeacher from './manage-user/manage-teacher/ManageTeacher.jsx';
-import ManageTeacherProfile from './manage-user/manage-teacher/ManageTeacherProfile.jsx';
-import ManageStudent from './manage-user/manage-student/ManageStudent.jsx';
-import ManageStudentProfile from './manage-user/manage-student/ManageStudentProfile.jsx';
+import AddAdministrator from '../add-user/AddAdministrator.jsx';
+import AddStaff from '../add-user/AddStaff.jsx';
+import AddTeacher from '../add-user/AddTeacher.jsx';
+import AddStudent from '../add-user/AddStudent.jsx';
+import ManageAdministrator from '../manage-user/manage-administrator-&-staff/ManageAdministrator.jsx';
+import ManageStaff from '../manage-user/manage-administrator-&-staff/ManageStaff.jsx';
+import ManageProfile from '../manage-user/manage-administrator-&-staff/ManageProfile.jsx';
+import ManageTeacher from '../manage-user/manage-teacher/ManageTeacher.jsx';
+import ManageTeacherProfile from '../manage-user/manage-teacher/ManageTeacherProfile.jsx';
+import ManageStudent from '../manage-user/manage-student/ManageStudent.jsx';
+import ManageStudentProfile from '../manage-user/manage-student/ManageStudentProfile.jsx';
 
 // Permissions
-import UserPermissions from './permissions/UserPermissions.jsx';
+import UserPermissions from '../permissions/UserPermissions.jsx';
 
 // Public Messages
-import PublicMessages from './public-messages/PublicMessages.jsx';
+import PublicMessages from '../public-messages/PublicMessages.jsx';
 
 // Academy Management
-import ManageTeacherDesignations from './academy/ManageTeacherDesignations.jsx';
-import ManageTermChoices from './academy/ManageTermChoices.jsx';
-import ManageInstitutes from './academy/ManageInstitutes.jsx';
-import ManageDepartments from './academy/ManageDepartments.jsx';
-import ManageDegreeTypes from './academy/ManageDegreeTypes.jsx';
-import TeacherEnrollment from './academy/ManageTeacherEnrollment.jsx';
-import ManagePrograms from './academy/ManagePrograms.jsx';
-import ManageSemesters from './academy/ManageSemesters.jsx';
-import ManageCourses from './academy/ManageCourses.jsx';
-import ManageBatches from './academy/ManageBatches.jsx';
-import ManageSections from './academy/ManageSections.jsx';
-import StudentEnrollment from './academy/ManageStudentEnrollment.jsx';
+import ManageTeacherDesignations from '../academy/ManageTeacherDesignations.jsx';
+import ManageTermChoices from '../academy/ManageTermChoices.jsx';
+import ManageInstitutes from '../academy/ManageInstitutes.jsx';
+import ManageDepartments from '../academy/ManageDepartments.jsx';
+import ManageDegreeTypes from '../academy/ManageDegreeTypes.jsx';
+import TeacherEnrollment from '../academy/ManageTeacherEnrollment.jsx';
+import ManagePrograms from '../academy/ManagePrograms.jsx';
+import ManageSemesters from '../academy/ManageSemesters.jsx';
+import ManageCourses from '../academy/ManageCourses.jsx';
+import ManageBatches from '../academy/ManageBatches.jsx';
+import ManageSections from '../academy/ManageSections.jsx';
+import StudentEnrollment from '../academy/ManageStudentEnrollment.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
