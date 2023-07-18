@@ -301,6 +301,7 @@ const AddCourse = ({ courses, programs }) => {
                                 value={formData.credit}
                                 onChange={handleInputChange}
                                 placeholder='e.g. 3'
+                                required
                             />
                         </div>
                         <div className=" col-sm-12 col-md-8 my-2  mx-auto">
