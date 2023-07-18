@@ -118,7 +118,7 @@ const ViewProfile = ({ componentController, user, profile }) => {
                 <div className="col-md-8 border-start-2 border-light">
 
                     {/* No Enrollment Alert */}
-                    {(!enrollment) && <>
+                    {((userRole === 'student') || (userRole === 'teacher')) && (!enrollment) && <>
                         <div className="alert alert-primary text-center fw-bold" role="alert">
                             No active enrollment found.
                         </div>
