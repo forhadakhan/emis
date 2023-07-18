@@ -200,6 +200,7 @@ class StudentEnrollment(models.Model):
     year = models.CharField(max_length=2, choices=YEAR_CHOICES, default='FR')
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     batch_section = models.ForeignKey(Section, on_delete=models.CASCADE, blank=True, null=True)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, blank=True, null=True)
     enrolled_by = models.ForeignKey(User, related_name='student_enrolled_by', on_delete=models.SET_NULL, blank=True, null=True)
     updated_by = models.ForeignKey(User, related_name='student_enrollment_updated_by', on_delete=models.SET_NULL, blank=True, null=True)
     is_active = models.BooleanField(default=True)
