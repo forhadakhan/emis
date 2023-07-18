@@ -25,6 +25,7 @@ from .models import (
     Batch,
     Section,
     StudentEnrollment,
+    CourseOffer,
 )
 from .serializers import (
     DesignationSerializer,
@@ -45,6 +46,8 @@ from .serializers import (
     SectionSerializer,
     StudentEnrollmentSerializer,
     StudentEnrollmentViewSerializer,
+    CourseOfferSerializer,
+    CourseOfferNestedSerializer,
 )
 
 
@@ -584,4 +587,59 @@ class StudentEnrollmentAPIView(APIView):
 
 
 
+class CourseOfferAPIView(APIView):
+    def get(self, request, pk=None):
+        if pk:
+            # Retrieve a single CourseOffer by its primary key (id)
+            try:
+                course_offer = CourseOffer.objects.get(pk=pk)
+                serializer = CourseOfferSerializer(course_offer)
+                return Response(serializer.data)
+            except CourseOffer.DoesNotExist:
+                return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Retrieve all CourseOffers
+            course_offers = CourseOffer.objects.all()
+            serializer = CourseOfferSerializer(course_offers, many=True)
+            return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CourseOfferSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        try:
+            course_offer = CourseOffer.objects.get(pk=pk)
+        except CourseOffer.DoesNotExist:
+            return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CourseOfferSerializer(course_offer, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk):
+        try:
+            course_offer = CourseOffer.objects.get(pk=pk)
+        except CourseOffer.DoesNotExist:
+            return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CourseOfferSerializer(course_offer, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            course_offer = CourseOffer.objects.get(pk=pk)
+        except CourseOffer.DoesNotExist:
+            return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        course_offer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
