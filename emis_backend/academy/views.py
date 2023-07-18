@@ -458,6 +458,12 @@ class SemesterViewSet(ModelViewSet):
         return super(SemesterViewSet, self).get_permissions()
 
 
+class OpenSemesterAPIView(APIView):
+    def get(self, request):
+        semesters = Semester.objects.filter(is_finished=False)
+        serializer = SemesterNestedSerializer(semesters, many=True)
+        return Response(serializer.data)
+
 
 class CourseViewSet(ModelViewSet):
     permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
