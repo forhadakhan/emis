@@ -24,6 +24,7 @@ from .views import (
     SectionByBatchAPIView,
     StudentEnrollmentAPIView,
     ProgramAPIView,
+    CourseOfferAPIView,
 )
 
 router = DefaultRouter()
@@ -55,6 +56,8 @@ urlpatterns = [
     path('students/<int:student_id>/enrollment/', StudentEnrollmentAPIView.as_view(), name='student-id-enrollment'),
     path('batches/program/<int:program_id>/', BatchesByProgramAPIView.as_view(), name='batches-of-program'),  
     path('sections/batch/<int:batch_id>/', SectionByBatchAPIView.as_view(), name='sections-of-batch'),  
+    path('course-offers/', CourseOfferAPIView.as_view(), name='course-offer'),
+    path('course-offers/<int:pk>/', CourseOfferAPIView.as_view(), name='course-offer-detail'),
     path('', include(router.urls)),
 ]
 
