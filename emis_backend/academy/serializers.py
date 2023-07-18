@@ -82,7 +82,8 @@ class SemesterSerializer(serializers.ModelSerializer):
 
 
 class SemesterNestedSerializer(serializers.ModelSerializer):
-    programs = ProgramNestedSerializer(many=True, read_only=True)
+    term = TermChoicesSerializer(read_only=True)
+    # programs = ProgramNestedSerializer(many=True, read_only=True)
     class Meta:
         model = Semester
         fields = '__all__'
