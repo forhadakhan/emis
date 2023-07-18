@@ -8,8 +8,7 @@
  */
 
 import React, {useState} from 'react';
-import Logo256 from '../assets/logos/emis-256x256.png';
-import LoginComponent from './auth/login';
+import LoginComponent from './auth/Login';
 import ResendVerificationEmail from './auth/ResendVerificationEmail';
 import ResetPassword from './auth/ResetPassword';
 
