@@ -565,12 +565,14 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
     const [isDelete, setIsDelete] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [failedMessage, setFailedMessage] = useState('');
+    const [existingPrograms, setExistingPrograms] = useState([]);
     const [selectedPrograms, setSelectedPrograms] = useState([]);
 
 
     useEffect(() => {
         // Filter out programs based on IDs from semester.programs
         const filteredPrograms = programs.filter(program => semester.programs.includes(program.id));
+        setExistingPrograms(filteredPrograms);
         setSelectedPrograms(filteredPrograms);
     }, [])
 
@@ -629,7 +631,7 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
 
     const resetForm = () => {
         setFormData(semester);
-        setSelectedPrograms([]);
+        setSelectedPrograms(existingPrograms);
     };
 
 
@@ -660,6 +662,7 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
             setIsEditing(false);
             setDeactive(true);
             setSuccessMessage('Semester updated successfully.');
+            setExistingPrograms(selectedPrograms);  
         } catch (error) {
             setFailedMessage('Semester update failed. Please try again later.');
             console.error('Error updating semester:', error);
