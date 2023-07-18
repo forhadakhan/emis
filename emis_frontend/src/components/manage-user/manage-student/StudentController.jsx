@@ -21,6 +21,7 @@ const StudentController = ({ setActiveComponent, setReference, hideProfile }) =>
     const [alertMessage, setAlertMessage] = useState('');
     const [batches, setBatches] = useState([]);
     const [programs, setPrograms] = useState([]);
+    const [semesters, setSemesters] = useState([]);
     
 
     const resetCache = () => {
@@ -90,7 +91,7 @@ const StudentController = ({ setActiveComponent, setReference, hideProfile }) =>
         fetchUserData();
     }, []);
 
-    // fetch batches for selected at EnrollmentForm
+    // fetch batches for select at EnrollmentForm
     useEffect(() => {
         setAlertMessage('');
         const fetchDepartments = async () => {
@@ -116,7 +117,7 @@ const StudentController = ({ setActiveComponent, setReference, hideProfile }) =>
 
     }, []);
 
-    // fetch programs for selected at EnrollmentForm
+    // fetch programs for select at EnrollmentForm
     useEffect(() => {
         setAlertMessage('');
         const fetchDepartments = async () => {
@@ -142,6 +143,32 @@ const StudentController = ({ setActiveComponent, setReference, hideProfile }) =>
 
     }, []);
 
+    // fetch semester for select at EnrollmentForm
+    useEffect(() => {
+        setAlertMessage('');
+        const fetchSemesters = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                const response = await axios.get(`${API_BASE_URL}/academy/open-semesters/`, config);
+                setSemesters(response.data);
+            } catch (error) {
+                setAlertMessage('An error occurred while fetching open semesters list.');
+                console.error(error);
+            }
+        };
+
+        if (semesters.length === 0) {
+            fetchSemesters();
+        }
+
+    }, []);
+
 
     // fetch student data when a user is selected and call EnrollmentForm component  
     useEffect(() => {
@@ -157,7 +184,7 @@ const StudentController = ({ setActiveComponent, setReference, hideProfile }) =>
             case 'DataTableList':
                 return <DataTableList setUser={setUser} studentUsers={studentUsers} setReference={setReference} setActiveComponent={setActiveComponent} hideProfile={hideProfile} />;
             case 'EnrollmentForm':
-                return <StudentEnrollmentForm studentId={studentId} student={student} batches={batches} programs={programs} handleAction={handleAction} handleBack={handleBack} />;
+                return <StudentEnrollmentForm studentId={studentId} student={student} batches={batches} programs={programs} semesters={semesters} handleAction={handleAction} handleBack={handleBack} />;
             case 'Dummy':
                 return <Dummy />;
             default:
