@@ -199,6 +199,15 @@ class CourseOfferSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CourseOfferNestedSerializer(serializers.ModelSerializer):
+    semester = SemesterNestedSerializer(read_only=True)
+    course = CourseNestedSerializer(read_only=True)
+    teacher = TeacherSerializer(read_only=True)
+    class Meta:
+        model = CourseOffer
+        fields = '__all__'
+
+
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
