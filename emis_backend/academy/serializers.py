@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 from authentication.serializers import UserBriefSerializer
+from rest_framework.generics import get_object_or_404
 from student.models import Student
 from student.serializers import StudentSerializer
 from teacher.serializers import TeacherSerializer
@@ -201,8 +202,18 @@ class CourseOfferSerializer(serializers.ModelSerializer):
 
 class CourseOfferNestedSerializer(serializers.ModelSerializer):
     semester = SemesterNestedSerializer(read_only=True)
-    course = CourseNestedSerializer(read_only=True)
-    teacher = TeacherSerializer(read_only=True)
+    course = CourseSerializer(read_only=True)
+    teacher = serializers.SerializerMethodField()
+
+    def get_teacher(self, course_offer):
+        teacher = course_offer.teacher
+        if teacher:
+            teacher_enrollment = get_object_or_404(TeacherEnrollment, teacher=teacher)
+            serializer = TeacherEnrollmentViewSerializer(teacher_enrollment)
+            return serializer.data
+
+        return None
+
     class Meta:
         model = CourseOffer
         fields = '__all__'
