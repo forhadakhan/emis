@@ -416,6 +416,25 @@ class TeacherEnrollmentAPIView(APIView):
 
 
 
+class EnrolledTeacherByUserView(APIView):
+    def get(self, request):
+        user_id = request.query_params.get('user_id')
+        username = request.query_params.get('username')
+
+        if user_id:
+            user = get_object_or_404(User, id=user_id)
+        elif username:
+            user = get_object_or_404(User, username=username)
+        else:
+            return Response({'error': 'Please provide a User ID or username.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        teacher = get_object_or_404(Teacher, user=user)
+        teacher_enrollment = get_object_or_404(TeacherEnrollment, teacher=teacher)
+        serializer = TeacherEnrollmentViewSerializer(teacher_enrollment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 class ProgramViewSet(ModelViewSet):
     permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     queryset = Program.objects.all()
