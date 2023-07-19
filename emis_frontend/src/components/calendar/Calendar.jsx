@@ -1,5 +1,10 @@
+/**
+ * Calling from: Home.jsx
+ * Calling to: 
+ */
+
 import React, { useState, useEffect } from 'react';
-import '../styles/calendar.css';
+import '../../styles/calendar.css';
 
 const CalendarComponent = ({ componentController }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());

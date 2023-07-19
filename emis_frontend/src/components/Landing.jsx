@@ -9,11 +9,11 @@ import axios from 'axios';
 import * as bootstrap from 'bootstrap'
 import API_BASE_URL from '../utils/config';
 import Logo64 from '../assets/logos/emis-64x64.png';
-import HomeComponent from './home';
+import HomeComponent from './Home';
 import ActivityController from './activity/ActivityController';
 import SettingsComponent from './settings';
 import ProfileComponent from './Profile';
-import AcademicCalendar from './FullCalendar';
+import AcademicCalendar from './calendar/FullCalendar';
 import Test from '../test';
 import { logout, getRefreshToken, getUserRole, getUserData } from '../utils/auth.js';
 

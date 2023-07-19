@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
-import '../../../index.css';
+import '../../../styles/index.css';
 import { getUserRole, hasPermission } from '../../../utils/auth';
 
 
