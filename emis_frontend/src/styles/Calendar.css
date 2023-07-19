@@ -61,6 +61,11 @@
     border-color: rgb(1, 1, 50);
 }
 
+.cal-day:hover {
+    background-color: rgb(226, 226, 238);
+    font-weight: 900;
+}
+
 .w-220px {
     width: 220px;
 }
