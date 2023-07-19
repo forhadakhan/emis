@@ -416,7 +416,7 @@ class TeacherEnrollmentAPIView(APIView):
 
 
 
-class EnrolledTeacherByUserView(APIView):
+class EnrolledTeacherRetrieveView(APIView):
     def get(self, request):
         user_id = request.query_params.get('user_id')
         username = request.query_params.get('username')
