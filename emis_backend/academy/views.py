@@ -612,14 +612,14 @@ class CourseOfferAPIView(APIView):
             # Retrieve a single CourseOffer by its primary key (id)
             try:
                 course_offer = CourseOffer.objects.get(pk=pk)
-                serializer = CourseOfferSerializer(course_offer)
+                serializer = CourseOfferNestedSerializer(course_offer)
                 return Response(serializer.data)
             except CourseOffer.DoesNotExist:
                 return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
         else:
             # Retrieve all CourseOffers
             course_offers = CourseOffer.objects.all()
-            serializer = CourseOfferSerializer(course_offers, many=True)
+            serializer = CourseOfferNestedSerializer(course_offers, many=True)
             return Response(serializer.data)
 
     def post(self, request):
