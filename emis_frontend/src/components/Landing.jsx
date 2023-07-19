@@ -6,7 +6,6 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import * as bootstrap from 'bootstrap'
 import API_BASE_URL from '../utils/config';
 import Logo64 from '../assets/logos/emis-64x64.png';
 import HomeComponent from './Home';
@@ -14,13 +13,10 @@ import ActivityController from './activity/ActivityController';
 import SettingsComponent from './settings';
 import ProfileComponent from './Profile';
 import AcademicCalendar from './calendar/FullCalendar';
-import Test from '../test';
-import { logout, getRefreshToken, getUserRole, getUserData } from '../utils/auth.js';
+import { logout, getRefreshToken, getUserRole } from '../utils/auth.js';
 
 
 const LandingComponent = ({ onLogoutSuccess }) => {
-    // console.log(response);
-    // const user = getUserData();
 
     const handleSignOut = async (e) => {
         e.preventDefault();
@@ -104,10 +100,7 @@ const LandingComponent = ({ onLogoutSuccess }) => {
                             <input type="search" className="form-control border-0" placeholder="Search..." aria-label="Search" />
                         </form> */}
 
-                        <div className="text-end">
-                            {/* <a id="home" className={`btn nav-link text-beige ${activeComponent === 'test' ? 'active-beige' : 'active-beige-hidden'}`} onClick={() => componentController('test')}>
-                                .
-                            </a> */}
+                        <div className="text-end">                           
                             {/* <button type="button" className="btn btn-warning text-black text-capitalize" style={{ cursor: 'none' }}>
                                 {['administrator', 'teacher', 'student', 'staff'].includes(userRole) ? userRole : 'None'}
                             </button> */}
