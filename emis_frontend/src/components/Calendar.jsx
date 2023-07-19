@@ -50,13 +50,12 @@ const CalendarComponent = ({ componentController }) => {
 
     const handleDayClick = (dateId) => {
         const [day, month, year] = dateId.split('-').map(Number);
-        // const newSelectedDate = new Date(currentYear, currentMonth, day);
         const newSelectedDate = new Date(year, month - 1, day); // month is 0 indexed 
         setSelectedDate(newSelectedDate);
     };
 
     const applyDayStyles = (dateId, currentDate) => {
-        const classNames = ['btn', 'cal-btn'];
+        const classNames = ['cal-btn'];
         if (dateId === currentDate) {
             classNames.push('cal-today');
         }
@@ -86,7 +85,7 @@ const CalendarComponent = ({ componentController }) => {
             calendarDays.push(
                 <button
                     key={`day-${day}`}
-                    className={`btn ${classNames} ${isCurrentDay ? 'selected' : ''}`}
+                    className={`btn ${classNames} ${isCurrentDay ? 'selected' : ''} cal-day`}
                     onClick={() => handleDayClick(dateId)}
                     type="button"
                     id={dateId}
@@ -103,7 +102,7 @@ const CalendarComponent = ({ componentController }) => {
     return (
         <div className="container p-3">
             <div className="text-darkblue p-2">
-                
+
                 <div className="p-2">
                     <div className="row">
                         <div className="col-12 col-md-4 d-flex justify-content-center justify-content-md-start">
@@ -139,7 +138,7 @@ const CalendarComponent = ({ componentController }) => {
                                     <div id="day-number" className="cal-days">
                                         {generateCalendarDays()}
                                     </div>
-                                    <div className="d-grid">
+                                    <div className="d-grid pt-2">
                                         <a href="#" onClick={handleAcademicCalendar} className="text-decoration-none btn btn-sm btn-darkblue">
                                             Academic Calendar &nbsp;
                                             <i className="bi bi-box-arrow-up-right"></i>
