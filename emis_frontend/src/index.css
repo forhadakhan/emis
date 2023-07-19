@@ -24,6 +24,11 @@ body {
     border-radius: 1rem;
 }
 
+.cal-day:hover {
+    background-color: rgb(226, 226, 238);
+    font-weight: 900;
+}
+
 
 .text-darkblue {
     color: rgb(1, 1, 50);
