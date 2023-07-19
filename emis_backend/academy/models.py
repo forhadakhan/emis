@@ -219,6 +219,9 @@ class CourseOffer(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
     capacity = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        unique_together = ['semester', 'course', 'teacher']
 
     def __str__(self):
         return f'{self.course} - {self.semester} - {self.teacher}'
