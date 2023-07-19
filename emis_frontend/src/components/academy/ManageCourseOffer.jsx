@@ -19,6 +19,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
     const [semesters, setSemesters] = useState([]);
     const [courses, setCourses] = useState([]);
     const [teachers, setTeachers] = useState([]);
+    const [courseOffer, setCourseOffer] = useState('');
 
 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -103,40 +104,58 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
         }
     }, []);
 
-    // get an enrolled teacher by id/username 
-    const getTeacher = async (id = null, username = '') => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/academy/get-enrolled-teacher/`, {
-                params: {
-                    user_id: id,
-                    username: username,
-                },
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
+    // // get an enrolled teacher by id/username 
+    // const getTeacher = async (id = null, username = '') => {
+    //     try {
+    //         const response = await axios.get(`${API_BASE_URL}/academy/get-enrolled-teacher/`, {
+    //             params: {
+    //                 user_id: id,
+    //                 username: username,
+    //             },
+    //             headers: {
+    //                 Authorization: `Bearer ${accessToken}`,
+    //             },
+    //         });
 
-            return response.data;
-        } catch (error) {
-            return error;
-            console.error(error);
-        }
-    };
+    //         return response.data;
+    //     } catch (error) {
+    //         return error;
+    //         console.error(error);
+    //     }
+    // };
 
+    const courseOfferView = (courseOffer) => {
+        setCourseOffer(courseOffer);
+        setShowComponent('CourseOfferDetail')
+    }
 
     const handleBack = async () => {
         setShowComponent('CourseOfferList');
     };
 
+    const hasPrerequisites = (prerequisites) => {
+        if (prerequisites.length < 1) return 'None';
+
+        // Filter courses based on prerequisites
+        const filteredCourses = courses.filter(course => prerequisites.includes(course.id));
+
+        // Retrieve acronym and code for each course and join them by comma
+        const prerequisitesStr = filteredCourses.map(course => `${course.acronym} ${course.code}`).join(', ');
+
+        return prerequisitesStr;
+    }
+
 
     const renderComponent = () => {
         switch (showComponent) {
             case 'CourseOfferList':
-                return <CourseOfferList teachers={teachers} semesters={semesters} courses={courses} getTeacher={getTeacher} handleBack={handleBack} />;
+                return <CourseOfferList hasPrerequisites={hasPrerequisites} courseOfferView={courseOfferView} />;
             case 'AddCourseOffer':
-                return <AddCourseOffer teachers={teachers} semesters={semesters} courses={courses} getTeacher={getTeacher} handleBack={handleBack} />;
+                return <AddCourseOffer hasPrerequisites={hasPrerequisites} teachers={teachers} semesters={semesters} courses={courses} handleBack={handleBack} />;
+            case 'CourseOfferDetail':
+                return <CourseOfferDetail hasPrerequisites={hasPrerequisites} teachers={teachers} semesters={semesters} courses={courses} handleBack={handleBack} courseOffer={courseOffer} />;
             default:
-                return <CourseOfferList teachers={teachers} semesters={semesters} courses={courses} getTeacher={getTeacher} handleBack={handleBack} />;
+                return <CourseOfferList hasPrerequisites={hasPrerequisites} courseOfferView={courseOfferView} />;
         }
     }
 
@@ -186,7 +205,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
 
 
 
-const CourseOfferList = ({ teachers, semesters, courses, handleBack, courseDetail }) => {
+const CourseOfferList = ({ hasPrerequisites, courseOfferView }) => {
     const accessToken = getAccessToken();
     const [courseOfferings, setCourseOfferings] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -219,12 +238,8 @@ const CourseOfferList = ({ teachers, semesters, courses, handleBack, courseDetai
 
 
     const handleCourseClick = (course) => {
-        courseDetail(course);
+        courseOfferView(course);
     };
-
-    const hasPrerequisites = (prerequisites) => {
-        return (prerequisites.length > 0) ? 'Yes' : 'No';
-    }
 
     const getTeacherEnrollment = (data) => {
         const teacherDesignations = data.teacher.designations.map(designation => designation.name).join(', ');
@@ -377,16 +392,44 @@ const CourseOfferList = ({ teachers, semesters, courses, handleBack, courseDetai
 
 
 
-const AddCourseOffer = ({ semesters, courses, teachers, getTeacher, handleBack }) => {
+const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, handleBack, courseOffer }) => {
+    const accessToken = getAccessToken();
+    const [courseOfferView, setCourseOfferView] = useState(courseOffer);
+
+
+    const fetchCourseOffer = async (id) => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/course-offers/${id}`, config);
+            setCourseOfferView(response.data);
+
+        } catch (error) {
+            setError(' Failed to fetch course offer list.');
+            console.error('Error fetching course offerings:', error);
+        }
+    };
 
     return (
-        <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} getTeacher={getTeacher} handleBack={handleBack} />
+        <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} courseOfferView={courseOfferView} handleBack={handleBack} fetchCourseOffer={fetchCourseOffer} />
     );
 }
 
 
 
-const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTeacher, handleBack }) => {
+const AddCourseOffer = ({ semesters, courses, teachers, hasPrerequisites, getTeacher, handleBack }) => {
+    return (
+        <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} getTeacher={getTeacher} handleBack={handleBack} />
+    );
+}
+
+
+
+const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView = {}, teachers, handleBack, fetchCourseOffer }) => {
     const accessToken = getAccessToken();
     const initForm = {
         semester: '',
@@ -395,18 +438,18 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
         capacity: '',
     }
     const [alertMessage, setAlertMessage] = useState('');
+    const [courseOffer, setCourseOffer] = useState(courseOfferView);
+    const courseOfferId = courseOfferView.id;
     const [isDetail, setIsDetail] = useState(Object.entries(courseOffer).length !== 0);
     const [isDelete, setIsDelete] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showTeacherDetail, setShowTeacherDetail] = useState(false);
+    const [showPrerequisites, setShowPrerequisites] = useState(false);
     const [formData, setFormData] = useState(initForm);
     const [selectedSemester, setSelectedSemester] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
     const [selectedTeacher, setSelectedTeacher] = useState('');
-    const [courseOfferId, setCourseOfferId] = useState('');
-    // const [teacherUsername, setTeacherUsername] = useState('');
-    // const [teacherId, setTeacherId] = useState(null);
-    // const [teacher, setTeacher] = useState('');
-
+    const [capacity, setCapacity] = useState('');
 
     const courseOptions = courses.map(course => ({
         value: course.id,
@@ -424,19 +467,22 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
         label: `${enrollment.teacher.user.first_name} ${enrollment.teacher.user.middle_name} ${enrollment.teacher.user.last_name} (${enrollment.teacher.acronym})`
     }));
 
-
     // in case we are viewing an existing course offerings, set the present data to formData
     const setPresentData = () => {
         const data = {
-            semester: courseOffer.semester,
-            course: courseOffer.course,
-            teacher: courseOffer.teacher,
+            semester: courseOffer.semester.id,
+            course: courseOffer.course.id,
+            teacher: courseOffer.teacher.teacher.id,
             capacity: courseOffer.capacity,
         }
         setFormData(data)
-        const course = courses.find((course) => course.value === data.course);
+        const course = courses.find((course) => course.id === data.course);
         const semester = semesters.find((semester) => semester.id === data.semester);
+        // enrolled teacher 
+        const enrollment = teachers.find((enrollment) => enrollment.id === courseOffer.teacher.id);
+        setCapacity(data.capacity);
         setSelectedCourse({ isDisabled: true, value: course.id, label: `${course.code}: ${course.name}` });
+        setSelectedTeacher({ isDisabled: true, value: enrollment.teacher.id, label: `${enrollment.teacher.user.first_name} ${enrollment.teacher.user.middle_name} ${enrollment.teacher.user.last_name} (${enrollment.teacher.acronym})` });
         setSelectedSemester(semester
             ? {
                 isDisabled: true,
@@ -467,7 +513,49 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
             setSelectedSemester('');
             setSelectedCourse('');
             setSelectedTeacher('');
+            setCapacity('');
         }
+    }
+
+
+    const teacherDetail = (selectedTeacher) => {
+        // enrolled teacher data
+        const enrollment = teachers.find((enrollment) => enrollment.teacher.id === selectedTeacher.value);
+        if (!enrollment) return;
+        const teacherDesignations = enrollment.designations.map(designation => designation.name).join(', ');
+        const teacherDepartments = enrollment.departments.map(department => department.acronym).join(', ');
+        const data = {
+            name: `${enrollment.teacher.user.first_name} ${enrollment.teacher.user.middle_name} ${enrollment.teacher.user.last_name} (${enrollment.teacher.acronym})`,
+            designations: teacherDesignations,
+            departments: teacherDepartments,
+        }
+        return data;
+    }
+
+    const getTeacherDetail = (selectedTeacher) => {
+        if (!selectedTeacher) return;
+        const data = teacherDetail(selectedTeacher);
+        if (!data) return;
+        return <>
+            <div className="border-3 m-3 p-3 bg-white border-start">
+                <small className='d-block'>{data.name}</small>
+                <small className='d-block'>{data.designations}</small>
+                <small className='d-block'>{data.departments}</small>
+            </div>
+        </>;
+    }
+
+    const getPrerequisites = (selectedCourse) => {
+        if (!selectedCourse) return;
+        const course = courses.find((course) => course.id === selectedCourse.value)
+        const data = hasPrerequisites(course.prerequisites);
+        if (!data) return;
+        return <>
+            <div className="border-3 m-3 p-3 bg-white border-start">
+                <small className='d-block text-secondary'>Prerequisites:</small>
+                <small className='d-block'>{data}</small>
+            </div>
+        </>;
     }
 
 
@@ -493,21 +581,13 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
     }
 
     const handleCapacityChange = (e) => {
+        setCapacity(e.target.value)
         setFormData({ ...formData, capacity: e.target.value });
     }
-
-    // const findTeacher = async () => {
-    //     const data = await getTeacher(teacherId, teacherUsername);
-
-    //     setTeacher(data);
-    //     console.log(teacher);
-    // }
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setAlertMessage('');
-
         const config = {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -521,6 +601,8 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
                 : await axios.post(`${API_BASE_URL}/academy/course-offers/`, JSON.stringify(formData), config);
 
             setShowSuccessModal(true);
+            // if we are viewing details, set updated data to courseOffer, otherwise reset formData to initial 
+            isDetail ? fetchCourseOffer(response.data.id) : setFormData(initForm);
             resetData();
         } catch (error) {
             if (error.response && error.response.data) {
@@ -554,7 +636,7 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
 
         try {
             const response = await axios.delete(`${API_BASE_URL}/academy/course-offers/${courseOfferId}/`, config);
-            handleAction();
+            handleBack();
         } catch (error) {
             setAlertMessage('Failed to remove course-offer. Please try again.');
             console.error(error);
@@ -590,6 +672,8 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
 
                 <div className="col-sm-12 col-md-8 my-2  mx-auto">
                     <label className="text-secondary py-1">Course: </label>
+                    <a className='btn text-secondary border-0' onClick={() => setShowPrerequisites(!showPrerequisites)}><i className="bi bi-info-circle" type='button'></i></a>
+                    {showPrerequisites && getPrerequisites(selectedCourse)}
                     <Select
                         options={courseOptions}
                         isMulti={false}
@@ -602,6 +686,8 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
 
                 <div className="col-sm-12 col-md-8 my-2  mx-auto">
                     <label className="text-secondary py-1">Teacher: </label>
+                    <a className='btn text-secondary border-0' onClick={() => setShowTeacherDetail(!showTeacherDetail)}><i className="bi bi-info-circle" type='button'></i></a>
+                    {showTeacherDetail && getTeacherDetail(selectedTeacher)}
                     <Select
                         options={teacherOptions}
                         isMulti={false}
@@ -618,10 +704,11 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
                         <div className="input-group rounded">
                             <input
                                 className="form-control"
-                                defaultChecked={formData.capacity}
+                                value={capacity}
                                 onChange={(e) => handleCapacityChange(e)}
                                 type="number"
                                 id="capacity"
+                                name='capacity'
                                 placeholder='Total student capacity'
                             />
                         </div>
@@ -687,7 +774,7 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
                             <div className="modal-content bg-darkblue border border-beige text-beige">
                                 <div className="modal-header">
                                     <h5 className="modal-title fs-4"><i className="bi bi-check-circle-fill"></i> Saved </h5>
-                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={() => { setShowSuccessModal(false), handleAction() }}>
+                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={() => { setShowSuccessModal(false) }}>
                                         <i className="bi bi-x-lg"></i>
                                     </button>
                                 </div>
@@ -703,7 +790,6 @@ const CourseOfferForm = ({ semesters, courses, courseOffer = {}, teachers, getTe
         </div>
     );
 };
-
 
 
 
