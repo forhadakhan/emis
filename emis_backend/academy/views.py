@@ -664,14 +664,24 @@ class CourseOfferAPIView(APIView):
 
 
 
-class CourseOfferListByTeacherView(APIView):
-    def get(self, request, teacher_id, format=None):
+class CourseOfferListFilteredView(APIView):
+    def get(self, request, teacher_id=None, semester_id=None, format=None):
+
+        if not teacher_id and not semester_id:
+            return Response({'error': 'Please provide valid id.'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            # Fetch the course offers associated with the given teacher ID
-            course_offers = CourseOffer.objects.filter(teacher_id=teacher_id)
+            course_offers = CourseOffer.objects.all()
+
+            if teacher_id:
+                course_offers = course_offers.filter(teacher_id=teacher_id)
+            if semester_id:
+                course_offers = course_offers.filter(semester_id=semester_id)
+
             serializer = CourseOfferNestedSerializer(course_offers, many=True)
             return Response(serializer.data)
-        except Teacher.DoesNotExist:
-            return Response({'error': 'Teacher not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        except CourseOffer.DoesNotExist:
+            return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
