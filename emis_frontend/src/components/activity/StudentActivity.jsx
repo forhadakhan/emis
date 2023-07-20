@@ -8,7 +8,9 @@
 /********************************| START IMPORTS |********************************/
 
 import React, { useState } from 'react';
-import { getUserRole, hasPermission } from '../../utils/auth.js';
+import { getEnrollmentData } from '../../utils/auth.js';
+
+import StudentCourseEnroll from '../academy/StudentCourseEnroll';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
@@ -26,6 +28,8 @@ const StudentActivity = () => {
         switch (activeComponent) {
             case 'main':
                 return <ActivityPanel setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'StudentCourseEnroll':
+                return <StudentCourseEnroll setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -59,15 +63,22 @@ const StudentActivity = () => {
     );
 };
 
-const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
-    const user_role = getUserRole();
+const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {    
+    const enrollment = getEnrollmentData();
     const [searchTerm, setSearchTerm] = useState('');
 
     const elements = [
-        // { id: 'add_admin', label: 'Add Admin', render: 'AddAdministrator', icon: 'bi-shield-fill-plus' },
+        { id: 'StudentCourseEnroll', label: 'Course Enrollment', render: 'StudentCourseEnroll', icon: 'bi-plus-square-fill' },
     ];
 
-    let allowedElements = [...elements];
+    let allowedElements = [];
+
+    if (enrollment) {
+        allowedElements = [...elements];
+    } 
+    // else {
+    //     allowedElements = elements.filter((element) => hasPermission(element.id));
+    // }
 
     // Filter the elements based on the search term
     const filteredElements = allowedElements.filter(element => element.label.toLowerCase().includes(searchTerm.toLowerCase()));
