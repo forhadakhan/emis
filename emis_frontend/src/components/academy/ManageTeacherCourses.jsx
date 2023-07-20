@@ -244,6 +244,63 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 };
 
 
+const CourseDetails = ({ courseOffer, handleBack }) => {
+    const {
+        id,
+        semester,
+        course,
+        teacher,
+        capacity
+    } = courseOffer;
+
+    return (
+        <div className="mt-4 font-merriweather">
+
+            <a className="icon-link icon-link-hover mb-2" href="#" onClick={handleBack}>
+                <small><i className="bi bi-arrow-bar-left"></i> Goto List</small>
+            </a>
+
+            <div className="course-border-beige content-sm-85">
+                <div className="">
+                    <h4 className="card-title text-center fw-bolder">{course.name}</h4>
+                    <nav className="nav m-3 d-flex justify-content-center mx-sm-0">
+                        <span className="nav-link border text-center bg-white m-1 rounded-start">
+                            <span className='d-block text-darkblue fw-bold border-bottom'>{course.acronym}</span>
+                            <span className='d-block text-darkblue fw-bold'>{course.code}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Credit</span>
+                            <span className='d-block text-darkblue fw-bold'>{course.credit}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Seats</span>
+                            <span className='d-block text-darkblue fw-bold'>{capacity}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Status</span>
+                            <span className='d-block text-darkblue fw-bold'>{semester.is_finished ? 'Completed' : 'Running'}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1 rounded-end">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Semester</span>
+                            <span className='d-block text-darkblue fw-bold'>{semester.term.name} {semester.year}</span>
+                        </span>
+                    </nav>
+                </div>
+            </div>
+
+            <div className="my-4 d-flex justify-content-center">
+                <div class="btn-group gap-2" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-darkblue2 pt-1">Students</button>
+                    <button type="button" class="btn btn-darkblue2 pt-1">Assignment</button>
+                    <button type="button" class="btn btn-darkblue2 pt-1">Exam</button>
+                    <button type="button" class="btn btn-darkblue2 pt-1">Discussion</button>
+                </div>
+            </div>
+
+        </div>
+    );
+};
+
 
 
 export default ManageTeacherCourses;
