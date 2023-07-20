@@ -188,6 +188,7 @@ class StudentEnrollmentViewSerializer(serializers.ModelSerializer):
     batch_section = SectionSerializer(read_only=True)
     enrolled_by = UserBriefSerializer(read_only=True)
     updated_by = UserBriefSerializer(read_only=True)
+    semester = SemesterNestedSerializer(read_only=True)
 
     class Meta:
         model = StudentEnrollment
