@@ -10,6 +10,8 @@
 import React, { useState } from 'react';
 import { getUserRole, hasPermission } from '../../utils/auth.js';
 
+import ManageTeacherCourses from '../academy/ManageTeacherCourses.jsx'
+
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
 
@@ -26,6 +28,8 @@ const TeacherActivity = () => {
         switch (activeComponent) {
             case 'main':
                 return <ActivityPanel setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'ManageTeacherCourses':
+                return <ManageTeacherCourses setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -64,7 +68,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const elements = [
-        // { id: 'add_admin', label: 'Add Admin', render: 'AddAdministrator', icon: 'bi-shield-fill-plus' },
+        { id: 'ManageTeacherCourses', label: 'Manage Courses', render: 'ManageTeacherCourses', icon: 'bi-journal-medical' },
     ];
 
     let allowedElements = [...elements];
