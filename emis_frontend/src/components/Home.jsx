@@ -1,6 +1,6 @@
 import React from 'react';
 import '../styles/calendar.css';
-import CalendarComponent from './Calendar';
+import CalendarComponent from './calendar/Calendar';
 
 
 const HomeComponent = ({ componentController }) => {
