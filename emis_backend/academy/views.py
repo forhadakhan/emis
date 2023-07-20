@@ -662,3 +662,16 @@ class CourseOfferAPIView(APIView):
         course_offer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+
+class CourseOfferListByTeacherView(APIView):
+    def get(self, request, teacher_id, format=None):
+        try:
+            # Fetch the course offers associated with the given teacher ID
+            course_offers = CourseOffer.objects.filter(teacher_id=teacher_id)
+            serializer = CourseOfferNestedSerializer(course_offers, many=True)
+            return Response(serializer.data)
+        except Teacher.DoesNotExist:
+            return Response({'error': 'Teacher not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
