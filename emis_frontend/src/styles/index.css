@@ -52,6 +52,18 @@ a.text-beige:hover {
     border-radius: 10px;
 }
 
+.course-border-beige {
+    border-top: 1px solid rgb(238, 212, 132);
+    border-bottom: 1px solid rgb(238, 212, 132);
+    border-left: 8px solid rgb(238, 212, 132);
+    border-right: 8px solid rgb(238, 212, 132);
+    border-radius: 1.5em;
+    padding: 1em;
+    pointer-events: none;
+    box-shadow:2px 2px 4px 0 rgba(0,0,0,.25);
+    background-color: beige;
+}
+
 .active-beige {
     color: rgb(238, 212, 132);
     border-top: 3px solid rgb(238, 212, 132);
@@ -195,6 +207,13 @@ a.text-beige:hover {
         transform: scale(0.75);
         zoom: 0.75;
         /* 0.75 means 75% of the original size */
+    }
+
+    .content-sm-85 {
+        /* Styles for decreasing content size on small screens */
+        transform: scale(0.85);
+        zoom: 0.85;
+        /* 0.85 means 85% of the original size */
     }
 }
 
