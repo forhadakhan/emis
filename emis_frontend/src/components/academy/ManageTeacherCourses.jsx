@@ -13,8 +13,12 @@ import { getAccessToken, getProfileData } from '../../utils/auth.js';
 
 
 const ManageTeacherCourses = ({ setActiveComponent, breadcrumb }) => {
+    const accessToken = getAccessToken();
+    const teacherProfile = getProfileData();
+    const teacherId = teacherProfile.id;
     const [showComponent, setShowComponent] = useState('DesignationList');
     const [courseOffer, setCourseOffer] = useState('');
+    const [courseOfferings, setCourseOfferings] = useState([]);
 
 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -23,20 +27,44 @@ const ManageTeacherCourses = ({ setActiveComponent, breadcrumb }) => {
         </button>
     );
 
+    const fetchCourseOfferings = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/teacher/${teacherId}/course_offers/`, config);
+            setCourseOfferings(response.data);
+        } catch (error) {
+            setError(' Failed to fetch course  list.');
+            console.error('Error fetching course list:', error);
+        }
+    };
+    useEffect(() => {
+        fetchCourseOfferings();
+    }, []);
+
+
+    const handleBack = async () => {
+        setShowComponent('CourseList');
+    };
+
 
     const courseOfferView = (courseOffer) => {
         setCourseOffer(courseOffer);
-        setShowComponent('CourseOfferDetail')
+        setShowComponent('CourseDetails')
     }
 
     const renderComponent = () => {
         switch (showComponent) {
             case 'CourseList':
-                return <CourseList courseOfferView={courseOfferView} />
-            case 'CourseOfferDetail':
-                return <CourseDetails courseOffer={courseOffer} />
+                return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
+            case 'CourseDetails':
+                return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} />
             default:
-                return <CourseList courseOfferView={courseOfferView} />
+                return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
         }
     }
 
@@ -65,37 +93,14 @@ const ManageTeacherCourses = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-const CourseList = ({ courseOfferView }) => {
-    const accessToken = getAccessToken();
-    const teacherProfile = getProfileData();
-    const teacherId = teacherProfile.id;
-    const [courseOfferings, setCourseOfferings] = useState([]);
+const CourseList = ({ courseOfferView, courseOfferings }) => {
     const [filteredData, setFilteredData] = useState([]);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchCourseOfferings();
-    }, []);
 
     useEffect(() => {
         setFilteredData(courseOfferings);
     }, [courseOfferings]);
-
-    const fetchCourseOfferings = async () => {
-        const config = {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        };
-        try {
-            const response = await axios.get(`${API_BASE_URL}/academy/teacher/${teacherId}/course_offers/`, config);
-            setCourseOfferings(response.data);
-        } catch (error) {
-            setError(' Failed to fetch course  list.');
-            console.error('Error fetching course list:', error);
-        }
-    };
 
 
     const handleCourseClick = (course) => {
@@ -238,10 +243,6 @@ const CourseList = ({ courseOfferView }) => {
     );
 };
 
-
-const CourseDetails = ({ courseOffer }) => {
-
-}
 
 
 
