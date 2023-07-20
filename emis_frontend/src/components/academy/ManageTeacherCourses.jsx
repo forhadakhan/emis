@@ -16,6 +16,7 @@ const ManageTeacherCourses = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
     const teacherProfile = getProfileData();
     const teacherId = teacherProfile.id;
+    const [error, setError] = useState('');
     const [showComponent, setShowComponent] = useState('DesignationList');
     const [courseOffer, setCourseOffer] = useState('');
     const [courseOfferings, setCourseOfferings] = useState([]);
@@ -84,6 +85,14 @@ const ManageTeacherCourses = ({ setActiveComponent, breadcrumb }) => {
             <h2 className="text-center m-5 px-2 font-merriweather">
                 <i className="bi-journal-medical"></i> Manage Courses
             </h2>
+
+            {error && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
 
             <div className="">
                 {renderComponent()}
