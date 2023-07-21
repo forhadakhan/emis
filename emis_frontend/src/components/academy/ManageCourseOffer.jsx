@@ -57,7 +57,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
     // fetch courses for select at CourseOfferForm
     useEffect(() => {
         setAlertMessage('');
-        const fetchSemesters = async () => {
+        const fetchCourses = async () => {
             try {
                 const config = {
                     headers: {
@@ -74,8 +74,8 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
             }
         };
 
-        if (semesters.length === 0) {
-            fetchSemesters();
+        if (courses.length === 0) {
+            fetchCourses();
         }
 
     }, []);
