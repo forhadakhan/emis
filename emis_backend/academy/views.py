@@ -26,6 +26,8 @@ from .models import (
     Section,
     StudentEnrollment,
     CourseOffer,
+    CourseEnrollment,
+    Marksheet,
 )
 from .serializers import (
     DesignationSerializer,
@@ -48,6 +50,8 @@ from .serializers import (
     StudentEnrollmentViewSerializer,
     CourseOfferSerializer,
     CourseOfferNestedSerializer,
+    CourseEnrollmentSerializer,
+    MarksheetSerializer,
 )
 
 
@@ -488,7 +492,7 @@ class OpenSemesterAPIView(APIView):
 
 
 class CourseViewSet(ModelViewSet):
-    permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Course.objects.all()
 
     def get_serializer_class(self):
@@ -684,4 +688,46 @@ class CourseOfferListFilteredView(APIView):
         except CourseOffer.DoesNotExist:
             return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+
+class CourseEnrollmentView(APIView):
+    permission_classes = []
+    
+    def get(self, request, pk=None):
+        if pk:
+            course_enrollment = CourseEnrollment.objects.get(pk=pk)
+            serializer = CourseEnrollmentSerializer(course_enrollment)
+        else:
+            course_enrollments = CourseEnrollment.objects.all()
+            serializer = CourseEnrollmentSerializer(course_enrollments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = CourseEnrollmentSerializer(data=request.data)
+        if serializer.is_valid():
+            course_enrollment = serializer.save()
+            # create a marksheet instance for this enrollment automatically 
+            Marksheet.objects.create(course_enrollment=course_enrollment)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        course_enrollment = CourseEnrollment.objects.get(pk=pk)
+        serializer = CourseEnrollmentSerializer(course_enrollment, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk):
+        course_enrollment = CourseEnrollment.objects.get(pk=pk)
+        serializer = CourseEnrollmentSerializer(course_enrollment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        course_enrollment = CourseEnrollment.objects.get(pk=pk)
+        course_enrollment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
