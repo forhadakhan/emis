@@ -227,6 +227,13 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CourseEnrollmentNestedSerializer(serializers.ModelSerializer):
+    course_offer = CourseOfferNestedSerializer(read_only=True)
+    class Meta:
+        model = CourseEnrollment
+        fields = '__all__'
+
+
 class MarksheetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Marksheet
