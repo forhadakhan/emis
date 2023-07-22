@@ -28,6 +28,7 @@ from .views import (
     CourseOfferAPIView,
     CourseOfferListFilteredView,
     CourseEnrollmentView,
+    MarksheetViewSet,
 )
 
 router = DefaultRouter()
@@ -37,6 +38,7 @@ router.register(r'courses', CourseViewSet)
 router.register(r'batches', BatchViewSet)
 router.register(r'active-batches', BatchActiveViewSet)
 router.register(r'sections', SectionViewSet)
+router.register(r'marksheets', MarksheetViewSet)
 
 
 urlpatterns = [
