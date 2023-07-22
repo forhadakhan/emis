@@ -7,7 +7,7 @@ from django.dispatch import receiver
 from authentication.models import User
 from teacher.models import Teacher
 from student.models import Student
-
+from academy.validators import Marksheet as ms 
 
 #####################################################################
 ##################### Designation:
@@ -238,6 +238,21 @@ class CourseEnrollment(models.Model):
 
     def __str__(self):
         return f'Course Enrollment: {self.course_offer} - {self.student}'
+#####################################################################
+
+
+#####################################################################
+##################### Marksheet:
+#####################   - dependent on: CourseEnrollment.
+class Marksheet(models.Model):
+    course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
+    attendance = models.FloatField(null=True, blank=True, validators=[ms.validate_attendance])
+    assignment = models.FloatField(null=True, blank=True, validators=[ms.validate_assignment])
+    mid_term = models.FloatField(null=True, blank=True, validators=[ms.validate_mid_term])
+    final = models.FloatField(null=True, blank=True, validators=[ms.validate_final])
+
+    def __str__(self):
+        return f'Marksheet for {self.course_enrollment}'
 #####################################################################
 
 
