@@ -321,7 +321,196 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 };
 
 
-const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites }) => {}
+const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites }) => {
+    const accessToken = getAccessToken();
+    const [isEnrolled, setIsEnrolled] = useState(false);
+    const [enrollmentChecked, setEnrollmentChecked] = useState(false);
+    const [enrollmentMessage, setEnrollmentMessage] = useState('');
+    const {
+        id,
+        semester,
+        course,
+        teacher,
+        capacity
+    } = courseOffer;
+
+    const prerequisites = getPrerequisites(course.prerequisites);
+
+    const checkIfEnrolled = () => {
+
+        const apiEndpoint = `${API_BASE_URL}/academy/course/is-enrolled/${courseOffer.id}/${studentId}/`;
+
+        // Making the GET request
+        axios.get(apiEndpoint, null, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                // set response
+                setIsEnrolled(response.data.is_enrolled);
+                setEnrollmentChecked(true);
+            })
+            .catch(error => {
+                setEnrollmentChecked(false);
+                // console.error('Error Checking Is Enrolled:', error);
+            });
+    };
+    useEffect(() => {
+        checkIfEnrolled();
+    }, []);
+
+
+    const handleEnrollment = () => {
+        const enrollmentData = {
+            course_offer: courseOffer.id,
+            student: studentId,
+            is_complete: false,
+        };
+
+        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/`;
+
+        // Making the POST request
+        axios.post(apiEndpoint, enrollmentData, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                // console.log('Course enrollment successful.:', response.data);
+                setEnrollmentMessage('Successfully enrolled.')
+                setIsEnrolled(true);
+            })
+            .catch(error => {
+                setEnrollmentMessage('FAILED: An error occurred while enrolling :(')
+                console.error('Error creating enrollment:', error);
+            });
+    };
+
+    return (
+        <div className="mt-4 font-merriweather">
+
+            {/* Go batck to course list  */}
+            <a className="icon-link icon-link-hover mb-2" href="#" onClick={handleBack}>
+                <small><i className="bi bi-arrow-bar-left"></i> Goto List</small>
+            </a>
+
+            {/* Course Info  */}
+            <div className="course-border-beige content-sm-85">
+                <div className="">
+                    <h4 className="text-center fw-bolder">{course.name}</h4>
+                    <nav className="nav m-3 d-flex justify-content-center mx-sm-0">
+                        <span className="nav-link border text-center bg-white m-1 rounded-start">
+                            <span className='d-block text-darkblue fw-bold border-bottom'>{course.acronym}</span>
+                            <span className='d-block text-darkblue fw-bold'>{course.code}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Credit</span>
+                            <span className='d-block text-darkblue fw-bold'>{course.credit}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1 rounded-end">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Seats</span>
+                            <span className='d-block text-darkblue fw-bold'>{capacity}</span>
+                        </span>
+                    </nav>
+                </div>
+            </div>
+
+            {/* Teacher Info  */}
+            <div className="my-5">
+                <div className="border-4 border-start rounded-4 py-2 px-4">
+                    <div className='my-2'><strong className='border-3 py-1 border-bottom'>Teacher</strong></div>
+
+                    {/* Name:  */}
+                    <p className='m-0 mt-2'>{teacher.teacher.user.first_name} {teacher.teacher.user.middle_name} {teacher.teacher.user.last_name} ({teacher.teacher.acronym})</p>
+
+                    {/* Designation(s): */}
+                    {teacher.designations.map((designation) => (
+                        <div key={designation.id}>
+                            <small className='d-inline-block text-secondary fw-normal m-0 px-2'>{designation.name}</small>
+                        </div>
+                    ))}
+
+                    {/* Department(s): */}
+                    {teacher.departments.map((department) => (
+                        <div key={department.id}>
+                            <small className='d-inline-block text-secondary fw-normal m-0 px-2'>{department.name} ({department.acronym} {department.code})</small>
+                        </div>
+                    ))}
+
+                    {/* Phone: */}
+                    <small className='d-block text-secondary fw-normal m-0 px-2'>{teacher.teacher.phone}</small>
+
+                    {/* Email: */}
+                    <small className='d-block text-secondary fw-normal m-0 px-2'>{teacher.teacher.user.email}</small>
+
+                </div>
+            </div>
+
+            {/* Prerequisites Info  */}
+            <div className="my-5">
+                <div className="border-4 border-start rounded-4 py-2 px-4">
+                    <div className='my-2'><strong className='border-3 py-1 border-bottom'>Prerequisites</strong></div>
+
+                    {/* In case there is no prerequisites */}
+                    {(course.prerequisites.length < 1) && <>
+                        <small className='d-inline-block text-secondary fw-normal m-0 px-2'>None</small>
+                    </>}
+
+                    {(course.prerequisites.length > 0) && <div>
+                        {prerequisites.map((course) => (
+                            <div key={course.id}>
+                                <small className='d-inline-block text-secondary fw-normal m-0 px-2'>
+                                    {course.name} ({course.acronym} {course.code})
+                                </small>
+                            </div>
+                        ))}
+                    </div>}
+
+                </div>
+            </div>
+
+            <div className="my-4 d-flex justify-content-center text-secondary">
+                {!enrollmentChecked && <>
+                    <small className=''>
+                        <i className="bi bi-exclamation-triangle"> Couldn't check enrollment status.</i>
+                    </small>
+                    <button className='btn btn-sm btn-light p-0 px-1 mx-2' onClick={() => { checkIfEnrolled() }}>
+                        <small><i className="bi bi-arrow-clockwise"> Retry</i></small>
+                    </button>
+                </>}
+            </div>
+
+            {enrollmentMessage && (
+                <div className={`alert alert-info alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <strong> {enrollmentMessage} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setEnrollmentMessage('')}></button>
+                </div>
+            )}
+
+            <div className="my-4 d-flex justify-content-center">
+                {isEnrolled
+                    ? <div class="btn-group gap-2" role="group" aria-label="Basic example">
+                        <button type="button" class="btn btn-darkblue2 pt-1" disabled>Enrolled</button>
+                    </div>
+                    : <div class="btn-group gap-2" role="group" aria-label="Basic example">
+                        <button
+                            type="button"
+                            class="btn btn-darkblue2 pt-1"
+                            disabled={!enrollmentChecked}
+                            onClick={() => { handleEnrollment() }}
+                        >
+                            Enroll
+                        </button>
+                    </div>
+                }
+            </div>
+
+        </div>
+    );
+};
 
 
 
