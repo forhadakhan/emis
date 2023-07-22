@@ -543,6 +543,7 @@ class SectionViewSet(ModelViewSet):
 
 class SectionByBatchAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
     def get(self, request, batch_id):
         sections = Section.objects.filter(batch_id=batch_id)
         serializer = SectionSerializer(sections, many=True)
@@ -613,6 +614,8 @@ class StudentEnrollmentAPIView(APIView):
 
 
 class CourseOfferAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, pk=None):
         if pk:
             # Retrieve a single CourseOffer by its primary key (id)
@@ -671,6 +674,8 @@ class CourseOfferAPIView(APIView):
 
 
 class CourseOfferListFilteredView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, teacher_id=None, semester_id=None, format=None):
 
         if not teacher_id and not semester_id:
@@ -692,7 +697,7 @@ class CourseOfferListFilteredView(APIView):
 
 
 class CourseEnrollmentView(APIView):
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     def get(self, request, pk=None):
         if pk:
@@ -735,6 +740,8 @@ class CourseEnrollmentView(APIView):
 
 
 class StudentEnrollmentsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     """
     Get all enrollments for a student
     """
@@ -756,6 +763,8 @@ class StudentEnrollmentsAPIView(APIView):
 
 
 class IsEnrolled(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, course_offer_id, student_id):
         try:
             # Check if there's an existing enrollment with the given course_offer and student
@@ -769,6 +778,7 @@ class IsEnrolled(APIView):
 
 
 class MarksheetViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Marksheet.objects.all()
     serializer_class = MarksheetSerializer
 
