@@ -347,7 +347,84 @@ const CourseList = ({ courseView, enrolledCourses }) => {
 };
 
 
-const CourseDetails = ({ courseOffer, handleBack, getPrerequisites }) => {}
+const CourseDetails = ({ courseOffer, handleBack }) => {
+    const {
+        id,
+        semester,
+        course,
+        teacher,
+        capacity,
+        is_complete
+    } = courseOffer.course_offer;
+
+
+    return (
+        <div className="mt-4 font-merriweather">
+
+            {/* Go batck to course list  */}
+            <a className="icon-link icon-link-hover mb-2" href="#" onClick={handleBack}>
+                <small><i className="bi bi-arrow-bar-left"></i> Goto List</small>
+            </a>
+
+            {/* Course Info  */}
+            <div className="course-border-beige content-sm-85">
+                <div className="">
+                    <h4 className="text-center fw-bolder">{course.name}</h4>
+                    <nav className="nav m-3 d-flex justify-content-center mx-sm-0">
+                        <span className="nav-link border text-center bg-white m-1 rounded-start">
+                            <span className='d-block text-darkblue fw-bold border-bottom'>{course.acronym}</span>
+                            <span className='d-block text-darkblue fw-bold'>{course.code}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Credit</span>
+                            <span className='d-block text-darkblue fw-bold'>{course.credit}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Status</span>
+                            <span className='d-block text-darkblue fw-bold'>{semester.is_finished ? 'Completed' : 'Running'}</span>
+                        </span>
+                        <span className="nav-link border text-center bg-white m-1 rounded-end">
+                            <span className='d-block text-darkblue fw-light border-bottom'>Semester</span>
+                            <span className='d-block text-darkblue fw-bold'>{semester.term.name} {semester.year}</span>
+                        </span>
+                    </nav>
+                </div>
+            </div>
+
+            {/* Teacher Info  */}
+            <div className="my-5">
+                <div className="border-4 border-start rounded-4 py-2 px-4">
+                    <div className='my-2'><strong className='border-3 py-1 border-bottom'>Teacher</strong></div>
+
+                    {/* Name:  */}
+                    <p className='m-0 mt-2'>{teacher.teacher.user.first_name} {teacher.teacher.user.middle_name} {teacher.teacher.user.last_name} ({teacher.teacher.acronym})</p>
+
+                    {/* Designation(s): */}
+                    {teacher.designations.map((designation) => (
+                        <div key={designation.id}>
+                            <small className='d-inline-block text-secondary fw-normal m-0 px-2'>{designation.name}</small>
+                        </div>
+                    ))}
+
+                    {/* Department(s): */}
+                    {teacher.departments.map((department) => (
+                        <div key={department.id}>
+                            <small className='d-inline-block text-secondary fw-normal m-0 px-2'>{department.name} ({department.acronym} {department.code})</small>
+                        </div>
+                    ))}
+
+                    {/* Phone: */}
+                    <small className='d-block text-secondary fw-normal m-0 px-2'>{teacher.teacher.phone}</small>
+
+                    {/* Email: */}
+                    <small className='d-block text-secondary fw-normal m-0 px-2'>{teacher.teacher.user.email}</small>
+
+                </div>
+            </div>
+
+        </div>
+    );
+};
 
 
 
