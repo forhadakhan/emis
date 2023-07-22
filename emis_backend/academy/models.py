@@ -235,6 +235,9 @@ class CourseEnrollment(models.Model):
     course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
     student = models.ForeignKey(StudentEnrollment, on_delete=models.CASCADE)
     is_complete = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ['course_offer', 'student']
 
     def __str__(self):
         return f'Course Enrollment: {self.course_offer} - {self.student}'
