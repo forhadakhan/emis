@@ -12,6 +12,7 @@ import { getEnrollmentData } from '../../utils/auth.js';
 
 import StudentCourseEnroll from '../academy/StudentCourseEnroll';
 import ManageStudentCourses from '../academy/ManageStudentCourses';
+import StudentAcademicRecords from '../academy/StudentAcademicRecords';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
@@ -33,6 +34,8 @@ const StudentActivity = () => {
                 return <StudentCourseEnroll setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageStudentCourses':
                 return <ManageStudentCourses setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'StudentAcademicRecords':
+                return <StudentAcademicRecords setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -73,6 +76,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
     const elements = [
         { id: 'StudentCourseEnroll', label: 'Course Enrollment', render: 'StudentCourseEnroll', icon: 'bi-plus-square' },
         { id: 'ManageStudentCourses', label: 'My Courses', render: 'ManageStudentCourses', icon: 'bi-journal-medical' },
+        { id: 'StudentAcademicRecords', label: 'Academic Records', render: 'StudentAcademicRecords', icon: 'bi-list-columns' },
     ];
 
     let allowedElements = [];
