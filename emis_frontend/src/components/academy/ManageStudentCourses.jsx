@@ -160,7 +160,191 @@ const ManageStudentCourses = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-const CourseList = ({ courseView, enrolledCourses }) => {}
+const CourseList = ({ courseView, enrolledCourses }) => {
+    const [filteredData, setFilteredData] = useState(enrolledCourses);
+    const [error, setError] = useState('');
+
+
+    useEffect(() => {
+        setFilteredData(enrolledCourses);
+    }, [enrolledCourses]);
+
+
+    const handleCourseClick = (course) => {
+        courseView(course);
+    };
+
+    const getDesignations = (designations) => {
+        // Check if the input is an array and if it has elements
+        if (!Array.isArray(designations) || designations.length === 0) {
+            return ''; // Return an empty string if no designations or invalid input
+        }
+
+        // Extract the names from each element in the "designations" array
+        const names = designations.map((designation) => designation.name);
+
+        // Join the names using commas and return the result
+        return names.join(', ');
+    }
+
+    const getDepartments = (departments) => {
+        // Check if the input is an array and if it has elements
+        if (!Array.isArray(departments) || departments.length === 0) {
+            return ''; // Return an empty string if no departments or invalid input
+        }
+
+        // Extract the "acronym - code" for each department object
+        const departmentDetails = departments.map(
+            (department) => ` ${department.acronym}-${department.code} `
+        );
+
+        // Join the department details using semicolons and return the result
+        return departmentDetails.join('; ');
+    }
+
+    const columns = [
+        {
+            name: 'Semester',
+            selector: (row) => `${row.course_offer.semester.term.name} ${row.course_offer.semester.year}`,
+            sortable: true,
+            cell: (row) => (
+                <div>
+                    <strong className='d-block'>{row.course_offer.semester.term.name} {row.course_offer.semester.year}</strong>
+                    <small>{row.course_offer.semester.term.start} to {row.course_offer.semester.term.end}</small>
+                </div>
+            ),
+        },
+        {
+            name: 'Course',
+            selector: (row) => row.course_offer.course.name,
+            sortable: true,
+            cell: (row) => (
+                <div>
+                    <strong className='d-block'>{row.course_offer.course.name}</strong>
+                    <small>{row.course_offer.course.acronym} {row.course_offer.course.code}: Credit {row.course_offer.course.credit}</small>
+                </div>
+            ),
+        },
+        {
+            name: 'Teacher',
+            selector: (row) => `${row.course_offer.teacher.teacher.user.first_name} `,
+            sortable: true,
+            cell: (row) => (
+                <div>
+                    <strong className='d-block'>
+                        {row.course_offer.teacher.teacher.user.first_name}
+                        {row.course_offer.teacher.teacher.user.middle_name}
+                        {row.course_offer.teacher.teacher.user.last_name}
+                        ({row.course_offer.teacher.teacher.acronym})
+                    </strong>
+                    <small>
+                        {getDesignations(row.course_offer.teacher.designations)}, Dept. of
+                        {getDepartments(row.course_offer.teacher.departments)}
+                    </small>
+                </div>
+            ),
+        },
+        {
+            name: 'Actions',
+            button: true,
+            cell: (row) => (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-outline-dark me-2 border-0"
+                    onClick={() => handleCourseClick(row)}
+                >
+                    Details
+                </button>
+            ),
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px', // override the row height
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for head cells
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for data cells
+                paddingRight: '8px',
+            },
+        },
+    };
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = enrolledCourses.filter(
+            (ec) =>
+                `${ec.course_offer.semester.term.name} ${ec.course_offer.semester.year}`.toLowerCase().includes(keyword) ||
+                `${ec.course_offer.semester.term.start} to ${ec.course_offer.semester.term.end}`.toLowerCase().includes(keyword) ||
+                `${ec.course_offer.teacher.teacher.user.first_name} ${ec.course_offer.teacher.teacher.user.middle_name} ${ec.course_offer.teacher.teacher.user.last_name} (${ec.course_offer.teacher.teacher.acronym})`.toLowerCase().includes(keyword) ||
+                `${getDesignations(ec.course_offer.teacher.designations)}, Dept. of ${getDepartments(ec.course_offer.teacher.departments)}`.toLowerCase().includes(keyword) ||
+                `${ec.course_offer.course.name} ${ec.course_offer.course.acronym} ${ec.course_offer.course.code}`.toLowerCase().includes(keyword) ||
+                `Credit ${ec.course_offer.course.credit}`.toLowerCase().includes(keyword) ||
+                ec.course_offer.course.name.toLowerCase().includes(keyword) ||
+                ec.is_complete.toString().includes(keyword)
+        );
+        setFilteredData(filteredResults);
+    };
+
+
+    return (
+        <div>
+            {error && (
+                <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <i className="bi bi-x-octagon-fill"> </i>
+                    <strong> {error} </strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                </div>
+            )}
+
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
+                    <option value="">No Filter</option>
+                    <option value="false">Running Courses</option>
+                    <option value="true">Completed Courses</option>
+                </select>
+            </div>
+
+            <div className="my-5 mx-md-5">
+                <input
+                    type="text"
+                    placeholder="Search ..."
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <div className="rounded-4">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    customStyles={customStyles}
+                    pagination
+                    paginationPerPage={10}
+                    paginationRowsPerPageOptions={[10, 20, 30]}
+                    highlightOnHover
+                />
+            </div>
+        </div>
+    );
+};
 
 
 const CourseDetails = ({ courseOffer, handleBack, getPrerequisites }) => {}
