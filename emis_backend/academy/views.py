@@ -1,5 +1,6 @@
 # academy/views.py 
 
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import get_object_or_404
@@ -751,6 +752,19 @@ class StudentEnrollmentsAPIView(APIView):
         
         except NotFound as e:
             return Response({'detail': str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class IsEnrolled(APIView):
+    def get(self, request, course_offer_id, student_id):
+        try:
+            # Check if there's an existing enrollment with the given course_offer and student
+            is_enrolled = CourseEnrollment.objects.filter(course_offer_id=course_offer_id, student_id=student_id).exists()
+
+            # Return the result as JSON response
+            return JsonResponse({'is_enrolled': is_enrolled})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 
 class MarksheetViewSet(ModelViewSet):
