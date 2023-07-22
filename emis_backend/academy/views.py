@@ -52,6 +52,7 @@ from .serializers import (
     CourseOfferSerializer,
     CourseOfferNestedSerializer,
     CourseEnrollmentSerializer,
+    CourseEnrollmentNestedSerializer,
     MarksheetSerializer,
 )
 
@@ -696,10 +697,10 @@ class CourseEnrollmentView(APIView):
     def get(self, request, pk=None):
         if pk:
             course_enrollment = CourseEnrollment.objects.get(pk=pk)
-            serializer = CourseEnrollmentSerializer(course_enrollment)
+            serializer = CourseEnrollmentNestedSerializer(course_enrollment)
         else:
             course_enrollments = CourseEnrollment.objects.all()
-            serializer = CourseEnrollmentSerializer(course_enrollments, many=True)
+            serializer = CourseEnrollmentNestedSerializer(course_enrollments, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -746,7 +747,7 @@ class StudentEnrollmentsAPIView(APIView):
                 raise NotFound('No enrollments found for the specified student.')
 
             # Serialize the enrollments data
-            serializer = CourseEnrollmentSerializer(enrollments_for_student, many=True)
+            serializer = CourseEnrollmentNestedSerializer(enrollments_for_student, many=True)
 
             return Response(serializer.data)
         
