@@ -732,6 +732,27 @@ class CourseEnrollmentView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class StudentEnrollmentsAPIView(APIView):
+    """
+    Get all enrollments for a student
+    """
+    def get(self, request, student_id):
+        try:
+            # Retrieve all enrollments for the specified student
+            enrollments_for_student = CourseEnrollment.objects.filter(student__id=student_id)
+
+            if not enrollments_for_student.exists():
+                raise NotFound('No enrollments found for the specified student.')
+
+            # Serialize the enrollments data
+            serializer = CourseEnrollmentSerializer(enrollments_for_student, many=True)
+
+            return Response(serializer.data)
+        
+        except NotFound as e:
+            return Response({'detail': str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
 class MarksheetViewSet(ModelViewSet):
     queryset = Marksheet.objects.all()
     serializer_class = MarksheetSerializer
