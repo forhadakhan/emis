@@ -11,6 +11,7 @@ import React, { useState } from 'react';
 import { getEnrollmentData } from '../../utils/auth.js';
 
 import StudentCourseEnroll from '../academy/StudentCourseEnroll';
+import ManageStudentCourses from '../academy/ManageStudentCourses';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
@@ -30,6 +31,8 @@ const StudentActivity = () => {
                 return <ActivityPanel setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'StudentCourseEnroll':
                 return <StudentCourseEnroll setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'ManageStudentCourses':
+                return <ManageStudentCourses setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -68,7 +71,8 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const elements = [
-        { id: 'StudentCourseEnroll', label: 'Course Enrollment', render: 'StudentCourseEnroll', icon: 'bi-plus-square-fill' },
+        { id: 'StudentCourseEnroll', label: 'Course Enrollment', render: 'StudentCourseEnroll', icon: 'bi-plus-square' },
+        { id: 'ManageStudentCourses', label: 'My Courses', render: 'ManageStudentCourses', icon: 'bi-journal-medical' },
     ];
 
     let allowedElements = [];
