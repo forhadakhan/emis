@@ -230,10 +230,10 @@ class CourseOffer(models.Model):
 
 #####################################################################
 ##################### CourseEnrollment:
-#####################   - dependent on: CourseOffer, StudentEnrollment.
+#####################   - dependent on: CourseOffer, Student.
 class CourseEnrollment(models.Model):
     course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
-    student = models.ForeignKey(StudentEnrollment, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     is_complete = models.BooleanField(default=False)
     
     class Meta:
