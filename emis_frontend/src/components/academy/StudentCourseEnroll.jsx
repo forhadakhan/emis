@@ -341,7 +341,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
         const apiEndpoint = `${API_BASE_URL}/academy/course/is-enrolled/${courseOffer.id}/${studentId}/`;
 
         // Making the GET request
-        axios.get(apiEndpoint, null, {
+        axios.get(apiEndpoint, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
