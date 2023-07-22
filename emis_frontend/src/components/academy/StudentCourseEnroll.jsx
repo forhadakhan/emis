@@ -17,7 +17,8 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
     const studentId = studentProfile.id;
     const enrollment = getEnrollmentData();
     const semester = enrollment.semester;
-    const [showComponent, setShowComponent] = useState('DesignationList');
+    const [showComponent, setShowComponent] = useState('CourseList');
+    const [courses, setCourses] = useState([]);
     const [courseOffer, setCourseOffer] = useState('');
     const [courseOfferings, setCourseOfferings] = useState([]);
     const [error, setError] = useState('');
@@ -39,17 +40,65 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
         try {
             const response = await axios.get(`${API_BASE_URL}/academy/semester/${semester.id}/course_offers/`, config);
             setCourseOfferings(response.data);
-            console.log('ft', response.data);
         } catch (error) {
             setError(' Failed to fetch course  list.');
             console.error('Error fetching course list:', error);
         }
     };
     useEffect(() => {
-        if (semester.is_open && enrollment.is_active) {
+        if (semester.is_open && enrollment.is_active && (courseOfferings.length < 1)) {
             fetchCourseOfferings();
         }
     }, []);
+
+
+
+    // fetch courses for Prerequisites
+    useEffect(() => {
+        setError('');
+        const fetchCourses = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                const response = await axios.get(`${API_BASE_URL}/academy/courses/`, config);
+                const coursesById = {};
+                const data = response.data;
+                // Create a dictionary for faster lookup
+                data.forEach((course) => {
+                    coursesById[course.id] = course;
+                });
+                setCourses(coursesById);
+            } catch (error) {
+                setError('An error occurred while fetching courses list.');
+                console.error(error);
+            }
+        };
+
+        if (courses.length === 0) {
+            fetchCourses();
+        }
+
+    }, []);
+
+    const getPrerequisites = (ids) => {
+        const prerequisiteCourses = [];
+
+        // Iterate through the given ids and find prerequisite courses
+        ids.forEach((id) => {
+            const course = courses[id];
+            if (course) {
+                prerequisiteCourses.push(course);
+            }
+        });
+
+        return prerequisiteCourses;
+    };
+
 
 
     const handleBack = async () => {
@@ -67,7 +116,7 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
             case 'CourseList':
                 return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
             case 'CourseDetails':
-                return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} />
+                return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} studentId={studentId} getPrerequisites={getPrerequisites} />
             default:
                 return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
         }
@@ -272,9 +321,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 };
 
 
-const CourseDetails = () => {
-
-}
+const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites }) => {}
 
 
 
