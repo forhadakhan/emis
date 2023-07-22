@@ -731,3 +731,9 @@ class CourseEnrollmentView(APIView):
         course_enrollment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class MarksheetViewSet(ModelViewSet):
+    queryset = Marksheet.objects.all()
+    serializer_class = MarksheetSerializer
+
+
