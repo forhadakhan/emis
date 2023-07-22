@@ -23,6 +23,7 @@ from .models import (
     StudentEnrollment,
     CourseOffer,
     CourseEnrollment,
+    Marksheet,
     Attendance,
     Assignment,
     AssignmentSubmission,
@@ -223,6 +224,12 @@ class CourseOfferNestedSerializer(serializers.ModelSerializer):
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
+        fields = '__all__'
+
+
+class MarksheetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Marksheet
         fields = '__all__'
 
 
