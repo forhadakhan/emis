@@ -31,6 +31,7 @@ from .views import (
     MarksheetViewSet,
     IsEnrolled,
     StudentEnrolledCoursesAPIView,
+    StudentsInCourseOfferView,
 )
 
 router = DefaultRouter()
@@ -72,6 +73,7 @@ urlpatterns = [
     path('course-enrollment/<int:pk>/', CourseEnrollmentView.as_view(), name='course_enrollment_detail'),
     path('course/is-enrolled/<int:course_offer_id>/<int:student_id>/', IsEnrolled.as_view(), name='is-enrolled'),
     path('student/<int:student_id>/enrollments/', StudentEnrolledCoursesAPIView.as_view(), name='student_enrollments'),
+    path('course_offer/<int:course_offer_id>/students/', StudentsInCourseOfferView.as_view(), name='students_in_course_offer'),
     path('', include(router.urls)),
 ]
 
