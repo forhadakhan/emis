@@ -21,7 +21,6 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
     const [courses, setCourses] = useState([]);
     const [courseOffer, setCourseOffer] = useState('');
     const [courseOfferings, setCourseOfferings] = useState([]);
-    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [error, setError] = useState('');
 
 
@@ -51,43 +50,6 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
             fetchCourseOfferings();
         }
     }, []);
-
-
-
-    const fetchEnrolledCourses = async () => {
-        const config = {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        };
-        try {
-            const response = await axios.get(`${API_BASE_URL}/academy/student/${studentId}/enrollments/`, config);
-            const courseData = response.data;
-            const courseDictionary = {};
-
-            courseData.forEach(item => {
-                const courseId = item.course_offer.course.id;
-                courseDictionary[courseId] = item;
-            });
-
-            setEnrolledCourses(courseDictionary);
-
-        } catch (error) {
-            if (error.response.status == 404) {
-                setError('No enrolled course(s) found for you. ');
-            } else {
-                setError(' Failed to fetch course  list.');
-            }
-            // console.error('Error fetching course list:', error);
-        }
-    };
-    useEffect(() => {
-        if ((enrolledCourses.length < 1)) {
-            fetchEnrolledCourses();
-        }
-    }, []);
-
 
 
     // fetch courses for Prerequisites
@@ -153,7 +115,7 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
             case 'CourseList':
                 return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
             case 'CourseDetails':
-                return <CourseDetails courseOffer={courseOffer} enrolledCourses={enrolledCourses} handleBack={handleBack} studentId={studentId} getPrerequisites={getPrerequisites} />
+                return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} studentId={studentId} getPrerequisites={getPrerequisites} />
             default:
                 return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
         }
@@ -358,8 +320,9 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 };
 
 
-const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, getPrerequisites }) => {
+const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites }) => {
     const accessToken = getAccessToken();
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [isEnrolled, setIsEnrolled] = useState(false);
     const [enrollment, setEnrollment] = useState('');
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
@@ -374,6 +337,42 @@ const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, ge
 
     const prerequisites = getPrerequisites(course.prerequisites);
 
+
+    const fetchEnrolledCourses = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/student/${studentId}/enrollments/`, config);
+            const courseData = response.data;
+            const courseDictionary = {};
+
+            courseData.forEach(item => {
+                const courseId = item.course_offer.course.id;
+                courseDictionary[courseId] = item;
+            });
+
+            setEnrolledCourses(courseDictionary);
+
+        } catch (error) {
+            if (error.response.status == 404) {
+                setError('No enrolled course(s) found for you. ');
+            } else {
+                setError(' Failed to fetch course  list.');
+            }
+            // console.error('Error fetching course list:', error);
+        }
+    };
+    useEffect(() => {
+        if ((enrolledCourses.length < 1)) {
+            fetchEnrolledCourses();
+        }
+    }, []);
+
+    
     const checkIfEnrolled = () => {
 
         const apiEndpoint = `${API_BASE_URL}/academy/course/is-enrolled/${courseOffer.id}/${studentId}/`;
@@ -431,7 +430,7 @@ const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, ge
             });
     };
 
-    
+
     const handleDisenrollment = () => {
         const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${enrollment.id}/`;
 
