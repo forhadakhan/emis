@@ -21,6 +21,7 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
     const [courses, setCourses] = useState([]);
     const [courseOffer, setCourseOffer] = useState('');
     const [courseOfferings, setCourseOfferings] = useState([]);
+    const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [error, setError] = useState('');
 
 
@@ -48,6 +49,42 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
     useEffect(() => {
         if (semester.is_open && enrollment.is_active && (courseOfferings.length < 1)) {
             fetchCourseOfferings();
+        }
+    }, []);
+
+
+
+    const fetchEnrolledCourses = async () => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/student/${studentId}/enrollments/`, config);
+            const courseData = response.data;
+            const courseDictionary = {};
+
+            courseData.forEach(item => {
+                const courseId = item.course_offer.course.id;
+                courseDictionary[courseId] = item;
+            });
+
+            setEnrolledCourses(courseDictionary);
+
+        } catch (error) {
+            if (error.response.status == 404) {
+                setError('No enrolled course(s) found for you. ');
+            } else {
+                setError(' Failed to fetch course  list.');
+            }
+            // console.error('Error fetching course list:', error);
+        }
+    };
+    useEffect(() => {
+        if ((enrolledCourses.length < 1)) {
+            fetchEnrolledCourses();
         }
     }, []);
 
@@ -116,7 +153,7 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
             case 'CourseList':
                 return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
             case 'CourseDetails':
-                return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} studentId={studentId} getPrerequisites={getPrerequisites} />
+                return <CourseDetails courseOffer={courseOffer} enrolledCourses={enrolledCourses} handleBack={handleBack} studentId={studentId} getPrerequisites={getPrerequisites} />
             default:
                 return <CourseList courseOfferView={courseOfferView} courseOfferings={courseOfferings} />
         }
@@ -321,7 +358,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 };
 
 
-const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites }) => {
+const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, getPrerequisites }) => {
     const accessToken = getAccessToken();
     const [isEnrolled, setIsEnrolled] = useState(false);
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
@@ -388,6 +425,21 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 console.error('Error creating enrollment:', error);
             });
     };
+
+    const checkPrerequisite = (courseId) => {
+        if (enrolledCourses.hasOwnProperty(courseId)) {
+            // Check if the course is marked as complete (is_complete is true)
+            // if (enrolledCourses[courseId].is_complete === true) {
+            //     return true; // Return true if found and is_complete is true
+            // }
+
+            // in case, prerequisite completion is required, remove comment from above condition 
+            // for now, return true if student is just enrolled to the prerequisite course.
+            return true;
+        }
+        return false; 
+    }
+
 
     return (
         <div className="mt-4 font-merriweather">
@@ -463,6 +515,9 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                         {prerequisites.map((course) => (
                             <div key={course.id}>
                                 <small className='d-inline-block text-secondary fw-normal m-0 px-2'>
+                                    {(checkPrerequisite(course.id))
+                                        ? <i className="bi bi-check-circle"> </i>
+                                        : <i className="bi bi-x-circle fw-bold text-danger"> </i>}
                                     {course.name} ({course.acronym} {course.code})
                                 </small>
                             </div>
@@ -492,13 +547,13 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
             <div className="my-4 d-flex justify-content-center">
                 {isEnrolled
-                    ? <div class="btn-group gap-2" role="group" aria-label="Basic example">
-                        <button type="button" class="btn btn-darkblue2 pt-1" disabled>Enrolled</button>
+                    ? <div className="btn-group gap-2" role="group" aria-label="Basic example">
+                        <button type="button" className="btn btn-darkblue2 pt-1" disabled>Enrolled</button>
                     </div>
-                    : <div class="btn-group gap-2" role="group" aria-label="Basic example">
+                    : <div className="btn-group gap-2" role="group" aria-label="Basic example">
                         <button
                             type="button"
-                            class="btn btn-darkblue2 pt-1"
+                            className="btn btn-darkblue2 pt-1"
                             disabled={!enrollmentChecked}
                             onClick={() => { handleEnrollment() }}
                         >
