@@ -11,7 +11,10 @@ from rest_framework.viewsets import ModelViewSet
 from authentication.permissions import IsAdministratorOrStaff, IsAdministratorOrStaffOrReadOnly, IsTeacher
 from authentication.models import User
 from authentication.serializers import UserSerializer
+from student.models import Student
+from student.serializers import StudentNestedSerializer
 from teacher.models import Teacher
+
 
 from .models import (
     Designation,
@@ -789,5 +792,28 @@ class MarksheetViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Marksheet.objects.all()
     serializer_class = MarksheetSerializer
+
+
+class StudentsInCourseOfferView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    """
+    Get all enrolled students in a course offer. 
+    """
+    def get(self, request, course_offer_id):
+        try:
+            # Retrieve all CourseEnrollment objects for the given course_offer_id
+            course_enrollments = CourseEnrollment.objects.filter(course_offer_id=course_offer_id)
+            
+            # Retrieve the student objects from the CourseEnrollment objects
+            enrolled_students = [enrollment.student for enrollment in course_enrollments]
+            
+            # Serialize the student data
+            serializer = StudentNestedSerializer(enrolled_students, many=True)
+            
+            return Response(serializer.data)
+        
+        except CourseEnrollment.DoesNotExist:
+            return Response({"error": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
