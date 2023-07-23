@@ -55,6 +55,7 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})`
     }));
 
+    // in case viewing an existing enrollment 
     const setEnrollmentData = () => {
         setEnrollmentId(student.enrollment.id);
         const data = {
@@ -68,21 +69,20 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         }
         setFormData(data)
         const year = yearChoices.find((year) => year.value === student.enrollment.year);
-        const sectionId = data.batch_section;
+        setSelectedYear(year);
         const batchId = student.enrollment.batch_section.batch;
+        const batch = batches.find((batch) => batch.id === batchId);
+        setSelectedBatch({ isDisabled: true, value: batchId, label: `${batch.program.acronym} ${getOrdinal(batch.number)} (Session: ${batch.session})` });
+        const sectionId = data.batch_section;
+        const section = batch.sections.find((section) => section.id === sectionId);
+        setSelectedSection({ isDisabled: true, value: sectionId, label: `${section.name} (${section.available_seats}/${section.max_seats})` });
         // const programId = student.enrollment.batch_section.batch_data.program;
         // const program = programs.find((program) => program.id === programId);
-        const semester = semesters.find((semester) => semester.id === data.semester);
-        const batch = batches.find((batch) => batch.id === batchId);
-        const section = batch.sections.find((section) => section.id === sectionId);
-        setSelectedYear(year);
         // setSelectedProgram({ value:programId, label: `${program.acronym} ${program.code}: ${program.name}` });
-        setSelectedBatch({ isDisabled: true, value: batchId, label: `${batch.program.acronym} ${getOrdinal(batch.number)} (Session: ${batch.session})` });
-        setSelectedSection({ isDisabled: true, value: sectionId, label: `${section.name} (${section.available_seats}/${section.max_seats})` });
+        const semester = semesters.find((semester) => semester.id === data.semester.id);
         setSelectedSemester( semester 
             ? { 
-                isDisabled: true, 
-                value: data.semester, 
+                value: semester.id, 
                 label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})` } 
             : {
                 isDisabled: true, 
