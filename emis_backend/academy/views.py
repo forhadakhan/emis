@@ -768,10 +768,18 @@ class IsEnrolled(APIView):
     def get(self, request, course_offer_id, student_id):
         try:
             # Check if there's an existing enrollment with the given course_offer and student
-            is_enrolled = CourseEnrollment.objects.filter(course_offer_id=course_offer_id, student_id=student_id).exists()
+            enrollment = CourseEnrollment.objects.filter(course_offer_id=course_offer_id, student_id=student_id).first()
+
+            if enrollment:
+                # If enrollment exists, serialize the enrollment data and return it
+                serializer = CourseEnrollmentSerializer(enrollment)
+                data = {'is_enrolled': True, 'enrollment': serializer.data}
+            else:
+                # If enrollment does not exist, return is_enrolled as False
+                data = {'is_enrolled': False}
 
             # Return the result as JSON response
-            return JsonResponse({'is_enrolled': is_enrolled})
+            return JsonResponse(data)
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
