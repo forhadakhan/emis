@@ -739,19 +739,19 @@ class CourseEnrollmentView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class StudentEnrollmentsAPIView(APIView):
+class StudentEnrolledCoursesAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
     """
-    Get all enrollments for a student
+    Get all enrolled courses for a student
     """
     def get(self, request, student_id):
         try:
-            # Retrieve all enrollments for the specified student
+            # Retrieve all enrolled courses for the specified student
             enrollments_for_student = CourseEnrollment.objects.filter(student__id=student_id)
 
             if not enrollments_for_student.exists():
-                raise NotFound('No enrollments found for the specified student.')
+                raise NotFound('No course enrollments found for the specified student.')
 
             # Serialize the enrollments data
             serializer = CourseEnrollmentNestedSerializer(enrollments_for_student, many=True)
