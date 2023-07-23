@@ -128,8 +128,11 @@ class Course(models.Model):
     acronym = models.CharField(max_length=16, unique=True)
     code = models.IntegerField(unique=True)
     credit = models.FloatField()
-    prerequisites = models.ManyToManyField('self', blank=True)
     programs = models.ManyToManyField(Program, blank=True)
+    
+    # the symmetrical=False option means that if course A is a prerequisite for course B, course B is not automatically a prerequisite for course A. 
+    # The related_name='+' option disables the reverse relation from the Course model back to this model.
+    prerequisites = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='+')
 
     def __str__(self):
         return f'{self.acronym} {self.code}'
