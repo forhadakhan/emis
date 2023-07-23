@@ -361,6 +361,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, getPrerequisites }) => {
     const accessToken = getAccessToken();
     const [isEnrolled, setIsEnrolled] = useState(false);
+    const [enrollment, setEnrollment] = useState('');
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
     const [enrollmentMessage, setEnrollmentMessage] = useState('');
     const {
@@ -387,11 +388,14 @@ const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, ge
             .then(response => {
                 // set response
                 setIsEnrolled(response.data.is_enrolled);
+                if(response.data.enrollment) {
+                    setEnrollment(response.data.enrollment)
+                }
                 setEnrollmentChecked(true);
             })
             .catch(error => {
                 setEnrollmentChecked(false);
-                // console.error('Error Checking Is Enrolled:', error);
+                console.error('Error Checking Is Enrolled:', error);
             });
     };
     useEffect(() => {
@@ -419,12 +423,35 @@ const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, ge
                 // console.log('Course enrollment successful.:', response.data);
                 setEnrollmentMessage('Successfully enrolled.')
                 setIsEnrolled(true);
+                setEnrollment(response.data);
             })
             .catch(error => {
                 setEnrollmentMessage('FAILED: An error occurred while enrolling :(')
                 console.error('Error creating enrollment:', error);
             });
     };
+
+    
+    const handleDisenrollment = () => {
+        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${enrollment.id}/`;
+
+        // Making the POST request
+        axios.delete(apiEndpoint, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                setEnrollmentMessage('Successfully disenrolled.')
+                setIsEnrolled(false);
+            })
+            .catch(error => {
+                setEnrollmentMessage('FAILED: An error occurred while disenrolling :(')
+                console.error('Error creating disenrollment:', error);
+            });
+    };
+
 
     const checkPrerequisite = (courseId) => {
         if (enrolledCourses.hasOwnProperty(courseId)) {
@@ -547,8 +574,15 @@ const CourseDetails = ({ courseOffer, enrolledCourses, handleBack, studentId, ge
 
             <div className="my-4 d-flex justify-content-center">
                 {isEnrolled
-                    ? <div className="btn-group gap-2" role="group" aria-label="Basic example">
+                    ? <div className="btn-group" role="group" aria-label="Basic example">
                         <button type="button" className="btn btn-darkblue2 pt-1" disabled>Enrolled</button>
+                        <button 
+                        type="button" 
+                        className="btn btn-darkblue2 pt-1"
+                        onClick={() => { handleDisenrollment() }}
+                        >
+                            Disenroll
+                            </button>
                     </div>
                     : <div className="btn-group gap-2" role="group" aria-label="Basic example">
                         <button
