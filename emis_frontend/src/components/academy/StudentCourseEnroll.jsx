@@ -324,6 +324,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     const accessToken = getAccessToken();
     const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [isEnrolled, setIsEnrolled] = useState(false);
+    const [takenBefore, setTakenBefore] = useState(false);
     const [enrollment, setEnrollment] = useState('');
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
     const [enrollmentMessage, setEnrollmentMessage] = useState('');
@@ -396,6 +397,9 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 setEnrollmentChecked(false);
                 console.error('Error Checking Is Enrolled:', error);
             });
+
+            const previouslyEnrolled = enrolledCourses.hasOwnProperty(courseOffer.course.id);
+            setTakenBefore(previouslyEnrolled);
     };
     useEffect(() => {
         checkIfEnrolled();
@@ -537,6 +541,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                         <small className='d-inline-block text-secondary fw-normal m-0 px-2'>None</small>
                     </>}
 
+                    {/* In case there is prerequisites */}
                     {(course.prerequisites.length > 0) && <div>
                         {prerequisites.map((course) => (
                             <div key={course.id}>
@@ -554,6 +559,8 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             </div>
 
             <div className="my-4 d-flex justify-content-center text-secondary">
+
+                {/* enrollment status check failed message */}
                 {!enrollmentChecked && <>
                     <small className=''>
                         <i className="bi bi-exclamation-triangle"> Couldn't check enrollment status.</i>
@@ -562,8 +569,16 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                         <small><i className="bi bi-arrow-clockwise"> Retry</i></small>
                     </button>
                 </>}
+
+                {/* if this course taken previouly  */}
+                {!isEnrolled && takenBefore  && <>
+                    <small className=''>
+                        <i className="bi bi-info-circle-fill"> You have already taken this course</i>
+                    </small>
+                </>}
             </div>
 
+            {/* enrollment request response message  */}
             {enrollmentMessage && (
                 <div className={`alert alert-info alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <strong> {enrollmentMessage} </strong>
@@ -571,6 +586,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 </div>
             )}
 
+            {/* enroll or disenroll button  */}
             <div className="my-4 d-flex justify-content-center">
                 {isEnrolled
                     ? <div className="btn-group" role="group" aria-label="Basic example">
@@ -587,7 +603,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                         <button
                             type="button"
                             className="btn btn-darkblue2 pt-1"
-                            disabled={!enrollmentChecked}
+                            disabled={!enrollmentChecked || takenBefore}
                             onClick={() => { handleEnrollment() }}
                         >
                             Enroll
