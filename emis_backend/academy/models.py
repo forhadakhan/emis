@@ -125,8 +125,8 @@ class Semester(models.Model):
 #####################   - dependent on: Program.
 class Course(models.Model):
     name = models.CharField(max_length=100)
-    acronym = models.CharField(max_length=16, unique=True)
-    code = models.IntegerField(unique=True)
+    acronym = models.CharField(max_length=16)
+    code = models.IntegerField()
     credit = models.FloatField()
     programs = models.ManyToManyField(Program, blank=True)
     
@@ -136,6 +136,9 @@ class Course(models.Model):
 
     def __str__(self):
         return f'{self.acronym} {self.code}'
+
+    class Meta:
+        unique_together = ['acronym', 'code', 'credit']
 #####################################################################
 
 
