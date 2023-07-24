@@ -1,5 +1,7 @@
 /**
- * Calling from: TeacherActivity.jsx
+ * Calling from: 
+ *              ManageTeacherCourses.jsx
+ *              ControlOfferedCourse.jsx
  * Calling to: 
  */
 
