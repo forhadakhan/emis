@@ -101,7 +101,7 @@ class ResendEmailVerificationView(APIView):
         username = request.data.get('username')
 
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(username=username.strip())
             if not user.email_verified:
                 current_site = get_current_site(request)
                 subject = 'EMIS: Verify your email'
@@ -137,7 +137,7 @@ class PasswordResetView(APIView):
         username = request.data.get('username')
         
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(username=username.strip())
 
             # Generate the email hint
             email_parts = user.email.split('@')
