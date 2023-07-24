@@ -240,6 +240,14 @@ class MarksheetSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class MarksheetNastedSerializer(serializers.ModelSerializer):
+    course_enrollment = CourseEnrollmentSerializer()
+
+    class Meta:
+        model = Marksheet
+        fields = '__all__'
+
+
 class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
