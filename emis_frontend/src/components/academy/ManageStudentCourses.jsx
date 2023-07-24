@@ -110,6 +110,8 @@ const ManageStudentCourses = ({ setActiveComponent, breadcrumb }) => {
 const CourseList = ({ courseView, enrolledCourses }) => {
     const [filteredData, setFilteredData] = useState(enrolledCourses);
     const [error, setError] = useState('');
+    const enrollment = getEnrollmentData();
+    const RunningSemester = `${enrollment.semester.term.name} ${enrollment.semester.year}`;
 
 
     useEffect(() => {
@@ -242,7 +244,7 @@ const CourseList = ({ courseView, enrolledCourses }) => {
                 `${ec.course_offer.course.name} ${ec.course_offer.course.acronym} ${ec.course_offer.course.code}`.toLowerCase().includes(keyword) ||
                 `Credit ${ec.course_offer.course.credit}`.toLowerCase().includes(keyword) ||
                 ec.course_offer.course.name.toLowerCase().includes(keyword) ||
-                ec.is_complete.toString().includes(keyword)
+                ec.course_offer.is_complete.toString().includes(keyword)
         );
         setFilteredData(filteredResults);
     };
@@ -264,8 +266,9 @@ const CourseList = ({ courseView, enrolledCourses }) => {
                 </label>
                 <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
                     <option value="">No Filter</option>
+                    <option value={RunningSemester}>Running Semester</option>
                     <option value="false">Running Courses</option>
-                    <option value="true">Completed Courses</option>
+                    <option value="true">Finished Courses</option>
                 </select>
             </div>
 
