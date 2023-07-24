@@ -25,15 +25,18 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
     };
 
     const getCourseStatus = (status) => {
-        return status ? 'Completed' : 'Running';
-    }
+        return status ? 'CourseCompleted' : 'CourseRunning';
+    };
+
+    const getSemesterStatus = (status) => {
+        return status ? 'SemesterCompleted' : 'SemesterRunning';
+    };
 
     const columns = [
         {
             name: 'Status',
-            selector: (row) => `${row.semester.is_finished}`,
+            selector: (row) => row.is_complete ? 'Completed' : 'Running',
             sortable: true,
-            cell: (row) => getCourseStatus(row.semester.is_finished),
             width: '10%',
         },
         {
@@ -103,7 +106,8 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = courseOfferings.filter(
             (cf) =>
-                `${getCourseStatus(cf.semester.is_finished)}`.toLowerCase().includes(keyword) ||
+                `${getCourseStatus(cf.is_complete)}`.toLowerCase().includes(keyword) ||
+                `${getSemesterStatus(cf.semester.is_finished)}`.toLowerCase().includes(keyword) ||
                 `${cf.semester.term.name} ${cf.semester.year}`.toLowerCase().includes(keyword) ||
                 `${cf.teacher.teacher.user.first_name} ${cf.teacher.teacher.user.middle_name} ${cf.teacher.teacher.user.last_name} (${cf.teacher.teacher.acronym})`.toLowerCase().includes(keyword) ||
                 `${cf.semester.term.start} to ${cf.semester.term.end}`.toLowerCase().includes(keyword) ||
@@ -131,8 +135,10 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
                 </label>
                 <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
                     <option value="">No Filter</option>
-                    <option value="Running">Running Courses</option>
-                    <option value="Completed">Completed Courses</option>
+                    <option value="CourseRunning">Running Courses</option>
+                    <option value="CourseCompleted">Completed Courses</option>
+                    <option value="SemesterRunning">Open Semesters</option>
+                    <option value="SemesterCompleted">Closed Semesters</option>
                 </select>
             </div>
 
