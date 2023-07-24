@@ -3,7 +3,7 @@
 from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.exceptions import NotFound
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -57,6 +57,7 @@ from .serializers import (
     CourseEnrollmentSerializer,
     CourseEnrollmentNestedSerializer,
     MarksheetSerializer,
+    MarksheetNastedSerializer,
 )
 
 
@@ -815,5 +816,19 @@ class StudentsInCourseOfferView(APIView):
         
         except CourseEnrollment.DoesNotExist:
             return Response({"error": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class MarksheetListByCourseOffer(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    
+    """
+    Get all marksheets for a offered courses.
+    Note: whenever a new stuudent enroll to a offered course, a new marksheet is created for that enrollment 
+    """
+    serializer_class = MarksheetNastedSerializer
+
+    def get_queryset(self):
+        course_offer_id = self.kwargs['course_offer_id']
+        return Marksheet.objects.filter(course_enrollment__course_offer_id=course_offer_id)
 
 
