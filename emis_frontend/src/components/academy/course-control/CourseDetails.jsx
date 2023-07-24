@@ -12,6 +12,7 @@ import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../../utils/config.js';
 import { getAccessToken } from '../../../utils/auth.js';
 
+import Marksheet from '../MarksheetController.jsx';
 
 
 const CourseDetails = ({ courseOffer, handleBack }) => {
