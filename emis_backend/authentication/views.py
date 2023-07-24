@@ -12,12 +12,14 @@ from .models import User
 from .utils import TokenDecoderToGetUserRole
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework_simplejwt.tokens import RefreshToken
 from academy.views import TeacherEnrollmentAPIView
 from administrator.models import Administrator
@@ -43,7 +45,7 @@ class LoginView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username.strip(), password=password.strip())
         if user is not None:
             if user.email_verified:
                 login(request, user)
@@ -243,7 +245,7 @@ class ResetPasswordUserView(APIView):
         new_password = request.data.get('new_password')
 
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(username=username.strip())
         except User.DoesNotExist:
             return Response({'message': 'Invalid username'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -377,7 +379,4 @@ class GetUserByUsernameView(APIView):
 
         except Exception as e:
             return Response({"success": False, "message": "Cannot get the user data", 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
 
