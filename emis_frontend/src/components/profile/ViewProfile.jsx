@@ -1,16 +1,20 @@
 /**
- * Calling from: profile.jsx
+ * 
+ *  ==== USER PROFILE PAGE ===
+ * 
+ * Calling from: Profile.jsx
  * Calling to: 
  */
 
 import React, { useEffect, useState } from 'react';
-import { getFileLink, getUserId, getUserRole, getEnrollmentData, getAccessToken } from '../../utils/auth';
 import axios from 'axios';
+import { getFileLink, getUserRole, getEnrollmentData, getAccessToken } from '../../utils/auth';
 import { API_BASE_URL } from '../../utils/config';
 import { getOrdinal } from '../../utils/utils';
 
 
 const ViewProfile = ({ componentController, user, profile }) => {
+    const userRole = getUserRole();
     const [enrollment, setEnrollment] = useState('');
     const [program, setProgram] = useState('');
     const genders = {
@@ -35,8 +39,8 @@ const ViewProfile = ({ componentController, user, profile }) => {
         alignItems: 'center',
     };
 
-    const userRole = getUserRole();
 
+    // get enrollment and program details for student/teacher
     useEffect(() => {
         if (userRole === 'student') {
             const enrollmentData = getEnrollmentData();
@@ -64,7 +68,9 @@ const ViewProfile = ({ componentController, user, profile }) => {
                 }
             }
             fetchProgram();
-        } else if (userRole === 'teacher') {
+        } 
+        // get enrollment details for teacher
+        else if (userRole === 'teacher') {
             const enrollmentData = getEnrollmentData();
             setEnrollment(enrollmentData);
         }
@@ -77,6 +83,7 @@ const ViewProfile = ({ componentController, user, profile }) => {
                 <div className="col-md-4 border-right">
                     <div className="d-flex flex-column align-items-center text-center p-3 py-5">
 
+                        {/* role status  */}
                         <div className='bg-darkblue text-beige rounded-2 my-4' style={{ width: '200px', height: '25px' }}>
                             {/* <i className="bi bi-person-fill-gear  me-2"></i> */}
                             {enrollment && enrollment.year && <span className="text-capitalize">{YEAR_CHOICES[enrollment.year]} </span>}
