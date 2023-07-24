@@ -4,12 +4,16 @@
  */
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
 import Select from 'react-select'
+import { CSVLink } from 'react-csv';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // Required for table support in jsPDF
+
 
 const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
@@ -389,15 +393,15 @@ const CourseList = ({ courseDetail }) => {
 
     const columns = [
         {
-            name: 'Name',
-            selector: (row) => `${row.acronym} - ${row.name}`,
+            name: 'Code',
+            selector: (row) => `${row.acronym} - ${row.code}`,
             sortable: true,
-            width: '40%',
         },
         {
-            name: 'Code',
-            selector: (row) => row.code,
+            name: 'Name',
+            selector: (row) => row.name,
             sortable: true,
+            width: '40%',
         },
         {
             name: 'Credit',
@@ -463,6 +467,67 @@ const CourseList = ({ courseDetail }) => {
         setFilteredData(filteredResults);
     };
 
+
+    const tableData = useMemo(() => {
+        // Sort the filteredData by `${course.acronym} - ${course.code}`. using "comparator-based sorting" 
+        const sortedData = [...filteredData].sort((a, b) => {
+            const nameA = `${a.acronym} - ${a.code}`.toUpperCase();
+            const nameB = `${b.acronym} - ${b.code}`.toUpperCase();
+            if (nameA < nameB) {
+                return -1;
+            }
+            if (nameA > nameB) {
+                return 1;
+            }
+            return 0;
+        });
+
+        return sortedData.map((course) => [
+            `${course.acronym} - ${course.code}`,
+            course.name,
+            course.credit,
+            hasPrerequisites(course.prerequisites),
+        ]);
+    }, [filteredData]);
+
+
+    const exportPDF = () => {
+        const doc = new jsPDF();
+
+        const headline = 'Course List';
+
+        const headers = [['Code', 'Name', 'Credit', 'Prerequisites']];
+        const headerStyles = {
+            fillColor: [1, 1, 50],
+            textColor: [238, 212, 132],
+            lineWidth: 0.1,
+        };
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const textWidth = doc.getStringUnitWidth(headline) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+        const textX = (pageWidth - textWidth) / 2;
+        const textY = 15;
+
+        doc.setFontSize(16);
+        doc.text(headline, textX, textY);
+
+        const tableStartY = doc.internal.getFontSize() + 10;
+        const tableEndY = doc.autoTable.previous.finalY;
+
+        doc.autoTable({
+            startY: tableStartY,
+            head: headers,
+            body: tableData,
+            didDrawCell: (data) => {
+                // Empty didDrawCell to not override styles
+            },
+            headStyles: headerStyles,
+        });
+
+        doc.save('course_list.pdf');
+    };
+
+
     return (
         <div>
             {error && (
@@ -485,15 +550,17 @@ const CourseList = ({ courseDetail }) => {
                 </select>
             </div>
 
+            {/* search field  */}
             <div className="my-5 mx-md-5">
                 <input
                     type="text"
-                    placeholder="Search with any field e.g. availability/duration ..."
+                    placeholder="Search ..."
                     onChange={handleSearch}
                     className="form-control text-center border border-darkblue"
                 />
             </div>
 
+            {/* datatable component for listing  */}
             <div className="rounded-4">
                 <DataTable
                     columns={columns}
@@ -505,6 +572,23 @@ const CourseList = ({ courseDetail }) => {
                     highlightOnHover
                 />
             </div>
+
+            {/* export buttons  */}
+            <div className="d-flex justify-content-center my-5">
+                <CSVLink
+                    data={filteredData}
+                    filename="course_list.csv"
+                    className="btn btn-sm btn-darkblue me-3"
+                >
+                    <i className="bi bi-filetype-csv px-1"></i>
+                    Export as CSV
+                </CSVLink>
+                <button className="btn btn-sm btn-darkblue" onClick={exportPDF}>
+                    <i className="bi bi-file-pdf px-1"></i>
+                    Export as PDF
+                </button>
+            </div>
+
         </div>
     );
 };
@@ -654,6 +738,7 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
                 </div>
             )}
 
+
             <form>
                 <div className='row'>
                     <div className=" col-sm-12 col-md-8 my-2  mx-auto">
@@ -733,6 +818,9 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
         </div>
     );
 };
+
+
+
 
 
 export default ManageCourses;
