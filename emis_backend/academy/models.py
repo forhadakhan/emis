@@ -225,6 +225,7 @@ class CourseOffer(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
     capacity = models.PositiveIntegerField(default=0)
+    is_complete = models.BooleanField(default=False)
     
     class Meta:
         unique_together = ['semester', 'course', 'teacher']
@@ -240,7 +241,7 @@ class CourseOffer(models.Model):
 class CourseEnrollment(models.Model):
     course_offer = models.ForeignKey(CourseOffer, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    is_complete = models.BooleanField(default=False)
+    non_credit = models.BooleanField(default=False)
     
     class Meta:
         unique_together = ['course_offer', 'student']
