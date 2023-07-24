@@ -417,4 +417,5 @@ const MarksControllerModal = ({ show, handleClose, marksheet, student, refresh, 
 
 
 export default Marksheet;
+export {Marksheet, MarksControllerModal};
 
