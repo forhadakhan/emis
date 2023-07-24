@@ -20,6 +20,8 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
     const [error, setError] = useState('');
     const [showComponent, setShowComponent] = useState('');
     const [students, setStudents] = useState([]);
+    const [status, setStatus] = useState(courseOffer.is_complete);
+    const [statusMessage, setStatusMessage] = useState('');
     const {
         id,
         semester,
@@ -28,6 +30,30 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
         capacity,
         is_complete
     } = courseOffer;
+
+
+    const updateStatus = (id, status) => {
+        setStatusMessage('');
+
+        const formData = {
+            is_complete: status,
+        }
+
+        axios.patch(`${API_BASE_URL}/academy/course-offers/${id}/`, formData, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+        })
+            .then(response => {
+                const data = response.data;
+                setStatus(formData.is_complete);
+                setStatusMessage("Successfully Updated");
+            })
+            .catch(error => {
+                setStatusMessage("Error updating status");
+                console.error('Error updating status', error);
+            });
+    };
 
 
     const fetchEnrolledStudents = () => {
@@ -89,7 +115,7 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
                         </span>
                         <span className="nav-link border text-center bg-white m-1">
                             <span className='d-block text-darkblue fw-light border-bottom'>Status</span>
-                            <span className='d-block text-darkblue fw-bold'>{is_complete ? 'Completed' : 'Running'}</span>
+                            <span className='d-block text-darkblue fw-bold'>{status ? 'Completed' : 'Running'}</span>
                         </span>
                         <span className="nav-link border text-center bg-white m-1 rounded-end">
                             <span className='d-block text-darkblue fw-light border-bottom'>Semester</span>
@@ -119,6 +145,8 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
                     <button
                         type="button"
                         class="btn btn-darkblue2 pt-1"
+                        onClick={() => { setShowComponent('EditStatus') }}
+                        disabled={showComponent === 'EditStatus'}
                     > Status
                     </button>
                     <button
@@ -141,6 +169,32 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
                 {renderComponent()}
             </div>
 
+            {/* status update  */}
+            {(showComponent === 'EditStatus') && <>
+                <div className="border border-3 p-4 rounded-4 bg-white">
+                    <h4 className="text-center">
+                        Current course status is: <span className='badge bg-beige text-darkblue mx-2'>{status ? 'Completed' : 'Running'}</span>
+                    </h4>
+
+                    <div className="d-flex">
+                        <button
+                            className="btn btn-darkblue2 pt-1 mx-auto my-3"
+                            onClick={() => { updateStatus(id, !status) }}
+                        >
+                            {status ? 'Mark as running' : 'Mark as completed'}
+                        </button>
+                    </div>
+
+                    {statusMessage && (
+                        <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                            <strong> {statusMessage} </strong>
+                            <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+                        </div>
+                    )}
+
+                </div>
+            </>}
+
         </div>
     );
 };
@@ -155,10 +209,14 @@ const EnrolledStudents = ({ courseOffer, students }) => {
         setFilteredData(students);
     }, [students]);
 
+    const handleCourseClick = (data) => {
+
+    }
+
 
     const columns = [
         {
-            name: 'ID and Name',
+            name: 'Name and ID',
             selector: (row) => `${row.user.first_name} ${row.user.middle_name} ${row.user.last_name} ${row.user.username} `,
             sortable: true,
             cell: (row) => (
@@ -181,19 +239,19 @@ const EnrolledStudents = ({ courseOffer, students }) => {
             ),
             width: '',
         },
-        {
-            name: 'Actions',
-            button: true,
-            cell: (row) => (
-                <button
-                    type="button"
-                    className="btn btn-sm btn-outline-dark me-2 border-0"
-                    onClick={() => handleCourseClick(row)}
-                >
-                    Details
-                </button>
-            ),
-        },
+        // {
+        //     name: 'Actions',
+        //     button: true,
+        //     cell: (row) => (
+        //         <button
+        //             type="button"
+        //             className="btn btn-sm btn-outline-dark me-2 border-0"
+        //             onClick={() => handleCourseClick(row)}
+        //         >
+        //             Details
+        //         </button>
+        //     ),
+        // },
     ];
 
     const customStyles = {
