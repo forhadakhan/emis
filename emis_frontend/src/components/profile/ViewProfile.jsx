@@ -162,6 +162,12 @@ const ViewProfile = ({ componentController, user, profile }) => {
                                     <p className='fs-5'>{enrollment.batch_section.name}</p>
                                 </div>
                             </div>
+                            <div className="row mt-2">
+                                <div className="col-md-6">
+                                    <h6 className='text-secondary fw-normal'>Semester:</h6>
+                                    <p className='fs-5'>{enrollment.semester.term.name} {enrollment.semester.year}</p>
+                                </div>
+                            </div>
 
                         </>}
 
