@@ -145,17 +145,21 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
         return prerequisitesStr;
     }
 
+    const prerequisiteStatus = (prerequisites) => {
+        return (prerequisites.length > 0) ? 'hasPrerequisites' : 'hasNoPrerequisites';
+    }
+
 
     const renderComponent = () => {
         switch (showComponent) {
             case 'CourseOfferList':
-                return <CourseOfferList hasPrerequisites={hasPrerequisites} courseOfferView={courseOfferView} />;
+                return <CourseOfferList hasPrerequisites={hasPrerequisites} prerequisiteStatus={prerequisiteStatus} courseOfferView={courseOfferView} />;
             case 'AddCourseOffer':
                 return <AddCourseOffer hasPrerequisites={hasPrerequisites} teachers={teachers} semesters={semesters} courses={courses} handleBack={handleBack} />;
             case 'CourseOfferDetail':
                 return <CourseOfferDetail hasPrerequisites={hasPrerequisites} teachers={teachers} semesters={semesters} courses={courses} handleBack={handleBack} courseOffer={courseOffer} />;
             default:
-                return <CourseOfferList hasPrerequisites={hasPrerequisites} courseOfferView={courseOfferView} />;
+                return <CourseOfferList hasPrerequisites={hasPrerequisites} prerequisiteStatus={prerequisiteStatus} courseOfferView={courseOfferView} />;
         }
     }
 
@@ -205,7 +209,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
 
 
 
-const CourseOfferList = ({ hasPrerequisites, courseOfferView }) => {
+const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView }) => {
     const accessToken = getAccessToken();
     const [courseOfferings, setCourseOfferings] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -328,17 +332,22 @@ const CourseOfferList = ({ hasPrerequisites, courseOfferView }) => {
         },
     };
 
+    const getSemesterStatus = (semester) => {
+        return semester.is_finished ? "Semester Finished" : "Semester Not Finished";
+    }
+
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = courseOfferings.filter(
             (cf) =>
-                hasPrerequisites(cf.course.prerequisites).toLowerCase().includes(keyword) ||
+                prerequisiteStatus(cf.course.prerequisites).toLowerCase().includes(keyword) ||
                 `${cf.semester.term.name} ${cf.semester.year}`.toLowerCase().includes(keyword) ||
                 `${cf.teacher.teacher.user.first_name} ${cf.teacher.teacher.user.middle_name} ${cf.teacher.teacher.user.last_name} (${cf.teacher.teacher.acronym})`.toLowerCase().includes(keyword) ||
                 `${cf.semester.term.start} to ${cf.semester.term.end}`.toLowerCase().includes(keyword) ||
                 `${cf.course.acronym} ${cf.course.code}`.toLowerCase().includes(keyword) ||
                 `Credit ${cf.course.credit}`.toLowerCase().includes(keyword) ||
-                cf.course.name.toLowerCase().includes(keyword)
+                cf.course.name.toLowerCase().includes(keyword) || 
+                getSemesterStatus(cf.semester).toLowerCase().includes(keyword) 
         );
         setFilteredData(filteredResults);
     };
@@ -360,8 +369,10 @@ const CourseOfferList = ({ hasPrerequisites, courseOfferView }) => {
                 </label>
                 <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
                     <option value="">No Filter</option>
-                    <option value="Yes">Has Prerequisites</option>
-                    <option value="No">No Prerequisites</option>
+                    <option value="hasPrerequisites">Has Prerequisites</option>
+                    <option value="hasNoPrerequisites">No Prerequisites</option>
+                    <option value="Semester Not Finished">Running Semesters</option>
+                    <option value="Semester Finished">Finished Semesters</option>
                     <option value="Lab">Lab Courses</option>
                 </select>
             </div>
