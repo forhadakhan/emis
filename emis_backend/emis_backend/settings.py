@@ -45,6 +45,7 @@ CUSTOM_APPS = [
     'email_handler',
     'miscellaneous',
     'academy',
+    'comments',
 ]
 INSTALLED_PACKAGES = [
     'rest_framework',
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',   
 ] + INSTALLED_PACKAGES + CUSTOM_APPS
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -240,6 +242,11 @@ SIMPLE_JWT = {
 
 
 FRONTEND_HOST_URL = os.getenv('FRONTEND_HOST_URL')
+# HOST_NAME = os.getenv('HOST_NAME')
+# HOST_IP = os.getenv('HOST_IP')
+
+# ALLOWED_HOSTS = [HOST_NAME, HOST_IP]
+
 CORS_ORIGIN_WHITELIST = [
     FRONTEND_HOST_URL,  # React frontend's URL
 ]
