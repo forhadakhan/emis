@@ -127,31 +127,31 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
 
             {/* action buttons */}
             <div className="my-4 d-flex justify-content-center">
-                <div class="btn-group gap-2" role="group" aria-label="Basic example">
+                <div className="btn-group gap-2" role="group" aria-label="Basic example">
                     <button
                         type="button"
-                        class="btn btn-darkblue2 pt-1"
+                        className="btn btn-darkblue2 pt-1"
                         onClick={() => { setShowComponent('EnrolledStudents') }}
                         disabled={showComponent === 'EnrolledStudents'}
                     > Students
                     </button>
                     <button
                         type="button"
-                        class="btn btn-darkblue2 pt-1"
+                        className="btn btn-darkblue2 pt-1"
                         onClick={() => { setShowComponent('Marksheet') }}
                         disabled={showComponent === 'Marksheet'}
                     > Marksheet
                     </button>
                     <button
                         type="button"
-                        class="btn btn-darkblue2 pt-1"
+                        className="btn btn-darkblue2 pt-1"
                         onClick={() => { setShowComponent('EditStatus') }}
                         disabled={showComponent === 'EditStatus'}
                     > Status
                     </button>
                     <button
                         type="button"
-                        class="btn btn-darkblue2 pt-1"
+                        className="btn btn-darkblue2 pt-1"
                     > Discussion
                     </button>
                 </div>
@@ -294,7 +294,7 @@ const EnrolledStudents = ({ courseOffer, students }) => {
         <div>
 
             <h1 className='text-center fs-4'>
-                <i class="bi bi-people"> </i>
+                <i className="bi bi-people"> </i>
                 Enrolled Students
             </h1>
             <p className='text-center'>
