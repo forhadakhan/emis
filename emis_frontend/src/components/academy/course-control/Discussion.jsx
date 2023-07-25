@@ -20,8 +20,17 @@ const Discussion = ({ courseOffer }) => {
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [commentSuccess, setCommentSuccess] = useState(false);
     const [newComment, setNewComment] = useState('');
+    const [existingComments, setExistingComments] = useState([]);
     const [isLatestFirst, setIsLatestFirst] = useState(true);
 
+    // Sort comments based on the sorting state
+    const sortedComments = existingComments.sort((a, b) => {
+        if (isLatestFirst) {
+            return new Date(b.created_at) - new Date(a.created_at);
+        } else {
+            return new Date(a.created_at) - new Date(b.created_at);
+        }
+    });
 
     // submit a new comment 
     const handleCommentSumbit = async () => {
@@ -46,16 +55,40 @@ const Discussion = ({ courseOffer }) => {
             setNewComment('');
             setRefresh(!refresh);
             setCommentSuccess(true);
-        
+
             // Set commentSuccess back to false after 3 seconds
             setTimeout(() => {
-              setCommentSuccess(false);
+                setCommentSuccess(false);
             }, 3000);
         } catch (error) {
             setError("Error posting comment")
             console.error('Error adding comment:', error);
         }
     };
+
+    // get existing comments
+    const fetchExistingComments = async () => {
+        try {
+            // Set the request headers with the access token
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await axios.get(`${API_BASE_URL}/academy/courseoffer/${courseOffer.id}/comments/`,
+                { headers }
+            );
+            const data = response.data;
+            setExistingComments(data);
+            if (data && (data < 1)) setShowCommentBox(true);
+
+        } catch (error) {
+            setError("Error fetching comments")
+            console.error('Error fetching comments:', error);
+        }
+    };
+    useEffect(() => {
+        fetchExistingComments();
+    }, [refresh]);
 
 
     return (<>
@@ -158,6 +191,29 @@ const Discussion = ({ courseOffer }) => {
 
                     </div>
                 </>}
+
+                {/* in case there are no comments, let the viewer know  */}
+                {(existingComments.length < 1) && <>
+                    <p className="text-center">
+                        No discussion found.
+                    </p>
+                </>}
+
+                {/* list all existing comments with sorting by posting time */}
+                {(existingComments.length > 0) && sortedComments.map(comment => (
+                    <div key={comment.id} className="border p-3 mb-3 rounded bg-white">
+                        <p className='text-secondary border-bottom pb-2'>
+                            <strong className='text-uppercase font-merriweather'>{`${comment.user.first_name} ${comment.user.last_name}`}</strong>
+
+                            <small className='px-2'>{comment.user.username}</small>
+                            <small className="badge bg-beige mx-1 text-darkblue text-capitalize">{comment.user.role}</small>
+                        </p>
+                        <p className='m-0 font-merriweather'>{comment.text}</p>
+                        <p className='text-sm-end m-0'>
+                            <small className='text-secondary'>{customDateFormat(comment.created_at)}</small>
+                        </p>
+                    </div>
+                ))}
 
             </div>
         </div>
