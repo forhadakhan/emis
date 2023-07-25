@@ -2,11 +2,13 @@
 
 from rest_framework import serializers
 from authentication.serializers import UserBriefSerializer
+from comments.serializers import CommentSerializer
 from rest_framework.generics import get_object_or_404
 from student.models import Student
 from student.serializers import StudentSerializer
 from teacher.serializers import TeacherSerializer
 from teacher.models import Teacher
+
 
 from .models import (
     Designation,
@@ -206,6 +208,7 @@ class CourseOfferNestedSerializer(serializers.ModelSerializer):
     semester = SemesterNestedSerializer(read_only=True)
     course = CourseSerializer(read_only=True)
     teacher = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True)
 
     def get_teacher(self, course_offer):
         teacher = course_offer.teacher
