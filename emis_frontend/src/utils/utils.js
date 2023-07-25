@@ -51,3 +51,19 @@ export const getOrdinal = (number) => {
 };
 
 
+export const customDateFormat = (dateString) => {
+    const localDate = new Date(dateString).toLocaleString()
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June', 'July',
+        'August', 'September', 'October', 'November', 'December'
+      ];
+    
+      const date = new Date(localDate);
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      const time = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+    
+      return `${day} ${month} ${year}, ${time}`;
+}
+  
