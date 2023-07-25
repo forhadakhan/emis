@@ -17,5 +17,6 @@ urlpatterns = [
     path('api/', include('miscellaneous.urls', namespace='miscellaneous')),
     path('api/core/', include('core.urls', namespace='core')),
     path('api/academy/', include('academy.urls', namespace='academy')),
+    path('api/', include('comments.urls', namespace='comments')),
 ]
 
