@@ -10,6 +10,8 @@ import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken, getEnrollmentData, getProfileData } from '../../utils/auth.js';
 
+import Discussion from './course-control/Discussion.jsx'
+
 
 const ManageStudentCourses = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
@@ -298,6 +300,7 @@ const CourseList = ({ courseView, enrolledCourses }) => {
 
 
 const CourseDetails = ({ courseOffer, handleBack }) => {
+    const [showComponent, setShowComponent] = useState('');
     const {
         id,
         semester,
@@ -306,6 +309,16 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
         capacity,
         is_complete
     } = courseOffer.course_offer;
+
+
+    const renderComponent = () => {
+        switch (showComponent) {
+            case 'Discussion':
+                return <Discussion courseOffer={courseOffer.course_offer} />
+            default:
+                return <></>
+        }
+    }
 
 
     return (
@@ -370,6 +383,25 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
                     <small className='d-block text-secondary fw-normal m-0 px-2'>{teacher.teacher.user.email}</small>
 
                 </div>
+            </div>
+
+            
+            {/* action buttons */}
+            <div className="my-4 d-flex justify-content-center font-merriweather">
+                <div className="btn-group gap-2" role="group" aria-label="Basic example">
+                    <button
+                        type="button"
+                        className="btn btn-darkblue2 pt-1"
+                        onClick={() => { setShowComponent('Discussion') }}
+                        disabled={showComponent === 'Discussion'}
+                    > Discussion
+                    </button>
+                </div>
+            </div>
+
+            
+            <div className='my-5'>
+                {renderComponent()}
             </div>
 
         </div>
