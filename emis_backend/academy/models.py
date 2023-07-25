@@ -2,12 +2,16 @@
 
 from django.db import models
 from django.apps import AppConfig
+from django.contrib.contenttypes.fields import GenericRelation  
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from authentication.models import User
+from comments.models import Comment
 from teacher.models import Teacher
 from student.models import Student
 from academy.validators import Marksheet as ms 
+
+
 
 #####################################################################
 ##################### Designation:
@@ -226,6 +230,7 @@ class CourseOffer(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
     capacity = models.PositiveIntegerField(default=0)
     is_complete = models.BooleanField(default=False)
+    comments = GenericRelation(Comment)  # This sets up the reverse relationship with comments
     
     class Meta:
         unique_together = ['semester', 'course', 'teacher']
