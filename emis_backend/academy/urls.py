@@ -33,6 +33,7 @@ from .views import (
     StudentEnrolledCoursesAPIView,
     StudentsInCourseOfferView,
     MarksheetListByCourseOffer,
+    CourseOfferCommentsView,
 )
 
 router = DefaultRouter()
@@ -76,6 +77,7 @@ urlpatterns = [
     path('student/<int:student_id>/enrollments/', StudentEnrolledCoursesAPIView.as_view(), name='student_enrollments'),
     path('course_offer/<int:course_offer_id>/students/', StudentsInCourseOfferView.as_view(), name='students_in_course_offer'),
     path('course-offer/marksheets/<int:course_offer_id>/', MarksheetListByCourseOffer.as_view(), name='marksheet-list-by-course-offer'),
+    path('courseoffer/<int:course_offer_id>/comments/', CourseOfferCommentsView.as_view(), name='course_offer_discussion_comment'),
     path('', include(router.urls)),
 ]
 
