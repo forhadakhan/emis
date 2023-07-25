@@ -13,6 +13,7 @@ import API_BASE_URL from '../../../utils/config.js';
 import { getAccessToken } from '../../../utils/auth.js';
 
 import Marksheet from '../MarksheetController.jsx';
+import Discussion from './Discussion.jsx';
 
 
 const CourseDetails = ({ courseOffer, handleBack }) => {
@@ -83,6 +84,8 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
                 return <EnrolledStudents courseOffer={courseOffer} students={students} />
             case 'Marksheet':
                 return <Marksheet courseOffer={courseOffer} students={students} />
+            case 'Discussion':
+                return <Discussion courseOffer={courseOffer} />
             default:
                 return <></>
         }
@@ -90,14 +93,14 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
 
 
     return (
-        <div className="mt-4 font-merriweather">
+        <div className="mt-4">
 
             <a className="icon-link icon-link-hover mb-2" href="#" onClick={handleBack}>
                 <small><i className="bi bi-arrow-bar-left"></i> Goto List</small>
             </a>
 
             {/* course info */}
-            <div className="course-border-beige content-sm-85">
+            <div className="course-border-beige content-sm-85 font-merriweather">
                 <div className="">
                     <h4 className="card-title text-center fw-bolder">{course.name}</h4>
                     <nav className="nav m-3 d-flex justify-content-center mx-sm-0">
@@ -126,7 +129,7 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
             </div>
 
             {/* action buttons */}
-            <div className="my-4 d-flex justify-content-center">
+            <div className="my-4 d-flex justify-content-center font-merriweather">
                 <div className="btn-group gap-2" role="group" aria-label="Basic example">
                     <button
                         type="button"
@@ -152,6 +155,8 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
                     <button
                         type="button"
                         className="btn btn-darkblue2 pt-1"
+                        onClick={() => { setShowComponent('Discussion') }}
+                        disabled={showComponent === 'Discussion'}
                     > Discussion
                     </button>
                 </div>
@@ -171,7 +176,7 @@ const CourseDetails = ({ courseOffer, handleBack }) => {
 
             {/* status update  */}
             {(showComponent === 'EditStatus') && <>
-                <div className="border border-3 p-4 rounded-4 bg-white">
+                <div className="border border-3 p-4 rounded-4 bg-white font-merriweather">
                     <h4 className="text-center">
                         Current course status is: <span className='badge bg-beige text-darkblue mx-2'>{status ? 'Completed' : 'Running'}</span>
                     </h4>
@@ -291,7 +296,7 @@ const EnrolledStudents = ({ courseOffer, students }) => {
 
 
     return (
-        <div>
+        <div className=' font-merriweather'>
 
             <h1 className='text-center fs-4'>
                 <i className="bi bi-people"> </i>
