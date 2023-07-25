@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from authentication.models import User
-from academy.models import CourseOffer 
 
 
 class Comment(models.Model):
