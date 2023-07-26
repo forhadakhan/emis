@@ -77,6 +77,7 @@ const ManageSemesters = ({ setActiveComponent, breadcrumb }) => {
 
     }, []);
 
+    // get details component when a semester is selected from list 
     const semesterDetail = (semester) => {
         setSelectedSemester(semester);
         setShowComponent('SemesterDetails')
@@ -157,12 +158,13 @@ const AddSemester = ({ programs, termChoices }) => {
     const [formData, setFormData] = useState(form);
     const [selectedPrograms, setSelectedPrograms] = useState([]);
 
+    // only keep IDs of selected programs in formData 
     useEffect(() => {
         const programIds = selectedPrograms.map(program => program.id);
         setFormData({ ...formData, programs: programIds });
     }, [selectedPrograms])
 
-
+    // select program(s)
     const handleProgramSelect = (e) => {
         const programId = e.target.value;
         const selectedProgram = programs.find(permission => permission.id === parseInt(programId));
@@ -177,13 +179,14 @@ const AddSemester = ({ programs, termChoices }) => {
         });
     };
 
+    // remove a selected program 
     const handleProgramRemove = (programId) => {
         setSelectedPrograms(prevPrograms => (
             prevPrograms.filter(program => program.id !== programId)
         ));
     }
 
-
+    // select all available programs 
     const handleAllSelect = () => {
         // Check if all programs are already selected
         const allSelected = programs.every(program => selectedPrograms.some(selected => selected.id === program.id));
@@ -398,6 +401,7 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
         setFilteredData(semesters);
     }, [semesters]);
 
+    // get semesters through api 
     const fetchSemesters = async () => {
         const config = {
             headers: {
@@ -414,10 +418,12 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
         }
     };
 
+    // handle details action click 
     const handleSemesterClick = (semester) => {
         semesterDetail(semester);
     };
 
+    // get term name by id 
     const getTerm = (id) => {
         const term = termChoices.find(trem => trem.id === id);
 
@@ -426,7 +432,7 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
         return ''; // Return null if no data with the given ID is found
     }
 
-
+    // set data table columns
     const columns = [
         {
             name: 'Term',
@@ -468,6 +474,7 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
         },
     ];
 
+    // define data table column styles 
     const customStyles = {
         rows: {
             style: {
@@ -494,6 +501,7 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
         },
     };
 
+    // manage search input/keywords 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = semesters.filter(
@@ -511,6 +519,8 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
 
     return (
         <div>
+
+            {/* show error message  */}
             {error && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -519,6 +529,7 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
                 </div>
             )}
 
+            {/* filter section  */}
             <div className="mb-3 me-5 input-group">
                 <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
                     Filter:
@@ -532,15 +543,17 @@ const SemesterList = ({ semesterDetail, programs, termChoices }) => {
                 </select>
             </div>
 
+            {/* search input field  */}
             <div className="m-5">
                 <input
                     type="text"
-                    placeholder="Search with any field e.g. availability/duration ..."
+                    placeholder="Search ..."
                     onChange={handleSearch}
                     className="form-control text-center border border-darkblue"
                 />
             </div>
 
+            {/* load list or data table here  */}
             <div className="rounded-4">
                 <DataTable
                     columns={columns}
@@ -569,6 +582,7 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
     const [selectedPrograms, setSelectedPrograms] = useState([]);
 
 
+    // set semester data when this component mounts/loads 
     useEffect(() => {
         // Filter out programs based on IDs from semester.programs
         const filteredPrograms = programs.filter(program => semester.programs.includes(program.id));
@@ -576,11 +590,13 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
         setSelectedPrograms(filteredPrograms);
     }, [])
 
+    // keep only IDs of program in formData 
     useEffect(() => {
         const programIds = selectedPrograms.map(program => program.id);
         setFormData({ ...formData, programs: programIds });
     }, [selectedPrograms])
 
+    // select a program
     const handleProgramSelect = (e) => {
         const programId = e.target.value;
         const selectedProgram = programs.find(permission => permission.id === parseInt(programId));
@@ -595,13 +611,14 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
         });
     };
 
+    // remove a selected program 
     const handleProgramRemove = (programId) => {
         setSelectedPrograms(prevPrograms => (
             prevPrograms.filter(program => program.id !== programId)
         ));
     }
 
-
+    // select all available programs 
     const handleAllSelect = () => {
         // Check if all programs are already selected
         const allSelected = programs.every(program => selectedPrograms.some(selected => selected.id === program.id));
@@ -612,12 +629,13 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
         }
     };
 
-
+    // toggle open status 
     const setIsOpen = () => {
         let open = formData.is_open;
         setFormData({ ...formData, is_open: !open });
     }
 
+    // toggle finish status 
     const setFinished = () => {
         let finished = formData.is_finished;
         setFormData({ ...formData, is_finished: !finished });
@@ -635,12 +653,14 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
     };
 
 
+    // enable or disable form inputs 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
         setSuccessMessage('');
         setFailedMessage('');
     };
 
+    // update request handler 
     const handleUpdate = async () => {
         setSuccessMessage('');
         setFailedMessage('');
@@ -669,6 +689,7 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
         }
     };
 
+    // delete request handler 
     const handleDelete = async () => {
         const config = {
             headers: {
@@ -687,25 +708,34 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
         }
     };
 
+
     return (
         <div className='mb-5 pb-5'>
+            
+            {/* headings  */}
             <h2 className='text-center font-merriweather'>
                 <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Semester Detail</span>
             </h2>
+
+            {/* edit or delete buttons  */}
             <div className='d-flex'>
                 <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
                 <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
             </div>
+            
+            {/* delete confirmation  */}
             {isDelete &&
                 <div className="container d-flex align-items-center justify-content-center">
                     <div className="alert alert-info" role="alert">
                         <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
-                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this user?</h6>
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this semester?</h6>
                             <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
                             <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
                         </div>
                     </div>
                 </div>}
+                
+            {/* api request success response message  */}
             {successMessage && (
                 <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-check-circle-fill"> </i>
@@ -713,6 +743,8 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
                 </div>
             )}
+            
+            {/* api request fail response message  */}
             {failedMessage && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -720,6 +752,8 @@ const SemesterDetail = ({ semester, programs, termChoices }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
                 </div>
             )}
+
+            {/* semester data form  */}
             <form>
                 <div className='row'>
                     <div className=" col-sm-12 col-md-8 my-2  mx-auto">
