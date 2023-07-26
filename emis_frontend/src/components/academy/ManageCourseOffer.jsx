@@ -222,14 +222,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
     const [error, setError] = useState('');
 
 
-    useEffect(() => {
-        fetchCourseOfferings();
-    }, []);
-
-    useEffect(() => {
-        setFilteredData(courseOfferings);
-    }, [courseOfferings]);
-
+    // get all existing course offerings through api 
     const fetchCourseOfferings = async () => {
         const config = {
             headers: {
@@ -245,18 +238,32 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
             console.error('Error fetching course offerings:', error);
         }
     };
+    useEffect(() => {
+        fetchCourseOfferings();
+    }, []);
 
 
+    // Filtered data used for searching feature, initially set all courses to filteredData 
+    useEffect(() => {
+        setFilteredData(courseOfferings);
+    }, [courseOfferings]);
+
+
+    // show details when a course offering is selected 
     const handleCourseClick = (course) => {
         courseOfferView(course);
     };
 
+
+    // get teacher designations and departments 
     const getTeacherEnrollment = (data) => {
         const teacherDesignations = data.teacher.designations.map(designation => designation.name).join(', ');
         const teacherDepartments = data.teacher.departments.map(department => department.acronym).join(', ');
         return `${teacherDesignations} (${teacherDepartments})`
     }
 
+
+    // set course offer list or datatable column data 
     const columns = [
         {
             name: 'Semester',
@@ -268,7 +275,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
                     <small>{row.semester.term.start} to {row.semester.term.end}</small>
                 </div>
             ),
-            width: '15%',
+            width: '16%',
         },
         {
             name: 'Course',
@@ -313,6 +320,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
         },
     ];
 
+    // define offer list or datatable column styles  
     const customStyles = {
         rows: {
             style: {
@@ -338,10 +346,12 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
         },
     };
 
+
     const getSemesterStatus = (semester) => {
         return semester.is_finished ? "Semester Finished" : "Semester Not Finished";
     }
 
+    // handle course offer search 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = courseOfferings.filter(
@@ -361,6 +371,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
 
     return (
         <div>
+            {/* show api request error response  */}
             {error && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -369,6 +380,8 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
                 </div>
             )}
 
+
+            {/* course offerings filter options   */}
             <div className="mb-3 me-5 input-group">
                 <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
                     Filter:
@@ -383,6 +396,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
                 </select>
             </div>
 
+            {/* search input field  */}
             <div className="my-5 mx-md-5">
                 <input
                     type="text"
@@ -392,6 +406,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
                 />
             </div>
 
+            {/* show course offers list using Datatable  */}
             <div className="rounded-4">
                 <DataTable
                     columns={columns}
@@ -532,6 +547,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
     const [capacity, setCapacity] = useState('');
 
     
+    // get all existing course offerings through api 
     const fetchCourseOffer = async (courseOfferId) => {
         const config = {
             headers: {
@@ -553,17 +569,22 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
     }, [isDetail])
 
 
+    // set course options data for select (pkg: react-select)
     const courseOptions = courses.map(course => ({
         value: course.id,
         label: `${course.code}: ${course.name}`
     }));
 
+    
+    // set semester options data for select (pkg: react-select)
     const semestermOptions = semesters.map(semester => ({
         value: semester.id,
         isDisabled: !semester.is_open,
         label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})`
     }));
 
+    
+    // set teacher options data for select (pkg: react-select)
     const teacherOptions = teachers.map(enrollment => ({
         value: enrollment.teacher.id,
         label: `${enrollment.teacher.user.first_name} ${enrollment.teacher.user.middle_name} ${enrollment.teacher.user.last_name} (${enrollment.teacher.acronym})`
@@ -620,6 +641,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
     }
 
 
+    // get teacher name, designations, and departments in an object 
     const teacherDetail = (selectedTeacher) => {
         // enrolled teacher data
         const enrollment = teachers.find((enrollment) => enrollment.teacher.id === selectedTeacher.value);
@@ -634,6 +656,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         return data;
     }
 
+    // get teacher name, designations, and departments in a div 
     const getTeacherDetail = (selectedTeacher) => {
         if (!selectedTeacher) return;
         const data = teacherDetail(selectedTeacher);
@@ -646,7 +669,9 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
             </div>
         </>;
     }
+    
 
+    // get prerequisites data in a div  
     const getPrerequisites = (selectedCourse) => {
         if (!selectedCourse) return;
         const course = courses.find((course) => course.id === selectedCourse.value)
@@ -660,6 +685,8 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         </>;
     }
 
+
+    // handle a semester select 
     const handleSemesterChange = (selectedOption) => {
         setSelectedSemester(selectedOption);
         if (parseInt(selectedOption.value)) {
@@ -667,6 +694,8 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     };
 
+
+    // handle a semester select 
     const handleCourseChange = (selectedOption) => {
         setSelectedCourse(selectedOption);
         if (parseInt(selectedOption.value)) {
@@ -674,6 +703,8 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     }
 
+    
+    // handle a teacher select 
     const handleTeacherChange = (selectedOption) => {
         setSelectedTeacher(selectedOption);
         if (parseInt(selectedOption.value)) {
@@ -681,11 +712,15 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     }
 
+    
+    // handle capacity input 
     const handleCapacityChange = (e) => {
         setCapacity(e.target.value)
         setFormData({ ...formData, capacity: e.target.value });
     }
 
+    
+    // submit data through api to add/modify a course offer 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setAlertMessage('');
@@ -728,10 +763,8 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     };
 
-    const handleModalClose = () => {
-        setShowSuccessModal(false)
-    }
 
+    // send request through api to delete a course offer from the system 
     const handleDelete = async () => {
         const config = {
             headers: {
@@ -749,14 +782,22 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     };
 
+    
+    const handleModalClose = () => {
+        setShowSuccessModal(false)
+    }
+
 
     return (
         <div className="">
 
+            {/* course offer list link  */}
             <a className="icon-link icon-link-hover" href="#" onClick={handleBack}>
                 <i className="bi bi-arrow-bar-left"></i> Goto List
             </a>
 
+
+            {/* course offer form  */}
             <form className='mb-5' onSubmit={handleSubmit}>
                 <h4 className='text-center m-5'>
                     <span className='badge bg-white text-secondary border p-2 fw-normal'>
@@ -880,9 +921,12 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
                 </div>
             </form>
 
+
+            {/* reset form button  */}
             <button className="btn btn-sm border btn-dark d-flex mx-auto" onClick={resetData} type='button'> Reset </button>
 
 
+            {/* if submission was successful, let the user know  */}
             {showSuccessModal && (
                 <div className="bg-blur">
                     <div className={`modal ${showSuccessModal ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: showSuccessModal ? 'block' : 'none' }}>
