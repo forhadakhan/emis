@@ -81,6 +81,7 @@ const ManageCourses = ({ setActiveComponent, breadcrumb }) => {
     }, []);
 
 
+    // show details when a course is selected from list 
     const courseDetail = (course) => {
         setSelectedCourse(course);
         setShowComponent('CourseDetails')
@@ -168,41 +169,46 @@ const AddCourse = ({ courses, programs, reloadCourses }) => {
     const [selectedPrograms, setSelectedPrograms] = useState([]);
 
 
+    // structure program options for select (pkg: react-select)
     const programOptions = programs.map(program => ({
         value: program.id,
         label: `${program.acronym} ${program.code} - ${program.name}`
     }));
 
+    // structure course options for select (pkg: react-select)
     const courseOptions = courses.map(course => ({
         value: course.id,
         label: `${course.acronym} ${course.code} - ${course.name}`
     }));
 
-
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-
+    
+    // handle program select 
     const handleProgramChange = (selectedOptions) => {
         setSelectedPrograms(selectedOptions);
         const programIds = selectedOptions.map(program => program.value);
         setFormData({ ...formData, programs: programIds });
     };
 
+    // handle course select 
     const handleCourseChange = (selectedOptions) => {
         setSelectedCourses(selectedOptions);
         const courseIds = selectedOptions.map(course => course.value);
         setFormData({ ...formData, prerequisites: courseIds });
     };
 
+    // handle other inputs 
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
+    // reset form to initial data 
     const resetForm = () => {
         setFormData(form);
         setSelectedCourses([]);
         setSelectedPrograms([]);
     }
 
+    // submit data to api to create a new course
     const handleSubmit = async (e) => {
         e.preventDefault();
         const config = {
@@ -246,6 +252,7 @@ const AddCourse = ({ courses, programs, reloadCourses }) => {
         }
     };
 
+    // update newly added course in select input for Prerequisites 
     const reloadPrerequisites = (
         <>
             <button type='button' className='btn btn-light text-secondary d-inline p-0 px-1 m-1' onClick={reloadCourses}>
@@ -268,6 +275,8 @@ const AddCourse = ({ courses, programs, reloadCourses }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setMessage('')}></button>
                 </div>
             )}
+
+            {/* show api error response  */}
             {error && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -277,6 +286,8 @@ const AddCourse = ({ courses, programs, reloadCourses }) => {
             )}
 
             <div className="d-flex">
+
+                {/* course form  */}
                 <form onSubmit={handleSubmit}>
                     <div className='row'>
                         <div className=" col-sm-12 col-md-8 my-2  mx-auto">
@@ -355,19 +366,13 @@ const AddCourse = ({ courses, programs, reloadCourses }) => {
 
 const CourseList = ({ courseDetail }) => {
     const accessToken = getAccessToken();
-    const [programs, setPrograms] = useState([]);
+    const [courses, setCourses] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchPrograms();
-    }, []);
 
-    useEffect(() => {
-        setFilteredData(programs);
-    }, [programs]);
-
-    const fetchPrograms = async () => {
+    // get existing courses from api 
+    const fetchCourses = async () => {
         const config = {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -376,21 +381,36 @@ const CourseList = ({ courseDetail }) => {
         };
         try {
             const response = await axios.get(`${API_BASE_URL}/academy/courses/`, config);
-            setPrograms(response.data);
+            setCourses(response.data);
         } catch (error) {
             setError(' Failed to fetch courses list.');
             console.error('Error fetching courses:', error);
         }
     };
+    useEffect(() => {
+        fetchCourses();
+    }, []);
 
+
+    // set all courses as initial filtered data, used for searching  
+    useEffect(() => {
+        setFilteredData(courses);
+    }, [courses]);
+
+
+    // show details when a course is selected 
     const handleCourseClick = (course) => {
         courseDetail(course);
     };
 
+
+    // check if there prerequisites 
     const hasPrerequisites = (prerequisites) => {
         return (prerequisites.length > 0) ? 'Yes' : 'No';
     }
 
+
+    // set course list or data table column data  
     const columns = [
         {
             name: 'Code',
@@ -428,6 +448,7 @@ const CourseList = ({ courseDetail }) => {
         },
     ];
 
+    // define data table column styles 
     const customStyles = {
         rows: {
             style: {
@@ -454,9 +475,11 @@ const CourseList = ({ courseDetail }) => {
         },
     };
 
+
+    // handle course search 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
-        const filteredResults = programs.filter(
+        const filteredResults = courses.filter(
             (course) =>
                 hasPrerequisites(course.prerequisites).toLowerCase().includes(keyword) ||
                 course.name.toLowerCase().includes(keyword) ||
@@ -468,6 +491,7 @@ const CourseList = ({ courseDetail }) => {
     };
 
 
+    // get and memorize all courses, use in export pdf for efficiency 
     const tableData = useMemo(() => {
         // Sort the filteredData by `${course.acronym} - ${course.code}`. using "comparator-based sorting" 
         const sortedData = [...filteredData].sort((a, b) => {
@@ -490,7 +514,7 @@ const CourseList = ({ courseDetail }) => {
         ]);
     }, [filteredData]);
 
-
+    // export courses as PDF using jsPDF 
     const exportPDF = () => {
         const doc = new jsPDF();
 
@@ -606,11 +630,13 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
     const [selectedPrograms, setSelectedPrograms] = useState([]);
 
 
+    // structure program options for select (pkg: react-select)
     const programOptions = programs.map(program => ({
         value: program.id,
         label: `${program.acronym} ${program.code} - ${program.name}`
     }));
 
+    // structure course options for select (pkg: react-select)
     const courseOptions = courses.map(c => ({
         value: c.id,
         label: `${c.acronym} ${c.code} - ${c.name}`,
@@ -618,6 +644,7 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
     }));
 
 
+    // set initial course details on load 
     const setDetails = () => {
         // Set details from ids of prerequisite courses and related programs of the selected course. 
 
@@ -627,38 +654,44 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
         const filteredPrograms = programOptions.filter(programOption => viewCourse.programs.includes(programOption.value));
         setSelectedPrograms(filteredPrograms);
     }
+    useEffect(() => {
+        setDetails();
+    }, [])
 
+    // reset to initials data
     const resetForm = () => {
         setFormData(viewCourse);
         setDetails();
     }
 
-    useEffect(() => {
-        setDetails();
-    }, [])
 
-    const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
+    // handle program select 
     const handleProgramChange = (selectedOptions) => {
         setSelectedPrograms(selectedOptions);
         const programIds = selectedOptions.map(program => program.value);
         setFormData({ ...formData, programs: programIds });
     };
 
+    // handle course select 
     const handleCourseChange = (selectedOptions) => {
         setSelectedCourses(selectedOptions);
         const courseIds = selectedOptions.map(course => course.value);
         setFormData({ ...formData, prerequisites: courseIds });
     };
 
+    // handle other inputs 
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    // enable or disable form inputs 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
         setSuccessMessage('');
         setFailedMessage('');
     };
 
+    // update request handler, communicate with api 
     const handleUpdate = async () => {
         setSuccessMessage('');
         setFailedMessage('');
@@ -683,7 +716,8 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
             console.error('Error updating course:', error);
         }
     };
-
+    
+    // delete request handler, communicate with api 
     const handleDelete = async () => {
         const config = {
             headers: {
@@ -706,23 +740,31 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
 
     return (
         <div className='mb-5 pb-5'>
+
+            {/* headings  */}
             <h2 className='text-center font-merriweather'>
                 <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Course Detail</span>
             </h2>
+
+            {/* edit or delete buttons  */}
             <div className='d-flex'>
                 <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
                 <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
             </div>
+
+            {/* delete confirmation  */}
             {isDelete &&
                 <div className="container d-flex align-items-center justify-content-center">
                     <div className="alert alert-info" role="alert">
                         <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
-                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this user?</h6>
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this course?</h6>
                             <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
                             <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
                         </div>
                     </div>
                 </div>}
+
+            {/* api request success response message  */}
             {successMessage && (
                 <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-check-circle-fill"> </i>
@@ -730,6 +772,8 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
                 </div>
             )}
+
+            {/* api request fail response message  */}
             {failedMessage && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -738,7 +782,7 @@ const CourseDetail = ({ viewCourse, programs, courses }) => {
                 </div>
             )}
 
-
+            {/* course form  */}
             <form>
                 <div className='row'>
                     <div className=" col-sm-12 col-md-8 my-2  mx-auto">
