@@ -7,7 +7,7 @@
 
 
 import React, { useEffect, useState, useRef } from 'react';
-import { getAccessToken, getUserId } from '../../../utils/auth';
+import { getAccessToken, getUserId, getUserRole } from '../../../utils/auth';
 import { customDateFormat } from '../../../utils/utils';
 import API_BASE_URL from '../../../utils/config';
 import axios from 'axios';
@@ -17,6 +17,8 @@ import * as Popper from "@popperjs/core" // needed for dropdown
 const Discussion = ({ courseOffer }) => {
     const accessToken = getAccessToken();
     const loggedUserId = getUserId();
+    const loggedUserRole = getUserRole();
+    const isAdmin = (loggedUserRole === 'administrator');
     const [error, setError] = useState('');
     const [updateError, setUpdateError] = useState('');
     const [deleteError, setDeleteError] = useState('');
@@ -314,7 +316,7 @@ const Discussion = ({ courseOffer }) => {
                             </p>
 
                             {/* dropdown for edit and delete  */}
-                            {(loggedUserId === comment.user.id) && <>
+                            {(isAdmin || (loggedUserId === comment.user.id)) && <>
                                 <div className="ms-auto">
                                     <div className="dropdown">
                                         <button
