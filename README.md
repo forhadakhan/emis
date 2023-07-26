@@ -1,7 +1,8 @@
-<!-- PROJECT LOGO -->
+
 <p align="center">
+	<!-- PROJECT LOGO -->
   <a href="https://github.com/forhadakhan/emis">
-    <img src="https://i.postimg.cc/7ZdXzGj1/emis-256x256.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/forhadakhan/emis/assets/67508944/7a172714-3e12-43af-97a5-cd3456b3b966" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">EMIS</h3>
@@ -58,3 +59,13 @@ The 'Education Management Information System' revolutionizes educational institu
 ## License
 
 [MIT License](./LICENSE) © 2023 [Forhad Khan](https://github.com/forhadakhan/)
+
+
+
+
+
+<!-- 
+	
+	<img src="https://i.postimg.cc/7ZdXzGj1/emis-256x256.png" alt="Logo" width="80" height="80"> 
+	
+-->
