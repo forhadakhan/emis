@@ -384,34 +384,34 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
         programDetail(program);
     };
 
-    const getDept = (id) => {
-        const filteredDepartments = departments.filter(department => department.id === id);
+    // IN CASE WE ARE NOT RECEIVEING NESTED DATA, USE THIS 
+    // const getDept = (id) => {
+    //     const filteredDepartments = departments.filter(department => department.id === id);
+    //     if (filteredDepartments.length > 0) {
+    //         const department = filteredDepartments[0];
+    //         const { acronym, code } = department;
+    //         return `${acronym}`;
+    //     }
 
-        if (filteredDepartments.length > 0) {
-            const department = filteredDepartments[0];
-            const { acronym, code } = department;
-            return `${acronym}`;
-        }
+    //     return ''; // Return null if no data with the given ID is found
+    // }
 
-        return ''; // Return null if no data with the given ID is found
-    }
+    // IN CASE WE ARE NOT RECEIVEING NESTED DATA, USE THIS 
+    // const getDegree = (id) => {
+    //     const filteredDegrees = degreeTypes.filter(degreeType => degreeType.id === id);
+    //     if (filteredDegrees.length > 0) {
+    //         const degreeType = filteredDegrees[0];
+    //         const { acronym, code } = degreeType;
+    //         return `${acronym}`;
+    //     }
 
-    const getDegree = (id) => {
-        const filteredDegrees = degreeTypes.filter(degreeType => degreeType.id === id);
-
-        if (filteredDegrees.length > 0) {
-            const degreeType = filteredDegrees[0];
-            const { acronym, code } = degreeType;
-            return `${acronym}`;
-        }
-
-        return ''; // Return empty str if no data with the given ID is found
-    }
+    //     return ''; // Return empty str if no data with the given ID is found
+    // }
 
     const columns = [
         {
             name: 'Program',
-            selector: (row) => `${row.code} - ${getDegree(row.degree_type)} in ${row.acronym}`,
+            selector: (row) => `${row.code} - ${row.degree_type.acronym} in ${row.acronym}`,
             sortable: true,
         },
         {
@@ -421,7 +421,7 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
         },
         {
             name: 'Department',
-            selector: (row) => getDept(row.department),
+            selector: (row) => `${row.department.acronym} - ${row.department.code}`,
             sortable: true,
         },
         {
@@ -469,8 +469,9 @@ const ProgramList = ({ programDetail, departments, degreeTypes }) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = programs.filter(
             (program) =>
-                getDept(program.department).toLowerCase().includes(keyword) ||
-                getDegree(program.degree_type).toLowerCase().includes(keyword) ||
+                program.department.acronym.toLowerCase().includes(keyword) ||
+                `${program.department.acronym} - ${program.department.code}`.toLowerCase().includes(keyword) ||
+                program.degree_type.acronym.toLowerCase().includes(keyword) ||
                 program.name.toLowerCase().includes(keyword) ||
                 program.acronym.toLowerCase().includes(keyword) ||
                 program.duration.toLowerCase().includes(keyword) ||
@@ -526,6 +527,7 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [failedMessage, setFailedMessage] = useState('');
 
+    // set program data when this component mounts/loads 
     useEffect(() => {
         setFormData({ 
             ...program, 
@@ -538,6 +540,7 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // enable or disable program form inputs 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
         setSuccessMessage('');
@@ -589,23 +592,31 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
 
     return (
         <div className='mb-5 pb-5'>
+
+            {/* headings  */}
             <h2 className='text-center font-merriweather'>
                 <span className="badge bg-white p-2 fw-normal text-secondary fs-6 border border-beige">Program Detail</span>
             </h2>
+
+            {/* edit or delete buttons  */}
             <div className='d-flex'>
                 <button type="button" disabled={deactive} className="btn btn-darkblue2 ms-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={handleEditToggle}><i className='bi bi-pen'></i></button>
                 <button type="button" disabled={deactive} className="btn btn-danger me-auto rounded-circle p-3 mb-3 mx-1 lh-1" onClick={() => setIsDelete(!isDelete)}><i className='bi bi-trash'></i></button>
             </div>
+
+            {/* delete confirmation  */}
             {isDelete &&
                 <div className="container d-flex align-items-center justify-content-center">
                     <div className="alert alert-info" role="alert">
                         <div className="btn-group text-center mx-auto" role="group" aria-label="Basic outlined example">
-                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this user?</h6>
+                            <h6 className='text-center me-4 my-auto'>Are  you sure to DELETE this program?</h6>
                             <button type="button" className="btn btn-danger" onClick={handleDelete}> Yes </button>
                             <button type="button" className="btn btn-success ms-2" onClick={() => setIsDelete(!isDelete)}> No </button>
                         </div>
                     </div>
                 </div>}
+
+            {/* api request success response message  */}
             {successMessage && (
                 <div className={`alert alert-success alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-check-circle-fill"> </i>
@@ -613,6 +624,8 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setSuccessMessage('')}></button>
                 </div>
             )}
+
+            {/* api request fail response message  */}
             {failedMessage && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -620,6 +633,8 @@ const ProgramDetail = ({ program, departments, degreeTypes }) => {
                     <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setFailedMessage('')}></button>
                 </div>
             )}
+
+            {/* program data form  */}
             <form>
                 <div className=" col-sm-12 col-md-8 my-2  mx-auto">
                     <label className="text-secondary py-1">Name:</label>
