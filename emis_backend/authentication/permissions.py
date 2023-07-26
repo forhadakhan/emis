@@ -64,14 +64,17 @@ class IsAdministratorOrStaff(BasePermission):
 
 class IsAdministratorOrStaffOrReadOnly(BasePermission):
     def has_permission(self, request, view):
+        # Allow safe methods (GET, HEAD, OPTIONS) for all users, even if not authenticated
+        if request.method in SAFE_METHODS:
+            return True
+
         # Check if the user is authenticated
         is_authenticated = IsAuthenticated().has_permission(request, view)
         if is_authenticated and request.user.role:
             # Check if the user's role is 'administrator' or 'staff'
-            return (request.user.role == 'administrator') or (request.user.role == 'staff')
-            
-        # Allow safe methods (GET, HEAD, OPTIONS) for all users, even if not authenticated
-        return request.method in SAFE_METHODS
+            return request.user.role in ['administrator', 'staff']
+
+        return False  # Deny the unsafe methods for unauthenticated users or users without 'administrator'/'staff' role
 
 
 
