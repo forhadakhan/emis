@@ -18,6 +18,7 @@ const Discussion = ({ courseOffer }) => {
     const accessToken = getAccessToken();
     const loggedUserId = getUserId();
     const [error, setError] = useState('');
+    const [updateError, setUpdateError] = useState('');
     const [refresh, setRefresh] = useState(true);
     const [editMyComment, setEditMyComment] = useState(false);
     const [showCommentBox, setShowCommentBox] = useState(false);
@@ -118,6 +119,38 @@ const Discussion = ({ courseOffer }) => {
     }, [refresh]);
 
 
+    // update a comment 
+    const handleCommentUpdate = async (id) => {
+        setUpdateError('');
+        try {
+            // Set the request headers with the access token
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const data = {
+                text: text,
+            };
+
+            const response = await axios.patch(`${API_BASE_URL}/comments/${id}/`,
+                data,
+                { headers }
+            );
+
+            // console.log(response.data);
+
+            // Clear the input field after successful submission
+            setText('');
+            setRefresh(!refresh);
+            setEditMyComment(false);
+
+        } catch (error) {
+            setUpdateError("Error updating comment")
+            console.error('Error updating comment:', error);
+        }
+    };
+
+
     const handleEditComment = (comment) => {
         setSelectedCommentId(comment.id);
         setText(comment.text);
@@ -147,6 +180,7 @@ const Discussion = ({ courseOffer }) => {
                 <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
             </div>
         )}
+
 
         <div className="container mt-5">
             <div className="my-4 mx-auto">
@@ -286,14 +320,15 @@ const Discussion = ({ courseOffer }) => {
                                     </div>
                                 </div>
                             </>}
-
                         </div>
 
+
+                        {/* if edit on, show editable textarea, else text in <p>  */}
                         {(editMyComment && (selectedCommentId === comment.id)) ?
                             <form>
                                 <div className="w-100 bg-light border bg-beige">
                                     <textarea
-                                        className='form-control bg-beige border border-0 pb-2 auto-resizable-textarea'
+                                        className='form-control bg-beige border-0 pb-2'
                                         placeholder="Write your comment here"
                                         name="text"
                                         id="text"
@@ -301,24 +336,33 @@ const Discussion = ({ courseOffer }) => {
                                         cols={25}
                                         onFocus={(e) => { resizeTextarea(e.target) }}
                                         onChange={handleTextareaChange}
-                                    // onChange={(e) => { setNewComment(e.target.value) }}
                                     >
                                     </textarea>
                                 </div>
+
+                                <div className='d-flex pt-3'>
+                                    <div className='btn-group gap-2 mx-auto'>
+                                        <button type='button' className='btn btn-sm btn-darkblue2 px-3' onClick={() => { handleCommentUpdate(comment.id) }}> Save </button>
+                                        <button type='button' className='btn btn-sm btn-light border' onClick={() => { setEditMyComment(!editMyComment) }}> Cancel </button>
+                                    </div>
+                                </div>
+
+                                {/* show comment update error message  */}
+                                {updateError && (
+                                    <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                                        <i className="bi bi-x-octagon-fill"> </i>
+                                        <strong> {updateError} </strong>
+                                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setUpdateError('')}></button>
+                                    </div>
+                                )}
+
                             </form>
                             :
                             <p className='m-0 font-merriweather' style={{ whiteSpace: 'pre-line' }}>{comment.text}</p>
                         }
 
-                        {(editMyComment && (selectedCommentId === comment.id)) ?
-
-                            <div className='d-flex pt-2'>
-                                <div className='btn-group gap-2 mx-auto'>
-                                    <button className='btn btn-sm btn-darkblue2 px-3'> Save </button>
-                                    <button className='btn btn-sm btn-light border' onClick={() => {setEditMyComment(!editMyComment)}}> Cancel </button>
-                                </div>
-                            </div>
-                            :
+                        {/* if edit on, don't show time  */}
+                        {(!editMyComment) &&
                             <p className='text-sm-end m-0'>
                                 <small className='text-secondary'>{customDateFormat(comment.created_at)}</small>
                             </p>
