@@ -19,7 +19,9 @@ const Discussion = ({ courseOffer }) => {
     const loggedUserId = getUserId();
     const [error, setError] = useState('');
     const [updateError, setUpdateError] = useState('');
+    const [deleteError, setDeleteError] = useState('');
     const [refresh, setRefresh] = useState(true);
+    const [isDelete, setIsDelete] = useState(false);
     const [editMyComment, setEditMyComment] = useState(false);
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [commentSuccess, setCommentSuccess] = useState(false);
@@ -120,7 +122,9 @@ const Discussion = ({ courseOffer }) => {
 
 
     // update a comment 
-    const handleCommentUpdate = async (id) => {
+    const handleCommentUpdate = async (comment) => {
+        if (loggedUserId !== comment.user.id) return;
+
         setUpdateError('');
         try {
             // Set the request headers with the access token
@@ -132,7 +136,7 @@ const Discussion = ({ courseOffer }) => {
                 text: text,
             };
 
-            const response = await axios.patch(`${API_BASE_URL}/comments/${id}/`,
+            const response = await axios.patch(`${API_BASE_URL}/comments/${comment.id}/`,
                 data,
                 { headers }
             );
@@ -151,16 +155,40 @@ const Discussion = ({ courseOffer }) => {
     };
 
 
+    // delete a comment 
+    const handleDeleteComment = async (comment) => {
+        if (loggedUserId !== comment.user.id) return;
+
+        setDeleteError('');
+        try {
+            // Set the request headers with the access token
+            const headers = {
+                Authorization: `Bearer ${accessToken}`,
+            };
+
+            const response = await axios.delete(`${API_BASE_URL}/comments/${comment.id}/`,
+                { headers }
+            );
+
+            // console.log(response.data);
+
+            // Clear the input field after successful submission
+            setText('');
+            setRefresh(!refresh);
+            setIsDelete(false);
+
+        } catch (error) {
+            setDeleteError("Error deleting comment")
+            console.error('Error deleting comment:', error);
+        }
+    };
+
+
     const handleEditComment = (comment) => {
         setSelectedCommentId(comment.id);
         setText(comment.text);
         setEditMyComment(!editMyComment);
     }
-
-    const handleDeleteComment = (id) => {
-
-    }
-
 
 
     return (<>
@@ -311,7 +339,7 @@ const Discussion = ({ courseOffer }) => {
                                             </li>
                                             <li>
                                                 <a
-                                                    onClick={() => { handleDeleteComment(comment.id) }}
+                                                    onClick={() => { setIsDelete(!isDelete); setSelectedCommentId(comment.id); }}
                                                     className="btn dropdown-item rounded-2 text-beige hover-bg-beige"
                                                 > Delete
                                                 </a>
@@ -321,6 +349,28 @@ const Discussion = ({ courseOffer }) => {
                                 </div>
                             </>}
                         </div>
+
+
+                        {/* delete confirmation */}
+                        {(isDelete && (selectedCommentId === comment.id)) &&
+                            <div className="container d-flex align-items-center justify-content-center">
+                                <div className="alert alert-primary" role="alert">
+                                    <div className="btn-group text-center mx-auto gap-2" role="group" aria-label="Basic outlined example">
+                                        <h6 className='text-center my-auto'>Are  you sure to DELETE this comment?</h6>
+                                        <button type="button" className="btn btn-sm btn-danger" onClick={() => { handleDeleteComment(comment) }}> Yes </button>
+                                        <button type="button" className="btn btn-sm btn-dark border" onClick={() => setIsDelete(false)}> Cancel </button>
+                                    </div>
+                                </div>
+                            </div>}
+
+                        {/* show comment delete error message  */}
+                        {deleteError && (isDelete && (selectedCommentId === comment.id)) && (
+                            <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                                <i className="bi bi-x-octagon-fill"> </i>
+                                <strong> {deleteError} </strong>
+                                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setDeleteError('')}></button>
+                            </div>
+                        )}
 
 
                         {/* if edit on, show editable textarea, else text in <p>  */}
@@ -340,9 +390,10 @@ const Discussion = ({ courseOffer }) => {
                                     </textarea>
                                 </div>
 
+                                {/* save/cancel buttons */}
                                 <div className='d-flex pt-3'>
                                     <div className='btn-group gap-2 mx-auto'>
-                                        <button type='button' className='btn btn-sm btn-darkblue2 px-3' onClick={() => { handleCommentUpdate(comment.id) }}> Save </button>
+                                        <button type='button' className='btn btn-sm btn-darkblue2 px-3' onClick={() => { handleCommentUpdate(comment) }}> Save </button>
                                         <button type='button' className='btn btn-sm btn-light border' onClick={() => { setEditMyComment(!editMyComment) }}> Cancel </button>
                                     </div>
                                 </div>
@@ -358,6 +409,7 @@ const Discussion = ({ courseOffer }) => {
 
                             </form>
                             :
+                            // if not editing 
                             <p className='m-0 font-merriweather' style={{ whiteSpace: 'pre-line' }}>{comment.text}</p>
                         }
 
