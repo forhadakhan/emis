@@ -6,22 +6,49 @@
  */
 
 
-import React, { useEffect, useState } from 'react';
-import { getAccessToken } from '../../../utils/auth';
+import React, { useEffect, useState, useRef } from 'react';
+import { getAccessToken, getUserId } from '../../../utils/auth';
 import { customDateFormat } from '../../../utils/utils';
 import API_BASE_URL from '../../../utils/config';
 import axios from 'axios';
+import * as Popper from "@popperjs/core" // needed for dropdown
 
 
 const Discussion = ({ courseOffer }) => {
     const accessToken = getAccessToken();
+    const loggedUserId = getUserId();
     const [error, setError] = useState('');
     const [refresh, setRefresh] = useState(true);
+    const [editMyComment, setEditMyComment] = useState(false);
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [commentSuccess, setCommentSuccess] = useState(false);
+    const [selectedCommentId, setSelectedCommentId] = useState('');
     const [newComment, setNewComment] = useState('');
     const [existingComments, setExistingComments] = useState([]);
     const [isLatestFirst, setIsLatestFirst] = useState(true);
+    const [text, setText] = useState('');
+    const textareaRef = useRef(null);
+
+    // auto height control for add comment textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [newComment]);
+
+
+    const resizeTextarea = (textarea) => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+    };
+
+    const handleTextareaChange = (event) => {
+        setText(event.target.value);
+        event.target.style.height = 'auto';
+        event.target.style.height = `${event.target.scrollHeight}px`;
+    };
+
 
     // Sort comments based on the sorting state
     const sortedComments = existingComments.sort((a, b) => {
@@ -91,6 +118,18 @@ const Discussion = ({ courseOffer }) => {
     }, [refresh]);
 
 
+    const handleEditComment = (comment) => {
+        setSelectedCommentId(comment.id);
+        setText(comment.text);
+        setEditMyComment(!editMyComment);
+    }
+
+    const handleDeleteComment = (id) => {
+
+    }
+
+
+
     return (<>
 
         <h4 className="fs-6 text-center font-merriweather">
@@ -120,6 +159,7 @@ const Discussion = ({ courseOffer }) => {
                             className='btn btn-light mx-2'
                             data-bs-toggle="tooltip"
                             title="Reload Comments"
+                            onClick={() => setRefresh(!refresh)}
                         >
                             <i className="bi bi-arrow-clockwise"></i>
                         </button>
@@ -157,6 +197,7 @@ const Discussion = ({ courseOffer }) => {
                             <div className="w-100">
                                 <label htmlFor="newComment"></label>
                                 <textarea
+                                    ref={textareaRef}
                                     className='form-control border border-0 pb-2'
                                     placeholder="Write your comment here"
                                     name="newComment"
@@ -199,21 +240,93 @@ const Discussion = ({ courseOffer }) => {
                     </p>
                 </>}
 
+
                 {/* list all existing comments with sorting by posting time */}
                 {(existingComments.length > 0) && sortedComments.map(comment => (
                     <div key={comment.id} className="border p-3 mb-3 rounded bg-white">
-                        <p className='text-secondary border-bottom pb-2'>
-                            <strong className='text-uppercase font-merriweather'>{`${comment.user.first_name} ${comment.user.last_name}`}</strong>
+                        <div className='d-flex border-bottom mb-2'>
+                            <p className='text-secondary me-auto'>
+                                <strong className='text-uppercase font-merriweather'>{`${comment.user.first_name} ${comment.user.last_name}`}</strong>
+                                <small className='px-2'>{comment.user.username}</small>
+                                <small className="badge bg-beige mx-1 text-darkblue text-capitalize">{comment.user.role}</small>
+                            </p>
 
-                            <small className='px-2'>{comment.user.username}</small>
-                            <small className="badge bg-beige mx-1 text-darkblue text-capitalize">{comment.user.role}</small>
-                        </p>
-                        <p className='m-0 font-merriweather'>{comment.text}</p>
-                        <p className='text-sm-end m-0'>
-                            <small className='text-secondary'>{customDateFormat(comment.created_at)}</small>
-                        </p>
+                            {/* dropdown for edit and delete  */}
+                            {(loggedUserId === comment.user.id) && <>
+                                <div className="ms-auto">
+                                    <div className="dropdown">
+                                        <button
+                                            className="btn border border-0 btn-light"
+                                            type="button"
+                                            id={`dropdownMenuButton-${comment.id}`}
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                        >
+                                            <i className="bi bi-three-dots-vertical"> </i>
+                                        </button>
+                                        <ul
+                                            className="dropdown-menu dropdown-menu-end bg-darkblue border shadow gap-1 p-2 rounded-3 mx-0 "
+                                            aria-labelledby={`dropdownMenuButton-${comment.id}`}
+                                        >
+                                            <li className=''>
+                                                <a
+                                                    onClick={() => { handleEditComment(comment) }}
+                                                    className="btn dropdown-item rounded-2 text-beige hover-bg-beige"
+                                                > Edit
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    onClick={() => { handleDeleteComment(comment.id) }}
+                                                    className="btn dropdown-item rounded-2 text-beige hover-bg-beige"
+                                                > Delete
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </>}
+
+                        </div>
+
+                        {(editMyComment && (selectedCommentId === comment.id)) ?
+                            <form>
+                                <div className="w-100 bg-light border bg-beige">
+                                    <textarea
+                                        className='form-control bg-beige border border-0 pb-2 auto-resizable-textarea'
+                                        placeholder="Write your comment here"
+                                        name="text"
+                                        id="text"
+                                        value={text}
+                                        cols={25}
+                                        onFocus={(e) => { resizeTextarea(e.target) }}
+                                        onChange={handleTextareaChange}
+                                    // onChange={(e) => { setNewComment(e.target.value) }}
+                                    >
+                                    </textarea>
+                                </div>
+                            </form>
+                            :
+                            <p className='m-0 font-merriweather' style={{ whiteSpace: 'pre-line' }}>{comment.text}</p>
+                        }
+
+                        {(editMyComment && (selectedCommentId === comment.id)) ?
+
+                            <div className='d-flex pt-2'>
+                                <div className='btn-group gap-2 mx-auto'>
+                                    <button className='btn btn-sm btn-darkblue2 px-3'> Save </button>
+                                    <button className='btn btn-sm btn-light border' onClick={() => {setEditMyComment(!editMyComment)}}> Cancel </button>
+                                </div>
+                            </div>
+                            :
+                            <p className='text-sm-end m-0'>
+                                <small className='text-secondary'>{customDateFormat(comment.created_at)}</small>
+                            </p>
+                        }
+
                     </div>
                 ))}
+
 
             </div>
         </div>
