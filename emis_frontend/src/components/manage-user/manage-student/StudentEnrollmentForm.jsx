@@ -43,30 +43,36 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
     const [batchOptions, setBatchOptions] = useState([]);
     const [sectionOptions, setSectionOptions] = useState([]);
 
-    
+
+    // set semester soptions for select (component from pkg: 'react-select')
     const programOptions = programs.map(program => ({
         value: program.id,
         label: `${program.acronym} ${program.code} - ${program.degree_type.acronym} in ${program.name}`
     }));
 
+
+    // set semester soptions for select (component from pkg: 'react-select')
     const semestermOptions = semesters.map(semester => ({
         value: semester.id,
         isDisabled: !semester.is_open,
         label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})`
     }));
 
-    // in case viewing an existing enrollment 
+
+    // in case viewing an existing enrollment, set existing data 
     const setEnrollmentData = () => {
         setEnrollmentId(student.enrollment.id);
+        // set initial data 
         const data = {
             student: student.enrollment.student,
             year: student.enrollment.year,
-            semester: student.enrollment.semester,
+            semester: student.enrollment.semester.id,
             enrolled_by: student.enrollment.enrolled_by.id,
             updated_by: loggedUser,
             batch_section: student.enrollment.batch_section.id,
             is_active: student.enrollment.is_active,
         }
+        // set data according to form requirements 
         setFormData(data)
         const year = yearChoices.find((year) => year.value === student.enrollment.year);
         setSelectedYear(year);
@@ -79,19 +85,23 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         // const programId = student.enrollment.batch_section.batch_data.program;
         // const program = programs.find((program) => program.id === programId);
         // setSelectedProgram({ value:programId, label: `${program.acronym} ${program.code}: ${program.name}` });
-        const semester = semesters.find((semester) => semester.id === data.semester.id);
-        setSelectedSemester( semester 
-            ? { 
-                value: semester.id, 
-                label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})` } 
+        const semester = semesters.find((semester) => semester.id === student.enrollment.semester.id);
+        setSelectedSemester(semester
+            // in case enrolled semester is running, it will be in 'semesters'
+            ? {
+                value: semester.id,
+                label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})`
+            }
+            // in case enrolled semester is finished, it won't be in 'semesters'
             : {
-                isDisabled: true, 
-                value: '', 
-                label: `Enrolled semester may be closed.`
+                isDisabled: true,
+                value: '',
+                label: `Enrolled semester may be finished.`
 
-            });        
+            });
         setIsEnrollmented(true);
     }
+
 
     const resetData = () => {
         if (student.enrollment && !enrollmentId) {
@@ -109,10 +119,14 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         }
     }
 
+    
+    // in case enrollment data available, set them 
     if (student.enrollment && !enrollmentId) {
         setEnrollmentData();
     }
 
+
+    // handle semester select 
     const handleSemesterChange = (selectedOption) => {
         setSelectedSemester(selectedOption);
         if (parseInt(selectedOption.value)) {
@@ -120,6 +134,8 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         }
     };
 
+
+    // handle program select 
     const handleProgramChange = (selectedOption) => {
         setSelectedProgram(selectedOption);
         setSelectedBatch('');
@@ -135,6 +151,8 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         }
     };
 
+
+    // handle batch select 
     const handleBatchChange = (selectedOption) => {
         setSelectedBatch(selectedOption);
         setSelectedSection('');
@@ -153,6 +171,7 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
     };
 
 
+    // handle section select 
     const handleSectionChange = (selectedOption) => {
         setSelectedSection(selectedOption);
         if (parseInt(selectedOption.value)) {
@@ -160,16 +179,21 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         }
     }
 
+
+    // handle year input 
     const handleYearChange = (selectedOption) => {
         setSelectedYear(selectedOption);
         setFormData({ ...formData, year: selectedOption.value });
     }
 
+
+    // toggle switch 
     const handleActiveSwitch = (status) => {
         setFormData({ ...formData, is_active: status });
     }
 
 
+    // submit data through api to create/update an enrollment 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setAlertMessage('');
@@ -215,6 +239,8 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
         }
     };
 
+
+    // send request through api to delete an enrollment 
     const handleEnrollmentDelete = async () => {
         const config = {
             headers: {
@@ -236,11 +262,13 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
     return (
         <div className="">
 
-            {student && <>
-                <a className="icon-link icon-link-hover" href="#" onClick={handleBack}>
-                    <i className="bi bi-arrow-bar-left"></i> Student List
-                </a>
+            {/* link to student list  */}
+            <a className="icon-link icon-link-hover" href="#" onClick={handleBack}>
+                <i className="bi bi-arrow-bar-left"></i> Student List
+            </a>
 
+            {/* if there student data, show some info about the student  */}
+            {student && <>
                 <div className="col-sm-12 col-md-8 mx-auto my-5">
                     <div className="row g-0">
                         <div className="col-md-3">
@@ -274,6 +302,7 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
                 </div>
             </>}
 
+            {/* enrollment form  */}
             <form className='mb-5' onSubmit={handleSubmit}>
                 <h4 className='text-center m-5'><span className='badge bg-white text-secondary border p-2'>Enrollment Form</span></h4>
 
@@ -378,9 +407,10 @@ const StudentEnrollmentForm = ({ studentId, student, programs, semesters, batche
                 </div>
             </form>
 
+            {/* reset button  */}
             <button className="btn btn-sm border btn-dark d-flex mx-auto" onClick={resetData} type='button'> Reset </button>
 
-
+            {/* if submission successful, let user know. */}
             {showSuccessModal && (
                 <div className="bg-blur">
                     <div className={`modal ${showSuccessModal ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: showSuccessModal ? 'block' : 'none' }}>
