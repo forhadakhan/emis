@@ -91,9 +91,20 @@ a.text-beige:hover {
     border-color: rgb(1, 1, 50);
 }
 .hover-bg-beige:hover {
-    color: rgb(1, 1, 50);
-    background-color: rgb(238, 212, 132);
+    color: rgb(1, 1, 50) !important;
+    background-color: rgb(238, 212, 132) !important;
+    font-weight: bold !important;
 }
+
+
+.hover-bg-darkblue {
+    border-color: rgb(238, 212, 132);
+}
+.hover-bg-darkblue:hover {
+    color: rgb(238, 212, 132) !important;
+    background-color: rgb(1, 1, 50) !important;
+}
+
 
 /* Button styles */
 .btn-darkblue {
