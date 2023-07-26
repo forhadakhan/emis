@@ -64,9 +64,10 @@ from .serializers import (
     MarksheetNastedSerializer,
 )
 
-
-
 class DesignationAPIView(APIView):
+    """
+        Handle CRUD operations for Designation model using APIView 
+    """
 
     def get(self, request):
         permission_classes = [IsAuthenticated]
@@ -116,6 +117,9 @@ class DesignationAPIView(APIView):
 
 
 class TermChoicesAPIView(APIView):
+    """
+        Handle CRUD operations for TermChoices model using APIView 
+    """
 
     def get(self, request):
         permission_classes = [IsAuthenticated]
@@ -165,6 +169,9 @@ class TermChoicesAPIView(APIView):
 
 
 class InstituteAPIView(APIView):
+    """
+        Handle CRUD operations for Institute model using APIView 
+    """
     
     def get(self, request):
         permission_classes = [IsAuthenticated]
@@ -214,6 +221,10 @@ class InstituteAPIView(APIView):
 
 
 class DepartmentAPIView(APIView):
+    """
+        Handle CRUD operations for Department model using APIView 
+    """
+    
     def get(self, request):
         permission_classes = [IsAuthenticated]
         try:
@@ -278,6 +289,9 @@ class DepartmentAPIView(APIView):
 
 
 class DegreeTypeAPIView(APIView):
+    """
+        Handle CRUD operations for DegreeType model using APIView 
+    """
 
     def get(self, request):
         permission_classes = [IsAuthenticated]
@@ -327,6 +341,10 @@ class DegreeTypeAPIView(APIView):
 
 
 class TeacherEnrollmentAPIView(APIView):
+    """
+        Handle CRUD operations for TeacherEnrollment model using APIView 
+        Include nested information on GET.
+    """
 
     def post(self, request):
         permission_classes = [IsAdministratorOrStaff]
@@ -401,6 +419,7 @@ class TeacherEnrollmentAPIView(APIView):
             return None
         
     
+    # get enrollment info by teacher id 
     def enrollment(self, teacher_id):
         try:
             enrollments = TeacherEnrollment.objects.filter(teacher=teacher_id)
@@ -431,6 +450,10 @@ class TeacherEnrollmentAPIView(APIView):
 
 
 class EnrolledTeacherRetrieveView(APIView):
+    """
+        GET an enrolled teacher by id/username  
+    """
+    
     def get(self, request):
         user_id = request.query_params.get('user_id')
         username = request.query_params.get('username')
@@ -450,6 +473,10 @@ class EnrolledTeacherRetrieveView(APIView):
 
 
 class ProgramViewSet(ModelViewSet):
+    """
+        Handle CRUD operations for Program model using ModelViewSet 
+    """
+
     permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     queryset = Program.objects.all()
 
@@ -461,6 +488,10 @@ class ProgramViewSet(ModelViewSet):
 
 
 class ProgramAPIView(APIView):
+    """
+        GET a program data by id using APIView 
+    """
+    
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, program_id=None):
@@ -476,6 +507,10 @@ class ProgramAPIView(APIView):
 
 
 class SemesterViewSet(ModelViewSet):
+    """
+        Handle CRUD operations for Semester model using ModelViewSet 
+    """
+
     queryset = Semester.objects.all()
 
     def get_serializer_class(self):
@@ -494,14 +529,24 @@ class SemesterViewSet(ModelViewSet):
         return super(SemesterViewSet, self).get_permissions()
 
 
+
 class OpenSemesterAPIView(APIView):
+    """
+        GET running semesters using APIView 
+    """
+
     def get(self, request):
         semesters = Semester.objects.filter(is_finished=False)
         serializer = SemesterNestedSerializer(semesters, many=True)
         return Response(serializer.data)
 
 
+
 class CourseViewSet(ModelViewSet):
+    """
+        Handle CRUD operations for Course model using ModelViewSet 
+    """
+
     permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = Course.objects.all()
 
@@ -513,6 +558,10 @@ class CourseViewSet(ModelViewSet):
 
 
 class BatchViewSet(ModelViewSet):
+    """
+        Handle CRUD operations for Batch model using ModelViewSet 
+    """
+
     permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     queryset = Batch.objects.all()
 
@@ -523,6 +572,10 @@ class BatchViewSet(ModelViewSet):
 
 
 class BatchActiveViewSet(ModelViewSet):
+    """
+        GET all active batches by status=True, using ModelViewSet 
+    """
+
     permission_classes = [IsAdministratorOrStaffOrReadOnly, ]
     queryset = Batch.objects.filter(status=True)
 
@@ -534,6 +587,10 @@ class BatchActiveViewSet(ModelViewSet):
 
 
 class BatchesByProgramAPIView(APIView):
+    """
+        GET all batches of a program by program id using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     def get(self, request, program_id):
         batches = Batch.objects.filter(program_id=program_id, status=True)
@@ -543,6 +600,10 @@ class BatchesByProgramAPIView(APIView):
 
 
 class SectionViewSet(ModelViewSet):
+    """
+        Handle CRUD operations for Section model using ModelViewSet 
+    """
+
     permission_classes = [IsAdministratorOrStaffOrReadOnly]
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
@@ -550,6 +611,10 @@ class SectionViewSet(ModelViewSet):
 
 
 class SectionByBatchAPIView(APIView):
+    """
+        GET all sections of a batch by batch id, using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request, batch_id):
@@ -560,6 +625,10 @@ class SectionByBatchAPIView(APIView):
 
 
 class StudentEnrollmentAPIView(APIView):
+    """
+        Handle CRUD operations for StudentEnrollment model using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
 
     def get(self, request, enrollment_id=None, student_id=None):
@@ -605,6 +674,7 @@ class StudentEnrollmentAPIView(APIView):
         enrollment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    # get a student's enrollment data by student id  
     def enrollment(self, student_id):
         try:
             enrollments = StudentEnrollment.objects.filter(student=student_id)
@@ -622,6 +692,10 @@ class StudentEnrollmentAPIView(APIView):
 
 
 class CourseOfferAPIView(APIView):
+    """
+        Handle CRUD operations for CourseOffer model using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk=None):
@@ -680,7 +754,12 @@ class CourseOfferAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
 class CourseOfferListFilteredView(APIView):
+    """
+        GET filtered data by teacher/semester id for CourseOffer model using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request, teacher_id=None, semester_id=None, format=None):
@@ -703,7 +782,12 @@ class CourseOfferListFilteredView(APIView):
             return Response({'error': 'CourseOffer not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
+
 class CourseOfferCommentsView(APIView):
+    """
+        Handle GET and POST operations for Comments of a CourseOffer instence using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request, course_offer_id):
@@ -726,7 +810,12 @@ class CourseOfferCommentsView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class CourseEnrollmentView(APIView):
+    """
+        Handle CRUD operations for CourseEnrollment model using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request, pk=None):
@@ -769,6 +858,7 @@ class CourseEnrollmentView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
 class StudentEnrolledCoursesAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -792,7 +882,12 @@ class StudentEnrolledCoursesAPIView(APIView):
             return Response({'detail': str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 
+
 class IsEnrolled(APIView):
+    """
+        Check if a student is enrolled to a offered course by course offer and student id using APIView  
+    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request, course_offer_id, student_id):
@@ -815,10 +910,16 @@ class IsEnrolled(APIView):
             return JsonResponse({'error': str(e)}, status=500)
 
 
+
 class MarksheetViewSet(ModelViewSet):
+    """
+        Handle CRUD operations for Marksheet model using ModelViewSet    
+    """
+
     permission_classes = [IsAuthenticated]
     queryset = Marksheet.objects.all()
     serializer_class = MarksheetSerializer
+
 
 
 class StudentsInCourseOfferView(APIView):
@@ -842,6 +943,7 @@ class StudentsInCourseOfferView(APIView):
         
         except CourseEnrollment.DoesNotExist:
             return Response({"error": "Course not found."}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 class MarksheetListByCourseOffer(ListAPIView):
