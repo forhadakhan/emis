@@ -40,9 +40,10 @@ const DataTableList = ({ studentUsers, setUser, setActiveComponent, setReference
 
     const columns = [
         {
-            name: 'Username',
+            name: 'ID/Username',
             selector: (row) => row.fields.username,
             sortable: true,
+            width: '14%'
         },
         {
             name: 'First Name',
@@ -61,6 +62,7 @@ const DataTableList = ({ studentUsers, setUser, setActiveComponent, setReference
         },
         {
             name: 'Actions',
+            button: true,
             cell: (row) => (
                 <div className='mx-auto'>
                     {(isAdmin || hasPermission('view_student')) && !hideProfile && 
