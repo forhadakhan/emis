@@ -11,7 +11,12 @@ import Select from 'react-select'
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth';
 
+import Marksheet from './MarksheetController.jsx'
+import Discussion from './course-control/Discussion.jsx'
 
+
+
+// Component 
 const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
     const [alertMessage, setAlertMessage] = useState('');
@@ -209,6 +214,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
 
 
 
+// Component 
 const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView }) => {
     const accessToken = getAccessToken();
     const [courseOfferings, setCourseOfferings] = useState([]);
@@ -346,8 +352,8 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
                 `${cf.semester.term.start} to ${cf.semester.term.end}`.toLowerCase().includes(keyword) ||
                 `${cf.course.acronym} ${cf.course.code}`.toLowerCase().includes(keyword) ||
                 `Credit ${cf.course.credit}`.toLowerCase().includes(keyword) ||
-                cf.course.name.toLowerCase().includes(keyword) || 
-                getSemesterStatus(cf.semester).toLowerCase().includes(keyword) 
+                cf.course.name.toLowerCase().includes(keyword) ||
+                getSemesterStatus(cf.semester).toLowerCase().includes(keyword)
         );
         setFilteredData(filteredResults);
     };
@@ -403,35 +409,98 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
 
 
 
+// Component 
 const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, handleBack, courseOffer }) => {
     const accessToken = getAccessToken();
-    const [courseOfferView, setCourseOfferView] = useState(courseOffer);
+    const [showComponent, setShowComponent] = useState('CourseOfferForm');
+    const [students, setStudents] = useState([]);
+    const [error, setError] = useState('');
 
 
-    const fetchCourseOffer = async (id) => {
-        const config = {
+
+    const fetchEnrolledStudents = () => {
+        setError('');
+
+        axios.get(`${API_BASE_URL}/academy/course_offer/${courseOffer.id}/students/`, {
             headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        };
-        try {
-            const response = await axios.get(`${API_BASE_URL}/academy/course-offers/${id}`, config);
-            setCourseOfferView(response.data);
-
-        } catch (error) {
-            setError(' Failed to fetch course offer list.');
-            console.error('Error fetching course offerings:', error);
-        }
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => {
+                setStudents(response.data);
+            })
+            .catch(error => {
+                setError("Error fetching enrolled students");
+                console.error('Error fetching enrolled students:', error);
+            });
     };
+    // Fetch enrolled students when the component mounts
+    useEffect(() => {
+        fetchEnrolledStudents();
+    }, []);
 
-    return (
-        <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} courseOfferView={courseOfferView} handleBack={handleBack} fetchCourseOffer={fetchCourseOffer} />
-    );
+
+    const renderComponent = () => {
+        switch (showComponent) {
+            case 'Discussion':
+                return <Discussion courseOffer={courseOffer} />
+            case 'Marksheet':
+                return <Marksheet courseOffer={courseOffer} students={students} />
+            case 'CourseOfferForm':
+                return <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} courseOfferView={courseOffer} handleBack={handleBack} />
+            default:
+                return <></>
+        }
+    }
+
+    return (<>
+
+        {error && (
+            <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                <i className="bi bi-x-octagon-fill"> </i>
+                <strong> {error} </strong>
+                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setError('')}></button>
+            </div>
+        )}
+
+
+        {/* action buttons */}
+        <div className="my-4 d-flex justify-content-center font-merriweather">
+            <div className="btn-group gap-2" role="group">
+                <button
+                    type="button"
+                    className="btn btn-darkblue2 pt-1"
+                    onClick={() => { setShowComponent('CourseOfferForm') }}
+                    disabled={showComponent === 'CourseOfferForm'}
+                > Course Offer Info
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-darkblue2 pt-1"
+                    onClick={() => { setShowComponent('Marksheet') }}
+                    disabled={showComponent === 'Marksheet'}
+                > Marksheet
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-darkblue2 pt-1"
+                    onClick={() => { setShowComponent('Discussion') }}
+                    disabled={showComponent === 'Discussion'}
+                > Discussion
+                </button>
+            </div>
+        </div>
+
+
+        <div>
+            {renderComponent()}
+        </div>
+
+    </>);
 }
 
 
-
+// Component 
 const AddCourseOffer = ({ semesters, courses, teachers, hasPrerequisites, getTeacher, handleBack }) => {
     return (
         <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} getTeacher={getTeacher} handleBack={handleBack} />
@@ -439,8 +508,8 @@ const AddCourseOffer = ({ semesters, courses, teachers, hasPrerequisites, getTea
 }
 
 
-
-const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView = {}, teachers, handleBack, fetchCourseOffer }) => {
+// Component 
+const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView = {}, teachers, handleBack }) => {
     const accessToken = getAccessToken();
     const initForm = {
         semester: '',
@@ -461,6 +530,28 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
     const [selectedCourse, setSelectedCourse] = useState('');
     const [selectedTeacher, setSelectedTeacher] = useState('');
     const [capacity, setCapacity] = useState('');
+
+    
+    const fetchCourseOffer = async (courseOfferId) => {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/course-offers/${courseOfferId}`, config);
+            setCourseOffer(response.data);
+
+        } catch (error) {
+            setError(' Failed to fetch course offer list.');
+            console.error('Error fetching course offerings:', error);
+        }
+    };
+    useEffect(() => {
+        fetchCourseOffer(courseOfferId);
+    }, [isDetail])
+
 
     const courseOptions = courses.map(course => ({
         value: course.id,
@@ -512,7 +603,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         if (isDetail) {
             setPresentData();
         }
-    }, [isDetail])
+    }, [courseOffer])
 
 
     const resetData = () => {
@@ -569,7 +660,6 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         </>;
     }
 
-
     const handleSemesterChange = (selectedOption) => {
         setSelectedSemester(selectedOption);
         if (parseInt(selectedOption.value)) {
@@ -612,9 +702,10 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
                 : await axios.post(`${API_BASE_URL}/academy/course-offers/`, JSON.stringify(formData), config);
 
             setShowSuccessModal(true);
-            // if we are viewing details, set updated data to courseOffer, otherwise reset formData to initial 
-            isDetail ? fetchCourseOffer(response.data.id) : setFormData(initForm);
             resetData();
+            // if we are viewing details, set updated data to courseOffer, otherwise reset formData to initial 
+            isDetail ? fetchCourseOffer(courseOfferId) : setFormData(initForm);
+            
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessages = Object.entries(error.response.data)
@@ -636,6 +727,10 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
             console.error(error);
         }
     };
+
+    const handleModalClose = () => {
+        setShowSuccessModal(false)
+    }
 
     const handleDelete = async () => {
         const config = {
@@ -667,6 +762,16 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
                     <span className='badge bg-white text-secondary border p-2 fw-normal'>
                         Course Offer Form
                     </span>
+                        <button
+                            type='button'
+                            className='btn btn-light mx-2'
+                            data-bs-toggle="tooltip"
+                            title="Reload Data"
+                            onClick={() => fetchCourseOffer(courseOfferId)}
+                        >
+                            <i className="bi bi-arrow-clockwise"></i>
+                        </button>
+
                 </h4>
 
                 <div className="col-sm-12 col-md-8 my-2  mx-auto">
@@ -785,7 +890,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
                             <div className="modal-content bg-darkblue border border-beige text-beige">
                                 <div className="modal-header">
                                     <h5 className="modal-title fs-4"><i className="bi bi-check-circle-fill"></i> Saved </h5>
-                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={() => { setShowSuccessModal(false) }}>
+                                    <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleModalClose}>
                                         <i className="bi bi-x-lg"></i>
                                     </button>
                                 </div>
