@@ -257,93 +257,6 @@ class CourseEnrollment(models.Model):
 
 
 #####################################################################
-##################### Marksheet:
-#####################   - dependent on: CourseEnrollment.
-class Marksheet(models.Model):
-    course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    attendance = models.FloatField(null=True, blank=True, validators=[ms.validate_attendance])
-    assignment = models.FloatField(null=True, blank=True, validators=[ms.validate_assignment])
-    mid_term = models.FloatField(null=True, blank=True, validators=[ms.validate_mid_term])
-    final = models.FloatField(null=True, blank=True, validators=[ms.validate_final])
-
-    def __str__(self):
-        return f'Marksheet for {self.course_enrollment}'
-#####################################################################
-
-
-#####################################################################
-##################### Attendance:
-#####################   - dependent: CourseEnrollment, Student
-class Attendance(models.Model):
-    course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    date = models.DateField()
-    present_students = models.ManyToManyField(Student, blank=True)
-    remarks = models.TextField(blank=True)
-
-    def __str__(self):
-        return f'Attendance for {self.course_offer} on {self.date}'
-#####################################################################
-
-
-#####################################################################
-##################### Assignment and AssignmentSubmission:
-#####################   - dependent on: CourseEnrollment, Assignment, Student. 
-class Assignment(models.Model):
-    course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    assign_date = models.DateField(blank=True)
-    due_date = models.DateField(blank=True)
-    max_marks = models.PositiveIntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return f'Assignment: {self.title} ({self.course_offer})'
-
-
-class AssignmentSubmission(models.Model):
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
-    file_ids = models.TextField(blank=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    max_files = models.PositiveIntegerField(null=True, blank=True)
-    marks = models.FloatField(null=True, blank=True)
-    remarks = models.TextField(blank=True)
-
-    def __str__(self):
-        return f'Assignment Submission: {self.assignment.title} ({self.student})'
-#####################################################################
-
-
-#####################################################################
-##################### Exam:
-#####################   - dependent on: CourseEnrollment. 
-class Exam(models.Model):
-    course = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    date = models.DateField(null=True, blank=True)
-    duration = models.DurationField(null=True, blank=True)
-    max_marks = models.PositiveIntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return f'Exam: {self.title} ({self.course})'
-#####################################################################
-
-
-#####################################################################
-##################### GPATable:
-#####################   - independent
-class GPATable(models.Model):
-    lower_mark = models.DecimalField(max_digits=5, decimal_places=2)
-    higher_mark = models.DecimalField(max_digits=5, decimal_places=2)
-    letter_grade = models.CharField(max_length=5)
-    grade_point = models.DecimalField(max_digits=3, decimal_places=2)
-
-    def __str__(self):
-        return f"{self.letter_grade}: {self.grade_point}"
-#####################################################################
-
-
-#####################################################################
 ##################### CGPATable:
 #####################   - independent
 class CGPATable(models.Model):
@@ -359,26 +272,19 @@ class CGPATable(models.Model):
 
 
 #####################################################################
-##################### Result:
+##################### Marksheet:
 #####################   - dependent on: CourseEnrollment.
-class Result(models.Model):
-    STATUS_CHOICES = [
-        ('ongoing', 'Ongoing'),
-        ('pass', 'Pass'),
-        ('fail', 'Fail'),
-        ('retake', 'Retake'),
-        ('supplementary', 'Supplementary'),
-    ]
-
+class Marksheet(models.Model):
     course_enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE)
-    total_marks = models.FloatField(null=True, blank=True)
-    max_marks = models.PositiveIntegerField()
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='ongoing')
-    is_published = models.BooleanField(default=False)
+    attendance = models.FloatField(null=True, blank=True, validators=[ms.validate_attendance])
+    assignment = models.FloatField(null=True, blank=True, validators=[ms.validate_assignment])
+    mid_term = models.FloatField(null=True, blank=True, validators=[ms.validate_mid_term])
+    final = models.FloatField(null=True, blank=True, validators=[ms.validate_final])
 
     def __str__(self):
-        return f'Result for {self.course_enrollment}'
+        return f'Marksheet for {self.course_enrollment}'
 #####################################################################
+
 
 
 
@@ -730,33 +636,6 @@ def create_institutes(sender, **kwargs):
 
         for institute in institutes:
             Institute.objects.get_or_create(**institute)
-#####################################################################
-
-
-#####################################################################
-##################### populate_cgpa_table:
-#####################   - dependent on: GPATable.
-@receiver(post_migrate)
-def populate_gpa_table(sender, **kwargs):
-    app_config = kwargs.get('app_config')
-    if app_config and app_config.name == 'academy': 
-        gpa_data = [
-            (80.00, 100.00, 'A+', 5.00),
-            (70.00, 79.99, 'A', 4.00),
-            (60.00, 69.99, 'A-', 3.50),
-            (50.00, 59.99, 'B', 3.25),
-            (40.00, 49.99, 'C', 2.00),
-            (33.00, 39.99, 'D', 1.00),
-            (0.00, 32.99, 'F', 0.00),
-        ]
-
-        for gpa_entry in gpa_data:
-            GPATable.objects.get_or_create(
-                lower_mark=gpa_entry[0],
-                higher_mark=gpa_entry[1],
-                letter_grade=gpa_entry[2],
-                grade_point=gpa_entry[3]
-            )
 #####################################################################
 
 
