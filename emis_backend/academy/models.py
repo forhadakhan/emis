@@ -280,6 +280,7 @@ class Marksheet(models.Model):
     assignment = models.FloatField(null=True, blank=True, validators=[ms.validate_assignment])
     mid_term = models.FloatField(null=True, blank=True, validators=[ms.validate_mid_term])
     final = models.FloatField(null=True, blank=True, validators=[ms.validate_final])
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Marksheet for {self.course_enrollment}'
