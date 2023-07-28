@@ -26,11 +26,6 @@ from .models import (
     CourseOffer,
     CourseEnrollment,
     Marksheet,
-    Attendance,
-    Assignment,
-    AssignmentSubmission,
-    Exam,
-    Result,
 )
 
 
@@ -248,35 +243,5 @@ class MarksheetNastedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Marksheet
-        fields = '__all__'
-
-
-class AttendanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
-        fields = '__all__'
-
-
-class AssignmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Assignment
-        fields = '__all__'
-
-
-class AssignmentSubmissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AssignmentSubmission
-        fields = '__all__'
-
-
-class ExamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Exam
-        fields = '__all__'
-
-
-class ResultSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Result
         fields = '__all__'
 
