@@ -156,7 +156,7 @@ class StudentDeleteView(DestroyModelMixin, GenericAPIView):
 
 class StudentRetrieveView(generics.RetrieveAPIView):
     queryset = Student.objects.all()
-    serializer_class = StudentSerializer
+    serializer_class = StudentUsersSerializer
     lookup_field = 'user__username'  # Look up student by user's username
     
     def retrieve(self, request, *args, **kwargs):
