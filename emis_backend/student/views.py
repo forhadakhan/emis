@@ -2,20 +2,21 @@
 
 import json
 from academy.views import StudentEnrollmentAPIView
+from authentication.models import User
+from authentication.serializers import UserSerializer
+from authentication.views import UserDeleteView
 from datetime import date
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from rest_framework import status, generics, viewsets
-from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from authentication.models import User
-from authentication.serializers import UserSerializer
-from .models import Student
-from .serializers import StudentSerializer
-from authentication.views import UserDeleteView
 from rest_framework.views import APIView
+from .models import Student
+from .serializers import StudentSerializer, StudentUsersSerializer
+
 
 
 class StudentViewSet(viewsets.ModelViewSet):
@@ -150,5 +151,27 @@ class StudentDeleteView(DestroyModelMixin, GenericAPIView):
             if response.status_code != 204:
                 return response
         return self.destroy(request, *args, **kwargs)
+
+
+
+class StudentRetrieveView(generics.RetrieveAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    lookup_field = 'user__username'  # Look up student by user's username
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        
+        # Add enrollment data to the response
+        combined_data = serializer.data
+        try:
+            student_id = int(instance.id)
+            combined_data['enrollment'] = StudentEnrollmentAPIView().enrollment(student_id)
+        except Exception as e:
+            combined_data['enrollment'] = None
+        
+        return Response(combined_data)
+
 
 
