@@ -46,6 +46,7 @@ import ManageBatches from '../academy/ManageBatches.jsx';
 import ManageSections from '../academy/ManageSections.jsx';
 import StudentEnrollment from '../academy/ManageStudentEnrollment.jsx';
 import ManageCourseOffer from '../academy/ManageCourseOffer.jsx';
+import ManageAcademicRecords from '../academy/ManageAcademicRecords.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
@@ -119,6 +120,8 @@ const ManagerialActivity = () => {
                 return <StudentEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
             case 'ManageCourseOffer':
                 return <ManageCourseOffer setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
+            case 'ManageAcademicRecords':
+                return <ManageAcademicRecords setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -181,6 +184,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_section', label: 'Manage Sections', render: 'ManageSections', icon: 'bi-layers-half' },
         { id: 'view_studentenrollment', label: 'Student Enrollment', render: 'StudentEnrollment', icon: 'bi-person-vcard' },
         { id: 'view_courseoffer', label: 'Manage Course Offer', render: 'ManageCourseOffer', icon: 'bi-file-medical-fill' },
+        { id: 'change_marksheet', label: 'Manage Academic Records', render: 'ManageAcademicRecords', icon: 'bi-list-columns' },
         { id: 'change_user', label: 'Access Controller', render: 'AccessController', icon: 'bi-universal-access-circle' },
     ];
 
