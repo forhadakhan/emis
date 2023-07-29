@@ -1,11 +1,16 @@
+# student/serializers.py 
+
 from rest_framework import serializers
 from .models import Student
-from authentication.serializers import UserSerializer2, UserBriefSerializer
+from authentication.serializers import UserSerializer2, UserBriefSerializer, UserSerializer
+
+
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = "__all__" 
+
 
 
 class StudentNestedSerializer(serializers.ModelSerializer):
