@@ -57,3 +57,4 @@ class UserBriefSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'role', 'email', 'first_name', 'middle_name', 'last_name']
 
+
