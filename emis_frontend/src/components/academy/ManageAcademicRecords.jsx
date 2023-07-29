@@ -174,20 +174,199 @@ const FindAStudent = ({ setStudnetId }) => {
 }
 
 
+// Sub component
+const StudentList = ({ studentUsers, setStudnetId }) => {
+    const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+
+    useEffect(() => {
+        setData(studentUsers);
+    }, [studentUsers]);
+
+    useEffect(() => {
+        setFilteredData(data);
+    }, [data]);
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = data.filter(
+            (user) =>
+                user.pk.toString().toLowerCase().includes(keyword) ||
+                user.fields.username.toLowerCase().includes(keyword) ||
+                user.fields.first_name.toLowerCase().includes(keyword) ||
+                user.fields.last_name.toLowerCase().includes(keyword) ||
+                user.fields.email.toLowerCase().includes(keyword) ||
+                ((user.fields.is_active && (keyword === 'active' || keyword === 'unblocked')) ||
+                    (!user.fields.is_active && (keyword === 'inactive' || keyword === 'blocked')))
+        );
+        setFilteredData(filteredResults);
+    };
+
+    const columns = [
+        {
+            name: 'ID/Username',
+            selector: (row) => row.fields.username,
+            sortable: true,
+            width: '14%'
+        },
+        {
+            name: 'First Name',
+            selector: (row) => row.fields.first_name,
+            sortable: true,
+        },
+        {
+            name: 'Last Name',
+            selector: (row) => row.fields.last_name,
+            sortable: true,
+        },
+        {
+            name: 'Email',
+            selector: (row) => row.fields.email,
+            sortable: true,
+        },
+        {
+            name: 'Actions',
+            button: true,
+            cell: (row) => (
+                <div className='mx-auto'>
+                    {/* view student select button */}
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-dark me-2 border-0"
+                        onClick={() => handleSelect(row.fields.username)}
+                        data-bs-toggle="tooltip"
+                        data-bs-title="Manage Profile"
+                    >
+                        Select
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                minHeight: '72px', // override the row height
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for head cells
+                paddingRight: '8px',
+                fontSize: '19px',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for data cells
+                paddingRight: '8px',
+                fontWeight: 'bold'
+            },
+        },
+    };
+
+    const handleSelect = (username) => {
+        setStudnetId(username);
+    };
+
+
+    return (
+        <div>
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
+                    <option value="">No Filter</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="unblocked">Not Blocked</option>
+                </select>
+            </div>
+            <div className="m-5">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            <DataTable
+                columns={columns}
+                data={filteredData}
+                pagination
+                customStyles={customStyles}
+                className='rounded rounded-4 border border-beige'
+            />
+        </div>
+    );
+};
+
 
 // Sub Component 
-const ListAllStudent = () => {
+const ListAllStudent = ({ setStudnetId }) => {
+    const accessToken = getAccessToken();
+    const [studentUsers, setStudentUsers] = useState([]);
+    const [alertMessage, setAlertMessage] = useState('');
+    setStudnetId('');
 
+    // fetch  users with 'student' role for StudentList
+    useEffect(() => {
+        setAlertMessage('');
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/student/users/`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setStudentUsers(response.data);
+            } catch (error) {
+                setAlertMessage('Error fetching student users');
+                console.error('Error fetching student users:', error);
+            }
+        };
+        fetchUserData();
+    }, []);
+
+
+    return (<>
+        {alertMessage && (
+            <div className={`alert alert-info alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                <strong>{alertMessage}</strong>
+                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
+            </div>
+        )}
+
+        {/* render student user list  */}
+        <div>
+            <StudentList studentUsers={studentUsers} setStudnetId={setStudnetId} />
+        </div>
+
+    </>)
 }
 
 
 // Sub Component 
 const StudentRecords = ({ studentData }) => {
-    const enrollmentId = studentData.enrollment.id;
+    const [enrollmentId, setEnrollmentId] = useState('');
     const [program, setProgram] = useState('')
 
+    useEffect(() => {
+        if(studentData.enrollment) {
+            setEnrollmentId(studentData.enrollment.id);
+        }
+    }, [])
 
-    // get enrollment and program details for student/teacher
+
+    // get program details for student
     useEffect(() => {
         const fetchProgram = async () => {
             try {
@@ -220,6 +399,7 @@ const StudentRecords = ({ studentData }) => {
             <div className="col-sm-12 col-md-8 mx-auto my-5">
                 <div className="row g-0">
                     <div className="col-md-3">
+                        {/* student photo  */}
                         <div className={`rounded-2 mx-auto ${studentData.photo_id ? '' : 'bg-darkblue'} text-beige`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }}>
                             {studentData.photo_id ? (
                                 <img src={getFileLink(studentData.photo_id)} className="img-fluid rounded mx-auto d-flex border" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }} alt="..." />
@@ -238,11 +418,13 @@ const StudentRecords = ({ studentData }) => {
                             <h5 className="fs-6 text-body-secondary"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
 
                             {/* Student Enrollment Information */}
-                            {program && <>
+                            {program && enrollmentId && 
                                 <small className="d-block fw-bold text-body-secondary">{program.name}</small>
+                            }    
+                            {enrollmentId && <>
                                 <small className="d-block fw-bold text-body-secondary">
-                                    Batch: {getOrdinal(studentData.enrollment.batch_section.batch_data.number)};   
-                                    Section: {studentData.enrollment.batch_section.name}   
+                                    Batch: {getOrdinal(studentData.enrollment.batch_section.batch_data.number)};
+                                    Section: {studentData.enrollment.batch_section.name}
                                 </small>
                                 {/* semester  */}
                                 {/* <small className="d-block fw-bold text-body-secondary">{studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small> */}
