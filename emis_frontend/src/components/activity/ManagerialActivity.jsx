@@ -29,6 +29,9 @@ import UserPermissions from '../permissions/UserPermissions.jsx';
 // Public Messages
 import PublicMessages from '../public-messages/PublicMessages.jsx';
 
+// Access Controller
+import AccessController from '../auth/AccessController.jsx';
+
 // Academy Management
 import ManageTeacherDesignations from '../academy/ManageTeacherDesignations.jsx';
 import ManageTermChoices from '../academy/ManageTermChoices.jsx';
@@ -86,6 +89,8 @@ const ManagerialActivity = () => {
                 return <ManageStudentProfile setActiveComponent={setActiveComponent} reference={reference} breadcrumb={breadcrumb} />;
             case 'UserPermissions':
                 return <UserPermissions setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
+            case 'AccessController':
+                return <AccessController setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'PublicMessages':
                 return <PublicMessages setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageTeacherDesignations':
@@ -99,7 +104,7 @@ const ManagerialActivity = () => {
             case 'ManageDegreeTypes':
                 return <ManageDegreeTypes setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'TeacherEnrollment':
-                return <TeacherEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb}  setReference={setReference} />;
+                return <TeacherEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
             case 'ManagePrograms':
                 return <ManagePrograms setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageSemesters':
@@ -111,9 +116,9 @@ const ManagerialActivity = () => {
             case 'ManageSections':
                 return <ManageSections setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'StudentEnrollment':
-                return <StudentEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb}  setReference={setReference} />;
+                return <StudentEnrollment setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
             case 'ManageCourseOffer':
-                return <ManageCourseOffer setActiveComponent={setActiveComponent} breadcrumb={breadcrumb}  setReference={setReference} />;
+                return <ManageCourseOffer setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -176,6 +181,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_section', label: 'Manage Sections', render: 'ManageSections', icon: 'bi-layers-half' },
         { id: 'view_studentenrollment', label: 'Student Enrollment', render: 'StudentEnrollment', icon: 'bi-person-vcard' },
         { id: 'view_courseoffer', label: 'Manage Course Offer', render: 'ManageCourseOffer', icon: 'bi-file-medical-fill' },
+        { id: 'change_user', label: 'Access Controller', render: 'AccessController', icon: 'bi-universal-access-circle' },
     ];
 
     let allowedElements = [];
@@ -191,6 +197,8 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
 
     return (
         <div className="px-4 py-5" id="activities">
+
+            {/* breadcrumb */}
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     {breadcrumb.map((item, index) => (
@@ -198,6 +206,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
                     ))}
                 </ol>
             </nav>
+
             {/* Search input */}
             <div className="mb-4">
                 <input
