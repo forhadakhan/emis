@@ -6,7 +6,7 @@ from comments.serializers import CommentSerializer
 from rest_framework.generics import get_object_or_404
 from student.models import Student
 from student.serializers import StudentSerializer
-from teacher.serializers import TeacherSerializer
+from teacher.serializers import TeacherBriefSerializer
 from teacher.models import Teacher
 
 
@@ -26,6 +26,7 @@ from .models import (
     CourseOffer,
     CourseEnrollment,
     Marksheet,
+    CGPATable,
 )
 
 
@@ -114,7 +115,7 @@ class TeacherEnrollmentSerializer(serializers.ModelSerializer):
 
 
 class TeacherEnrollmentViewSerializer(serializers.ModelSerializer):
-    teacher = TeacherSerializer()
+    teacher = TeacherBriefSerializer()
     designations = DesignationSerializer(many=True)
     departments = serializers.SerializerMethodField()
 
@@ -238,9 +239,9 @@ class MarksheetSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MarksheetNastedSerializer(serializers.ModelSerializer):
+class MarksheetNestedSerializer(serializers.ModelSerializer):
     course_enrollment = CourseEnrollmentSerializer()
-
+    
     class Meta:
         model = Marksheet
         fields = '__all__'
