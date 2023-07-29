@@ -25,7 +25,7 @@ const ManageAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
         </button>
     );
 
-    // check and return selected compnent to show and  
+    // check and return selected compnent to show  
     const renderComponent = () => {
         switch (showComponent) {
             case 'ListAllStudent':
@@ -88,11 +88,12 @@ const ManageAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-// Sub Component
+// Sub Component to ManageAcademicRecords
 const GetTheStudent = ({ setShowComponent, username, setStudentData }) => {
     const [error, setError] = useState('');
     const accessToken = getAccessToken();
 
+    // get the selected student 
     const fetchTheStudent = () => {
         setError('');
 
@@ -104,7 +105,7 @@ const GetTheStudent = ({ setShowComponent, username, setStudentData }) => {
         };
         const url = `${API_BASE_URL}/student/id/${username}`;
 
-        // Make the API request to get the user
+        // Make the API request to get the student 
         axios.get(url, config)
             .then(response => {
                 setStudentData(response.data);
@@ -119,7 +120,6 @@ const GetTheStudent = ({ setShowComponent, username, setStudentData }) => {
                 }
             });
     };
-
     useEffect(() => {
         if (username) {
             fetchTheStudent();
@@ -139,7 +139,7 @@ const GetTheStudent = ({ setShowComponent, username, setStudentData }) => {
 }
 
 
-// Sub Component 
+// Sub Component to ManageAcademicRecords  
 const FindAStudent = ({ setStudnetId }) => {
     const [username, setUsername] = useState('');
     setStudnetId('');
@@ -174,7 +174,7 @@ const FindAStudent = ({ setStudnetId }) => {
 }
 
 
-// Sub component
+// Sub component to ListAllStudent 
 const StudentList = ({ studentUsers, setStudnetId }) => {
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
@@ -310,7 +310,7 @@ const StudentList = ({ studentUsers, setStudnetId }) => {
 };
 
 
-// Sub Component 
+// Sub Component to ManageAcademicRecords 
 const ListAllStudent = ({ setStudnetId }) => {
     const accessToken = getAccessToken();
     const [studentUsers, setStudentUsers] = useState([]);
@@ -354,7 +354,7 @@ const ListAllStudent = ({ setStudnetId }) => {
 }
 
 
-// Sub Component 
+// Sub Component to ManageAcademicRecords 
 const StudentRecords = ({ studentData }) => {
     const [enrollmentId, setEnrollmentId] = useState('');
     const [program, setProgram] = useState('')
