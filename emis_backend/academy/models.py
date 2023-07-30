@@ -286,7 +286,6 @@ class CGPATable(models.Model):
     higher_mark = models.DecimalField(max_digits=5, decimal_places=2)
     letter_grade = models.CharField(max_length=5)
     grade_point = models.DecimalField(max_digits=3, decimal_places=2)
-    remarks = models.CharField(max_length=20)
 
     def __str__(self):
         return f"{self.letter_grade}: {self.grade_point}"
@@ -670,16 +669,16 @@ def populate_cgpa_table(sender, **kwargs):
     app_config = kwargs.get('app_config')
     if app_config and app_config.name == 'academy': 
         cgpa_data = [
-            (80.00, 100.00, 'A+', 4.00, 'First Class'),
-            (75.00, 79.99, 'A', 3.75, 'First Class'),
-            (70.00, 74.99, 'A-', 3.50, 'First Class'),
-            (65.00, 69.99, 'B+', 3.25, 'First Class'),
-            (60.00, 64.99, 'B', 3.00, 'First Class'),
-            (55.00, 59.99, 'B-', 2.75, 'Second Class'),
-            (50.00, 54.99, 'C+', 2.50, 'Second Class'),
-            (45.00, 49.99, 'C', 2.25, 'Second Class Upper'),
-            (40.00, 44.99, 'D', 2.00, 'Third Class'),
-            (0.00, 39.99, 'F', 0.00, 'Fail'),
+            (80.00, 100.00, 'A+', 4.00),
+            (75.00, 79.99, 'A', 3.75),
+            (70.00, 74.99, 'A-', 3.50),
+            (65.00, 69.99, 'B+', 3.25),
+            (60.00, 64.99, 'B', 3.00),
+            (55.00, 59.99, 'B-', 2.75),
+            (50.00, 54.99, 'C+', 2.50),
+            (45.00, 49.99, 'C', 2.25),
+            (40.00, 44.99, 'D', 2.00),
+            (0.00, 39.99, 'F', 0.00),
         ]
 
         for cgpa_entry in cgpa_data:
@@ -687,8 +686,7 @@ def populate_cgpa_table(sender, **kwargs):
                 lower_mark=cgpa_entry[0],
                 higher_mark=cgpa_entry[1],
                 letter_grade=cgpa_entry[2],
-                grade_point=cgpa_entry[3],
-                remarks=cgpa_entry[4]
+                grade_point=cgpa_entry[3]
             )
 #####################################################################
 
