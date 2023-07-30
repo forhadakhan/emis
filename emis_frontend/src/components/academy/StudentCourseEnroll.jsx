@@ -324,8 +324,10 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     const accessToken = getAccessToken();
     const [enrolledCourses, setEnrolledCourses] = useState([]);
     const [isEnrolled, setIsEnrolled] = useState(false);
+    const [isRetake, setIsRetake] = useState(false);
+    const [isDisenroll, setIsDisenroll] = useState(false);
     const [takenBefore, setTakenBefore] = useState(false);
-    const [enrollment, setEnrollment] = useState('');
+    const [prevEnrollments, setPrevEnrollments] = useState([]);
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
     const [enrollmentMessage, setEnrollmentMessage] = useState('');
     const {
@@ -373,10 +375,10 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
         }
     }, []);
 
-    
-    const checkIfEnrolled = () => {
 
-        const apiEndpoint = `${API_BASE_URL}/academy/course/is-enrolled/${courseOffer.id}/${studentId}/`;
+    const checkIfPreviouslyEnrolled = () => {
+
+        const apiEndpoint = `${API_BASE_URL}/academy/course/check-enrollments/${courseOffer.course.id}/${studentId}/`;
 
         // Making the GET request
         axios.get(apiEndpoint, {
@@ -388,9 +390,8 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             .then(response => {
                 // set response
                 setIsEnrolled(response.data.is_enrolled);
-                if(response.data.enrollment) {
-                    setEnrollment(response.data.enrollment)
-                }
+                setPrevEnrollments(response.data.enrollments)
+                console.log(response.data.enrollments)
                 setEnrollmentChecked(true);
             })
             .catch(error => {
@@ -398,12 +399,30 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 console.error('Error Checking Is Enrolled:', error);
             });
 
-            const previouslyEnrolled = enrolledCourses.hasOwnProperty(courseOffer.course.id);
-            setTakenBefore(previouslyEnrolled);
+        const previouslyEnrolled = enrolledCourses.hasOwnProperty(courseOffer.course.id);
+        setTakenBefore(previouslyEnrolled);
     };
     useEffect(() => {
-        checkIfEnrolled();
+        checkIfPreviouslyEnrolled();
     }, []);
+
+
+    useEffect(() => {
+        if (!Array.isArray(prevEnrollments)) {
+        console.error("prevEnrollments is not an array.");
+        console.log(prevEnrollments)
+        return;
+      }
+        const currentSemesterCode = courseOffer.semester.code;
+        const disenroll = prevEnrollments.some(
+            (enrollment) => enrollment.course_offer.semester.code === currentSemesterCode
+        );
+
+        const retake = !disenroll;
+
+        setIsDisenroll(disenroll);
+        setIsRetake(retake);
+    }, [prevEnrollments])
 
 
     const handleEnrollment = () => {
@@ -411,6 +430,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             course_offer: courseOffer.id,
             student: studentId,
             is_complete: false,
+            regular: !isRetake,
         };
 
         const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/`;
@@ -426,7 +446,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 // console.log('Course enrollment successful.:', response.data);
                 setEnrollmentMessage('Successfully enrolled.')
                 setIsEnrolled(true);
-                setEnrollment(response.data);
+                setPrevEnrollments(response.data);
             })
             .catch(error => {
                 setEnrollmentMessage('FAILED: An error occurred while enrolling :(')
@@ -436,7 +456,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
 
     const handleDisenrollment = () => {
-        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${enrollment.id}/`;
+        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${prevEnrollments.id}/`;
 
         // Making the POST request
         axios.delete(apiEndpoint, {
@@ -467,7 +487,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             // for now, return true if student is just enrolled to the prerequisite course.
             return true;
         }
-        return false; 
+        return false;
     }
 
 
@@ -565,13 +585,13 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                     <small className=''>
                         <i className="bi bi-exclamation-triangle"> Couldn't check enrollment status.</i>
                     </small>
-                    <button className='btn btn-sm btn-light p-0 px-1 mx-2' onClick={() => { checkIfEnrolled() }}>
+                    <button className='btn btn-sm btn-light p-0 px-1 mx-2' onClick={() => { checkIfPreviouslyEnrolled() }}>
                         <small><i className="bi bi-arrow-clockwise"> Retry</i></small>
                     </button>
                 </>}
 
                 {/* if this course taken previouly  */}
-                {!isEnrolled && takenBefore  && <>
+                {!isEnrolled && takenBefore && <>
                     <small className=''>
                         <i className="bi bi-info-circle-fill"> You have already taken this course</i>
                     </small>
@@ -586,18 +606,28 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 </div>
             )}
 
+
+            {(prevEnrollments.length > 0) && <div className='text-center text-secondary'>
+                <h5>You have already taken this course</h5>
+
+                {prevEnrollments.map(course => (
+                    <div key={course.id}> <small>In <strong>{course.course_offer.semester.term.name} {course.course_offer.semester.year}</strong> as <strong>{course.regular ? 'regular' : 'retake'}</strong> course</small> </div>
+                ))}
+            </div>}
+
+
             {/* enroll or disenroll button  */}
             <div className="my-4 d-flex justify-content-center">
                 {isEnrolled
                     ? <div className="btn-group" role="group" aria-label="Basic example">
                         <button type="button" className="btn btn-darkblue2 pt-1" disabled>Enrolled</button>
-                        <button 
-                        type="button" 
-                        className="btn btn-darkblue2 pt-1"
-                        onClick={() => { handleDisenrollment() }}
+                        <button
+                            type="button"
+                            className="btn btn-darkblue2 pt-1"
+                            onClick={() => { handleDisenrollment() }}
                         >
                             Disenroll
-                            </button>
+                        </button>
                     </div>
                     : <div className="btn-group gap-2" role="group" aria-label="Basic example">
                         <button
@@ -611,6 +641,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                     </div>
                 }
             </div>
+           
 
         </div>
     );
