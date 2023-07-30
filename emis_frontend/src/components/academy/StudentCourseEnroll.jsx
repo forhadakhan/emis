@@ -327,6 +327,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     const [isRetake, setIsRetake] = useState(false);
     const [isDisenroll, setIsDisenroll] = useState(false);
     const [takenBefore, setTakenBefore] = useState(false);
+    const [enrollment, setEnrollment] = useState('');
     const [prevEnrollments, setPrevEnrollments] = useState([]);
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
     const [enrollmentMessage, setEnrollmentMessage] = useState('');
@@ -391,7 +392,6 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 // set response
                 setIsEnrolled(response.data.is_enrolled);
                 setPrevEnrollments(response.data.enrollments)
-                console.log(response.data.enrollments)
                 setEnrollmentChecked(true);
             })
             .catch(error => {
@@ -407,21 +407,24 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     }, []);
 
 
+    // setup button dependencies based on prevEnrollments
     useEffect(() => {
         if (!Array.isArray(prevEnrollments)) {
-        console.error("prevEnrollments is not an array.");
-        console.log(prevEnrollments)
-        return;
-      }
+            // console.error("prevEnrollments is not an array.");
+            // console.log(prevEnrollments)
+            return;
+        }
         const currentSemesterCode = courseOffer.semester.code;
-        const disenroll = prevEnrollments.some(
+        const enrollment = prevEnrollments.find(
             (enrollment) => enrollment.course_offer.semester.code === currentSemesterCode
         );
 
+        const disenroll = !!enrollment;
         const retake = !disenroll;
 
         setIsDisenroll(disenroll);
         setIsRetake(retake);
+        setEnrollment(enrollment);
     }, [prevEnrollments])
 
 
@@ -446,7 +449,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 // console.log('Course enrollment successful.:', response.data);
                 setEnrollmentMessage('Successfully enrolled.')
                 setIsEnrolled(true);
-                setPrevEnrollments(response.data);
+                setEnrollment(response.data);
             })
             .catch(error => {
                 setEnrollmentMessage('FAILED: An error occurred while enrolling :(')
@@ -456,7 +459,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
 
     const handleDisenrollment = () => {
-        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${prevEnrollments.id}/`;
+        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${enrollment.id}/`;
 
         // Making the POST request
         axios.delete(apiEndpoint, {
@@ -590,12 +593,6 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                     </button>
                 </>}
 
-                {/* if this course taken previouly  */}
-                {!isEnrolled && takenBefore && <>
-                    <small className=''>
-                        <i className="bi bi-info-circle-fill"> You have already taken this course</i>
-                    </small>
-                </>}
             </div>
 
             {/* enrollment request response message  */}
@@ -608,7 +605,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
 
             {(prevEnrollments.length > 0) && <div className='text-center text-secondary'>
-                <h5>You have already taken this course</h5>
+                <h5><i className="bi bi-info-circle-fill px-2"></i> You have already taken this course</h5>
 
                 {prevEnrollments.map(course => (
                     <div key={course.id}> <small>In <strong>{course.course_offer.semester.term.name} {course.course_offer.semester.year}</strong> as <strong>{course.regular ? 'regular' : 'retake'}</strong> course</small> </div>
@@ -616,32 +613,88 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             </div>}
 
 
-            {/* enroll or disenroll button  */}
+            {/* enroll, retake or disenroll action buttons  */}
             <div className="my-4 d-flex justify-content-center">
-                {isEnrolled
-                    ? <div className="btn-group" role="group" aria-label="Basic example">
-                        <button type="button" className="btn btn-darkblue2 pt-1" disabled>Enrolled</button>
+                <div>
+                    {/* show enroll button if isEnrolled is false */}
+                    {!isEnrolled && <>
                         <button
                             type="button"
-                            className="btn btn-darkblue2 pt-1"
-                            onClick={() => { handleDisenrollment() }}
-                        >
-                            Disenroll
-                        </button>
-                    </div>
-                    : <div className="btn-group gap-2" role="group" aria-label="Basic example">
-                        <button
-                            type="button"
-                            className="btn btn-darkblue2 pt-1"
+                            className="btn btn-darkblue2 pt-1 m-1"
                             disabled={!enrollmentChecked || takenBefore}
                             onClick={() => { handleEnrollment() }}
                         >
                             Enroll
                         </button>
-                    </div>
-                }
+                    </>}
+                    {/* show retake button if isRetake is true */}
+                    {isRetake && <>
+                        <button
+                            type="button"
+                            className="btn btn-darkblue2 pt-1 m-1 justify-content-center"
+                            disabled={!enrollmentChecked}
+                            data-bs-toggle="collapse"
+                            data-bs-target="#retakeConfirm"
+                            aria-expanded="false"
+                            aria-controls="retakeConfirm"
+                        >
+                            Retake
+                        </button>
+                        {/* confirm retake with warning message */}
+                        <div className="collapse" id="retakeConfirm">
+                            <div className="card card-body">
+                                <div className='row'>
+                                        <div className='col-1 text-end fs-5 p-1'><i className="bi bi-exclamation-triangle p-2 rounded text-warning bg-darkblue"></i></div>
+                                    <div className='col-11 small'>If you retake this course, then your previous enrollment grade points and credit hours will <strong>not</strong> be counted.
+                                </div>
+                                </div>
+                                <hr />
+                                <p className='text-center'>I understood and agreed, please
+                                    <a
+                                        href="#"
+                                        className='px-2 pt-1 mx-1 btn btn-sm btn-darkblue2'
+                                        onClick={() => { handleEnrollment() }}
+                                    > Enroll Me
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </>}
+                    {/* show disenroll button if isDisenroll is true */}
+                    {isDisenroll && <>
+                        <button
+                            type="button"
+                            className="btn btn-darkblue2 pt-1 m-1"
+                            disabled={!enrollmentChecked}
+                            data-bs-toggle="collapse"
+                            data-bs-target="#disenrollConfirm"
+                            aria-expanded="false"
+                            aria-controls="disenrollConfirm"
+                        >
+                            Disenroll
+                        </button>
+                        {/* confirm disenroll with warning message */}
+                        <div className="collapse" id="disenrollConfirm">
+                            <div className="card card-body">
+                                <div className='row'>
+                                    <div className='col-1 text-end fs-5 p-1'><i className="bi bi-exclamation-triangle p-2 rounded text-warning bg-darkblue"></i></div>
+                                    <div className='col-11 small'>If you disenroll from this course, then your earned grade points and credit hours will be removed and cannot be recovered later.
+                                </div>
+                                </div>
+                                <hr />
+                                <p className='text-center'>I understood the risk and agreed, please
+                                    <a
+                                        href="#"
+                                        className='px-2 pt-1 mx-1 btn btn-sm btn-danger'
+                                        onClick={() => { handleDisenrollment() }}
+                                    > Disenroll
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </>}
+                </div>
             </div>
-           
 
         </div>
     );
