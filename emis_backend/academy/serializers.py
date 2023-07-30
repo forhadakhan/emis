@@ -220,6 +220,24 @@ class CourseOfferNestedSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CourseOfferSemiNestedSerializer(serializers.ModelSerializer):
+    semester = SemesterNestedSerializer(read_only=True)
+    course = CourseSerializer(read_only=True)
+
+    def get_teacher(self, course_offer):
+        teacher = course_offer.teacher
+        if teacher:
+            teacher_enrollment = get_object_or_404(TeacherEnrollment, teacher=teacher)
+            serializer = TeacherEnrollmentViewSerializer(teacher_enrollment)
+            return serializer.data
+
+        return None
+
+    class Meta:
+        model = CourseOffer
+        fields = '__all__'
+
+
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
@@ -228,6 +246,13 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
 
 class CourseEnrollmentNestedSerializer(serializers.ModelSerializer):
     course_offer = CourseOfferNestedSerializer(read_only=True)
+    class Meta:
+        model = CourseEnrollment
+        fields = '__all__'
+
+
+class CourseEnrollmentSemiNestedSerializer(serializers.ModelSerializer):
+    course_offer = CourseOfferSemiNestedSerializer(read_only=True)
     class Meta:
         model = CourseEnrollment
         fields = '__all__'
@@ -245,4 +270,83 @@ class MarksheetNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Marksheet
         fields = '__all__'
+
+
+class AcademicRecordsSerializer(serializers.ModelSerializer):
+    course_enrollment = CourseEnrollmentSemiNestedSerializer()
+    status = serializers.SerializerMethodField()
+    letter_grade = serializers.SerializerMethodField()
+    grade_point = serializers.SerializerMethodField()
+    remarks = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Marksheet
+        fields = '__all__'
+
+    def get_letter_grade(self, obj):
+        if not obj.course_enrollment.course_offer.is_complete:
+            return None
+        cgpa_entry = self._get_cgpa_entry(obj)
+        return cgpa_entry.letter_grade if cgpa_entry else None
+
+    def get_grade_point(self, obj):
+        if not obj.course_enrollment.course_offer.is_complete:
+            return None
+        cgpa_entry = self._get_cgpa_entry(obj)
+        return cgpa_entry.grade_point if cgpa_entry else None
+
+    def get_remarks(self, obj):
+        if not obj.course_enrollment.course_offer.is_complete:
+            return None
+        cgpa_entry = self._get_cgpa_entry(obj)
+        return cgpa_entry.remarks if cgpa_entry else None
+
+    def _get_cgpa_entry(self, obj):
+    # Calculate the total marks, replacing None values with 0
+        attendance = obj.attendance if obj.attendance is not None else 0
+        assignment = obj.assignment if obj.assignment is not None else 0
+        mid_term = obj.mid_term if obj.mid_term is not None else 0
+        final = obj.final if obj.final is not None else 0
+
+        total_marks = attendance + assignment + mid_term + final
+
+        # Fetch the CGPA entry for the given total_marks
+        cgpa_entry = CGPATable.objects.filter(
+            lower_mark__lte=total_marks, higher_mark__gte=total_marks
+        ).first()
+
+        return cgpa_entry
+    
+    def get_status(self, obj):
+        # Get the course offer associated with the Marksheet's course enrollment
+        course_offer = obj.course_enrollment.course_offer
+
+        # Check if the course is ongoing
+        if not course_offer.is_complete:
+            # If the course is not completed yet, return 'on going'
+            return 'on going'
+
+        # Calculate the pass marks for each component, replacing None values with 0
+        pass_marks_final = 0.4 * 40  # 40% of max marks for 'final': 40 
+        pass_marks_mid_term = 0.4 * 30  # 40% of max marks for 'mid_term': 30 
+        pass_marks_assignment = 0.4 * 20  # 40% of max marks for 'assignment': 20 
+
+        assignment = obj.assignment if obj.assignment is not None else 0
+        mid_term = obj.mid_term if obj.mid_term is not None else 0
+        final = obj.final if obj.final is not None else 0
+
+        # Check the conditions for different statuses in reverse order
+        if assignment < pass_marks_assignment:
+            # If 'assignment' marks are less than the pass marks, return 'fail'
+            return 'fail'
+        elif mid_term < pass_marks_mid_term:
+            # If 'mid_term' marks are less than the pass marks, return 'retake'
+            return 'retake'
+        elif final < pass_marks_final:
+            # If 'final' marks are less than the pass marks, return 'supplementary'
+            return 'supplementary'
+        else:
+            # If none of the above conditions are met, return 'pass'
+            return 'pass'
+
 
