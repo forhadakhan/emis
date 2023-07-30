@@ -60,9 +60,12 @@ from .serializers import (
     CourseOfferNestedSerializer,
     CourseEnrollmentSerializer,
     CourseEnrollmentNestedSerializer,
+    CourseEnrollmentSemiNestedSerializer,
     MarksheetSerializer,
-    MarksheetNastedSerializer,
+    MarksheetNestedSerializer,
 )
+
+
 
 class DesignationAPIView(APIView):
     """
@@ -883,27 +886,27 @@ class StudentEnrolledCoursesAPIView(APIView):
 
 
 
-class IsEnrolled(APIView):
+class CheckCourseEnrollments(APIView):
     """
-        Check if a student is enrolled to a offered course by course offer and student id using APIView  
+    Check if a student is enrolled in an offered course by course id and student id using APIView.
     """
 
     permission_classes = [IsAuthenticated]
-    
-    def get(self, request, course_offer_id, student_id):
+
+    def get(self, request, course_id, student_id):
         try:
-            # Check if there's an existing enrollment with the given course_offer and student
-            enrollment = CourseEnrollment.objects.filter(course_offer_id=course_offer_id, student_id=student_id).first()
+            # Check if there are existing enrollments with the given course_id and student_id
+            enrollments = CourseEnrollment.objects.filter(course_offer__course__id=course_id, student_id=student_id)
 
-            if enrollment:
-                # If enrollment exists, serialize the enrollment data and return it
-                serializer = CourseEnrollmentSerializer(enrollment)
-                data = {'is_enrolled': True, 'enrollment': serializer.data}
+            if enrollments:
+                # If enrollments exist, serialize the enrollment data and return it
+                serializer = CourseEnrollmentSemiNestedSerializer(enrollments, many=True)
+                data = {'is_enrolled': True, 'enrollments': serializer.data}
             else:
-                # If enrollment does not exist, return is_enrolled as False
-                data = {'is_enrolled': False}
+                # If no enrollments exist, return is_enrolled as False
+                data = {'is_enrolled': False, 'enrollments': []}
 
-            # Return the result as JSON response
+            # Return the result as a JSON response
             return JsonResponse(data)
 
         except Exception as e:
@@ -953,7 +956,7 @@ class MarksheetListByCourseOffer(ListAPIView):
     Get all marksheets for a offered courses.
     Note: whenever a new stuudent enroll to a offered course, a new marksheet is created for that enrollment 
     """
-    serializer_class = MarksheetNastedSerializer
+    serializer_class = MarksheetNestedSerializer
 
     def get_queryset(self):
         course_offer_id = self.kwargs['course_offer_id']
