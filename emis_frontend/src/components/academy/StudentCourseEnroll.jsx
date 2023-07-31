@@ -227,6 +227,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
                 <div>
                     <strong className='d-block'>{row.course.name}</strong>
                     <small>{row.course.acronym} {row.course.code}: Credit {row.course.credit}</small>
+                    <small> (Teacher: {row.teacher.teacher.acronym}) </small>
                 </div>
             ),
         },
@@ -283,6 +284,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = courseOfferings.filter(
             (cf) =>
+                `${cf.course.prerequisites.length > 0 ? 'Have Prerequisites' : 'Prerequisites None'}`.toLowerCase().includes(keyword) ||
                 `${cf.semester.term.name} ${cf.semester.year}`.toLowerCase().includes(keyword) ||
                 `${cf.teacher.teacher.user.first_name} ${cf.teacher.teacher.user.middle_name} ${cf.teacher.teacher.user.last_name} (${cf.teacher.teacher.acronym})`.toLowerCase().includes(keyword) ||
                 `${cf.semester.term.start} to ${cf.semester.term.end}`.toLowerCase().includes(keyword) ||
@@ -312,8 +314,9 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
                     Filter:
                 </label>
                 <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
-                    <option value="">No Filter</option>
-                    <option value=""></option>
+                    <option value="" className='text-white'>No Filter</option>
+                    <option value="Have Prerequisites"> Have Prerequisites </option>
+                    <option value="Prerequisites None"> No Prerequisites </option>
                 </select>
             </div>
 
