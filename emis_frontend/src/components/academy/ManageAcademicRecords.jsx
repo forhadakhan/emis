@@ -235,7 +235,7 @@ const StudentList = ({ studentUsers, setStudnetId }) => {
                         className="btn btn-sm btn-outline-dark me-2 border-0"
                         onClick={() => handleSelect(row.fields.username)}
                         data-bs-toggle="tooltip"
-                        data-bs-title="Manage Profile"
+                        data-bs-title="Select this student"
                     >
                         Select
                     </button>
@@ -354,13 +354,267 @@ const ListAllStudent = ({ setStudnetId }) => {
 }
 
 
+// Sub component to StudentRecords 
+const AcademicRecordList = ({ studnetId }) => {
+    const accessToken = getAccessToken();
+    const [records, setRecords] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
+    const [alertMessage, setAlertMessage] = useState('');
+
+
+    // fetch  fetch records by student id.  
+    useEffect(() => {
+        setAlertMessage('');
+        const fetchRecords = async (id) => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/academy/academic-records/${id}/`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setRecords(response.data);
+            } catch (error) {
+                setAlertMessage('Error fetching student records');
+                console.error('Error fetching student records:', error);
+            }
+        };
+        fetchRecords(studnetId);
+    }, [studnetId]);
+
+
+    useEffect(() => {
+        setFilteredData(records);
+    }, [records]);
+
+
+    const getCourseName = (data) => {
+        const course = data.course_enrollment.course_offer.course
+        return `${course.name}`
+    }
+
+    const getCourseCode = (data) => {
+        const course = data.course_enrollment.course_offer.course
+        return `${course.acronym}-${course.code}`
+    }
+
+    const getSemester = (data) => {
+        const semester = data.course_enrollment.course_offer.semester
+        return `${semester.term.name} ${semester.year}`
+    }
+
+
+    const columns = [
+        {
+            name: 'Code',
+            selector: (row) => getCourseCode(row),
+            sortable: true,
+            width: '8%',
+            center: true,
+            cell: (row) => (
+                <div>
+                    <span className='text-capitalize '>{getCourseCode(row)}</span>
+                </div>
+            )
+        },
+        {
+            name: 'Course',
+            selector: (row) => getCourseName(row),
+            sortable: true,
+            // width: '14%',
+            cell: (row) => (
+                <div>
+                    <span className='text-capitalize'>{getCourseName(row)}</span>
+                </div>
+            )
+        },
+        {
+            name: 'Semester',
+            selector: (row) => row.course_enrollment.course_offer.semester.code,
+            sortable: true,
+            width: '12%',
+            cell: (row) => (
+                <div>
+                    <span className='text-capitalize'>{getSemester(row)}</span>
+                </div>
+            )
+        },
+        {
+            name: 'Status',
+            selector: (row) => row.status,
+            sortable: true,
+            width: '14%',
+            cell: (row) => (
+                <div>
+                    <span className='text-capitalize'>{row.course_enrollment.regular ? 'Regular: ' : 'Retake: '}</span>
+                    <span className='text-capitalize'>{row.status}</span>
+                </div>
+            )
+        },
+        {
+            name: 'CH',
+            // In case the course enrolled as non credit, don't show CH/credit hour 
+            selector: (row) => row.course_enrollment.non_credit ? '' : row.course_enrollment.course_offer.course.credit,
+            sortable: true,
+            width: '8%'
+        },
+        {
+            name: 'GP',
+            selector: (row) => row.grade_point,
+            sortable: true,
+            width: '8%',
+            cell: (row) => (
+                <div>
+                    <span className='text-capitalize'>{row.grade_point}</span>
+                </div>
+            )
+        },
+        {
+            name: 'GL',
+            selector: (row) => row.letter_grade,
+            sortable: true,
+            width: '8%',
+            cell: (row) => (
+                <div>
+                    <span className='text-capitalize'>{row.letter_grade}</span>
+                </div>
+            )
+        },
+        {
+            name: 'Actions',
+            button: true,
+            cell: (row) => (
+                <div className='mx-auto'>
+                    {/* view student select button */}
+                    {row.is_published
+                        ? <i className="bi bi-check-square pe-1" data-bs-toggle="tooltip" title="Published"></i>
+                        : <i className="bi bi-x-square pe-1" data-bs-toggle="tooltip" title="Not Published"></i>
+                    }
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-dark me-2 border-0"
+                        onClick={() => handleSelect(row)}
+                    >
+                        Select
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
+    const customStyles = {
+        rows: {
+            style: {
+                // minHeight: '72px', // override the row height
+                fontSize: '16px',
+            },
+        },
+        headCells: {
+            style: {
+                paddingLeft: '8px', // override the cell padding for head cells
+                paddingRight: '8px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                backgroundColor: 'rgb(1, 1, 50)',
+                color: 'rgb(238, 212, 132)',
+                border: '1px solid rgb(238, 212, 132)',
+            },
+        },
+        cells: {
+            style: {
+                paddingLeft: '2px', // override the cell padding for data cells
+                paddingRight: '2px',
+                // fontWeight: 'bold'
+            },
+        },
+    };
+
+
+    const handleSearch = (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filteredResults = records.filter(
+            (record) =>
+                getCourseCode(record).toLowerCase().includes(keyword) ||
+                getCourseName(record).toLowerCase().includes(keyword) ||
+                getSemester(record).toLowerCase().includes(keyword) ||
+                `${record.course_enrollment.non_credit ? 'non credit' : 'add credit'}`.toLowerCase().includes(keyword) ||
+                `${record.course_enrollment.regular ? 'Regular: ' : 'Retake: '}`.toLowerCase().includes(keyword) ||
+                `${record.course_enrollment.regular ? 'Regular: ' : 'Retake: '}${record.status}`.toLowerCase().includes(keyword) ||
+                record.status.toLowerCase().includes(keyword) ||
+                record.course_enrollment.course_offer.course.credit.toString().includes(keyword) ||
+                `${record.grade_point}`.toLowerCase().includes(keyword) ||
+                `${record.letter_grade}`.toLowerCase().includes(keyword)
+        );
+        setFilteredData(filteredResults);
+    };
+
+
+    const handleSelect = (username) => {
+        // setStudnetId(username);
+    };
+
+
+    return (
+        <div>
+            {alertMessage && (
+                <div className={`alert alert-info alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
+                    <strong>{alertMessage}</strong>
+                    <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
+                </div>
+            )}
+
+            {/* filter options  */}
+            <div className="mb-3 me-5 input-group">
+                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
+                    Filter:
+                </label>
+                <select id="filter" className="rounded bg-beige text-darkblue p-1" onChange={handleSearch}>
+                    <option value="">No Filter</option>
+                    <option value="Regular"> Regular </option>
+                    <option value="Retake"> Retake </option>
+                    <option value="fail"> Fail </option>
+                    <option value="retake"> Retake </option>
+                    <option value="supplementary"> Supplementary </option>
+                    <option value="pass"> Pass </option>
+                    <option value="non credit"> Non Credit </option>
+                    <option value="add credit"> Credit Only </option>
+                </select>
+            </div>
+
+            {/* Search input  */}
+            <div className="m-5">
+                <input
+                    type="text"
+                    placeholder="Search"
+                    onChange={handleSearch}
+                    className="form-control text-center border border-darkblue"
+                />
+            </div>
+
+            {/* list records */}
+            <div className="border border-beige">
+                <DataTable
+                    columns={columns}
+                    data={filteredData}
+                    pagination
+                    customStyles={customStyles}
+                    paginationRowsPerPageOptions={[10, 20, 40, 80]}
+                    highlightOnHover
+                />
+            </div>
+        </div>
+    );
+};
+
+
 // Sub Component to ManageAcademicRecords 
 const StudentRecords = ({ studentData }) => {
     const [enrollmentId, setEnrollmentId] = useState('');
     const [program, setProgram] = useState('')
 
+
+
     useEffect(() => {
-        if(studentData.enrollment) {
+        if (studentData.enrollment) {
             setEnrollmentId(studentData.enrollment.id);
         }
     }, [])
@@ -418,16 +672,16 @@ const StudentRecords = ({ studentData }) => {
                             <h5 className="fs-6 text-body-secondary"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
 
                             {/* Student Enrollment Information */}
-                            {program && enrollmentId && 
-                                <small className="d-block fw-bold text-body-secondary">{program.name}</small>
-                            }    
+                            {program && enrollmentId &&
+                                <small className="d-block fw-bold text-body-secondary">Programme: {program.code} - {program.degree_type.acronym} in {program.name} ({program.acronym}) </small>
+                            }
                             {enrollmentId && <>
                                 <small className="d-block fw-bold text-body-secondary">
                                     Batch: {getOrdinal(studentData.enrollment.batch_section.batch_data.number)};
                                     Section: {studentData.enrollment.batch_section.name}
                                 </small>
                                 {/* semester  */}
-                                {/* <small className="d-block fw-bold text-body-secondary">{studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small> */}
+                                <small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
                             </>}
 
                             {/* {enrollmentId && <>
@@ -443,6 +697,9 @@ const StudentRecords = ({ studentData }) => {
             </div>
         </>}
 
+        <div>
+            <AcademicRecordList studnetId={studentData.id} />
+        </div>
 
     </>);
 }
