@@ -11,12 +11,11 @@ import Select from 'react-select'
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth';
 
-import Marksheet from './MarksheetController.jsx'
-import Discussion from './course-control/Discussion.jsx'
+import CourseDetails from './course-control/CourseDetails.jsx'
 
 
 
-// Component 
+// Main Component 
 const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
     const accessToken = getAccessToken();
     const [alertMessage, setAlertMessage] = useState('');
@@ -26,7 +25,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
     const [teachers, setTeachers] = useState([]);
     const [courseOffer, setCourseOffer] = useState('');
 
-
+    // add current component to breadcrumb
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('ManageCourseOffer')}>
             <i className="bi-file-medical-fill"></i> Manage Term Choices
@@ -214,7 +213,7 @@ const ManageCourseOffer = ({ setActiveComponent, breadcrumb }) => {
 
 
 
-// Component 
+// Sub-component to ManageCourseOffer 
 const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView }) => {
     const accessToken = getAccessToken();
     const [courseOfferings, setCourseOfferings] = useState([]);
@@ -424,7 +423,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
 
 
 
-// Component 
+// Sub-component to ManageCourseOffer
 const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, handleBack, courseOffer }) => {
     const accessToken = getAccessToken();
     const [showComponent, setShowComponent] = useState('CourseOfferForm');
@@ -457,12 +456,10 @@ const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, han
 
     const renderComponent = () => {
         switch (showComponent) {
-            case 'Discussion':
-                return <Discussion courseOffer={courseOffer} />
-            case 'Marksheet':
-                return <Marksheet courseOffer={courseOffer} students={students} />
             case 'CourseOfferForm':
                 return <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} courseOfferView={courseOffer} handleBack={handleBack} />
+            case 'CourseDetails':
+                return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} />
             default:
                 return <></>
         }
@@ -487,21 +484,14 @@ const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, han
                     className="btn btn-darkblue2 pt-1"
                     onClick={() => { setShowComponent('CourseOfferForm') }}
                     disabled={showComponent === 'CourseOfferForm'}
-                > Course Offer Info
+                > Update Info
                 </button>
                 <button
                     type="button"
                     className="btn btn-darkblue2 pt-1"
-                    onClick={() => { setShowComponent('Marksheet') }}
-                    disabled={showComponent === 'Marksheet'}
-                > Marksheet
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-darkblue2 pt-1"
-                    onClick={() => { setShowComponent('Discussion') }}
-                    disabled={showComponent === 'Discussion'}
-                > Discussion
+                    onClick={() => { setShowComponent('CourseDetails') }}
+                    disabled={showComponent === 'CourseDetails'}
+                > Course Details
                 </button>
             </div>
         </div>
@@ -515,7 +505,8 @@ const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, han
 }
 
 
-// Component 
+
+// Sub-component to ManageCourseOffer 
 const AddCourseOffer = ({ semesters, courses, teachers, hasPrerequisites, getTeacher, handleBack }) => {
     return (
         <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} getTeacher={getTeacher} handleBack={handleBack} />
@@ -523,7 +514,7 @@ const AddCourseOffer = ({ semesters, courses, teachers, hasPrerequisites, getTea
 }
 
 
-// Component 
+// Sub-component to CourseOfferDetail and AddCourseOffer 
 const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView = {}, teachers, handleBack }) => {
     const accessToken = getAccessToken();
     const initForm = {
@@ -546,7 +537,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
     const [selectedTeacher, setSelectedTeacher] = useState('');
     const [capacity, setCapacity] = useState('');
 
-    
+
     // get all existing course offerings through api 
     const fetchCourseOffer = async (courseOfferId) => {
         const config = {
@@ -575,7 +566,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         label: `${course.code}: ${course.name}`
     }));
 
-    
+
     // set semester options data for select (pkg: react-select)
     const semestermOptions = semesters.map(semester => ({
         value: semester.id,
@@ -583,7 +574,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         label: `${semester.term.name} ${semester.year} (${semester.term.start} to ${semester.term.end})`
     }));
 
-    
+
     // set teacher options data for select (pkg: react-select)
     const teacherOptions = teachers.map(enrollment => ({
         value: enrollment.teacher.id,
@@ -669,7 +660,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
             </div>
         </>;
     }
-    
+
 
     // get prerequisites data in a div  
     const getPrerequisites = (selectedCourse) => {
@@ -703,7 +694,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     }
 
-    
+
     // handle a teacher select 
     const handleTeacherChange = (selectedOption) => {
         setSelectedTeacher(selectedOption);
@@ -712,14 +703,14 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     }
 
-    
+
     // handle capacity input 
     const handleCapacityChange = (e) => {
         setCapacity(e.target.value)
         setFormData({ ...formData, capacity: e.target.value });
     }
 
-    
+
     // submit data through api to add/modify a course offer 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -740,7 +731,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
             resetData();
             // if we are viewing details, set updated data to courseOffer, otherwise reset formData to initial 
             isDetail ? fetchCourseOffer(courseOfferId) : setFormData(initForm);
-            
+
         } catch (error) {
             if (error.response && error.response.data) {
                 const errorMessages = Object.entries(error.response.data)
@@ -782,7 +773,7 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
         }
     };
 
-    
+
     const handleModalClose = () => {
         setShowSuccessModal(false)
     }
@@ -793,7 +784,9 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
 
             {/* course offer list link  */}
             <a className="icon-link icon-link-hover" href="#" onClick={handleBack}>
-                <i className="bi bi-arrow-bar-left"></i> Goto List
+                <small>
+                    <i className="bi bi-arrow-bar-left"></i> Goto List
+                </small>
             </a>
 
 
@@ -803,15 +796,15 @@ const CourseOfferForm = ({ semesters, hasPrerequisites, courses, courseOfferView
                     <span className='badge bg-white text-secondary border p-2 fw-normal'>
                         Course Offer Form
                     </span>
-                        <button
-                            type='button'
-                            className='btn btn-light mx-2'
-                            data-bs-toggle="tooltip"
-                            title="Reload Data"
-                            onClick={() => fetchCourseOffer(courseOfferId)}
-                        >
-                            <i className="bi bi-arrow-clockwise"></i>
-                        </button>
+                    <button
+                        type='button'
+                        className='btn btn-light mx-2'
+                        data-bs-toggle="tooltip"
+                        title="Reload Data"
+                        onClick={() => fetchCourseOffer(courseOfferId)}
+                    >
+                        <i className="bi bi-arrow-clockwise"></i>
+                    </button>
 
                 </h4>
 
