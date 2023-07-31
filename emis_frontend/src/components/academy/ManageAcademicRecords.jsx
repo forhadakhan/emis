@@ -17,6 +17,7 @@ const ManageAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
     const [showComponent, setShowComponent] = useState('FindAStudent');
     const [studnetId, setStudnetId] = useState('');
     const [studentData, setStudentData] = useState('');
+    const [selectedRecord, setSelectedRecord] = useState('');
 
     // add current component in breadcrumb 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -29,11 +30,13 @@ const ManageAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'ListAllStudent':
-                return <ListAllStudent setStudnetId={setStudnetId} />;
+                return <ListAllStudent setStudnetId={setStudnetId} setSelectedRecord={setSelectedRecord} setShowComponent={setShowComponent} />;
             case 'FindAStudent':
                 return <FindAStudent setStudnetId={setStudnetId} />;
             case 'StudentRecords':
                 return <StudentRecords studentData={studentData} />;
+            case 'RecordDetails':
+                return <RecordDetails record={selectedRecord} />;
             default:
                 return <><p className='text-center m-5'>Something went wrong while rendering component!</p></>;
         }
@@ -355,14 +358,14 @@ const ListAllStudent = ({ setStudnetId }) => {
 
 
 // Sub component to StudentRecords 
-const AcademicRecordList = ({ studnetId }) => {
+const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) => {
     const accessToken = getAccessToken();
     const [records, setRecords] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
 
 
-    // fetch  fetch records by student id.  
+    // fetch all records by student id from backend 
     useEffect(() => {
         setAlertMessage('');
         const fetchRecords = async (id) => {
@@ -382,29 +385,34 @@ const AcademicRecordList = ({ studnetId }) => {
     }, [studnetId]);
 
 
+    // filteredData is being used for searching, initially set all records as filtered data 
     useEffect(() => {
         setFilteredData(records);
     }, [records]);
 
 
-    const getCourseName = (data) => {
-        const course = data.course_enrollment.course_offer.course
+    // take a record and return it's course name   
+    const getCourseName = (record) => {
+        const course = record.course_enrollment.course_offer.course
         return `${course.name}`
     }
 
-    const getCourseCode = (data) => {
-        const course = data.course_enrollment.course_offer.course
+    // take a record and return it's course code  
+    const getCourseCode = (record) => {
+        const course = record.course_enrollment.course_offer.course
         return `${course.acronym}-${course.code}`
     }
 
-    const getSemester = (data) => {
-        const semester = data.course_enrollment.course_offer.semester
+    // take a record and return which semester it was taken 
+    const getSemester = (record) => {
+        const semester = record.course_enrollment.course_offer.semester
         return `${semester.term.name} ${semester.year}`
     }
 
-
+    // define columns for record list 
     const columns = [
         {
+            // course code 
             name: 'Code',
             selector: (row) => getCourseCode(row),
             sortable: true,
@@ -417,6 +425,7 @@ const AcademicRecordList = ({ studnetId }) => {
             )
         },
         {
+            // course name 
             name: 'Course',
             selector: (row) => getCourseName(row),
             sortable: true,
@@ -428,6 +437,7 @@ const AcademicRecordList = ({ studnetId }) => {
             )
         },
         {
+            // term name and year 
             name: 'Semester',
             selector: (row) => row.course_enrollment.course_offer.semester.code,
             sortable: true,
@@ -451,6 +461,7 @@ const AcademicRecordList = ({ studnetId }) => {
             )
         },
         {
+            // credit hour 
             name: 'CH',
             // In case the course enrolled as non credit, don't show CH/credit hour 
             selector: (row) => row.course_enrollment.non_credit ? '' : row.course_enrollment.course_offer.course.credit,
@@ -458,29 +469,21 @@ const AcademicRecordList = ({ studnetId }) => {
             width: '8%'
         },
         {
-            name: 'GP',
+            // Grade point per credit hour 
+            name: 'GP/CH',
             selector: (row) => row.grade_point,
             sortable: true,
-            width: '8%',
-            cell: (row) => (
-                <div>
-                    <span className='text-capitalize'>{row.grade_point}</span>
-                </div>
-            )
+            width: '8%'
         },
         {
-            name: 'GL',
+            // letter grade 
+            name: 'LG',
             selector: (row) => row.letter_grade,
             sortable: true,
-            width: '8%',
-            cell: (row) => (
-                <div>
-                    <span className='text-capitalize'>{row.letter_grade}</span>
-                </div>
-            )
+            width: '8%'
         },
         {
-            name: 'Actions',
+            name: 'Action',
             button: true,
             cell: (row) => (
                 <div className='mx-auto'>
@@ -492,7 +495,7 @@ const AcademicRecordList = ({ studnetId }) => {
                     <button
                         type="button"
                         className="btn btn-sm btn-outline-dark me-2 border-0"
-                        onClick={() => handleSelect(row)}
+                        onClick={() => handleRecordSelect(row)}
                     >
                         Select
                     </button>
@@ -501,6 +504,7 @@ const AcademicRecordList = ({ studnetId }) => {
         },
     ];
 
+    // define styles for record list 
     const customStyles = {
         rows: {
             style: {
@@ -529,6 +533,7 @@ const AcademicRecordList = ({ studnetId }) => {
     };
 
 
+    // handle search input 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = records.filter(
@@ -548,13 +553,16 @@ const AcademicRecordList = ({ studnetId }) => {
     };
 
 
-    const handleSelect = (username) => {
-        // setStudnetId(username);
+    // if a record selected, show details 
+    const handleRecordSelect = (record) => {
+        setSelectedRecord(record);
+        setShowComponent('RecordDetails');
     };
 
 
     return (
         <div>
+            {/* show alert message, if any  */}
             {alertMessage && (
                 <div className={`alert alert-info alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <strong>{alertMessage}</strong>
@@ -710,6 +718,15 @@ const StudentRecords = ({ studentData }) => {
     </>);
 }
 
+
+
+const RecordDetails = ({ record }) => {
+
+
+    return (<>
+    
+    </>);
+}
 
 
 
