@@ -266,7 +266,7 @@ const CourseOfferList = ({ hasPrerequisites, prerequisiteStatus, courseOfferView
     const columns = [
         {
             name: 'Semester',
-            selector: (row) => `${row.semester.term.name} ${row.semester.year}`,
+            selector: (row) => row.semester.code,
             sortable: true,
             cell: (row) => (
                 <div>
