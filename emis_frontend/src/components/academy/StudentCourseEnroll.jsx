@@ -24,12 +24,15 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
     const [error, setError] = useState('');
 
 
+    // add current component to breadcrumb 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setActiveComponent('StudentCourseEnroll')}>
             <i className="bi-plus-square-fill"></i> Course Enrollment
         </button>
     );
 
+
+    // get all coffered courses for students enrolled semester 
     const fetchCourseOfferings = async () => {
         const config = {
             headers: {
@@ -84,6 +87,8 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
 
     }, []);
 
+
+    // return courses based on ids, using to get Prerequisite courses 
     const getPrerequisites = (ids) => {
         const prerequisiteCourses = [];
 
@@ -99,16 +104,18 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
     };
 
 
-
+    // go back to the list 
     const handleBack = async () => {
         setShowComponent('CourseList');
     };
 
 
+    // show details for the selected course from the list 
     const courseOfferView = (courseOffer) => {
         setCourseOffer(courseOffer);
-        setShowComponent('CourseDetails')
+        setShowComponent('CourseDetails');
     }
+
 
     const renderComponent = () => {
         switch (showComponent) {
@@ -121,9 +128,11 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
         }
     }
 
+
     return (
         <>
             <div className="">
+                {/* breadcrumb section  */}
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
                         {updatedBreadcrumb.map((item, index) => (
@@ -134,19 +143,22 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
 
             </div>
 
+            {/* page title */}
             <h2 className="text-center m-5 px-2 font-merriweather">
                 <i className="bi-plus-square-fill"></i> Course Enrollment
             </h2>
 
+            {/* let the user know if enrollment is open or not */}
             <div className="">
                 {semester.is_open
-                    ? <p className="text-center">Offered course(s) for <strong>{semester.term.name} {semester.year}</strong></p>
+                    ? <p className="text-center">Offered course(s) for <strong className='bg-beige p-1 rounded px-2'>{semester.term.name} {semester.year}</strong></p>
                     : <div className="d-flex justify-content-center">
                         <p className="text-center bg-danger text-white rounded p-2">Enrollment CLOSED for <strong>{semester.term.name} {semester.year}</strong></p>
                     </div>
                 }
             </div>
 
+            {/* display the error (if any)  */}
             {error && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -155,6 +167,7 @@ const StudentCourseEnroll = ({ setActiveComponent, breadcrumb }) => {
                 </div>
             )}
 
+            {/* if the student's enrollement is not active, show a restricted message. Else, render couser offer list/detail component  */}
             {enrollment.is_active
                 ?
                 <div className="">
@@ -180,15 +193,19 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
     const [error, setError] = useState('');
 
 
+    // filteredData is being used for searching, initially set all data as filtered 
     useEffect(() => {
         setFilteredData(courseOfferings);
     }, [courseOfferings]);
 
 
+    // handle course select 
     const handleCourseClick = (course) => {
         courseOfferView(course);
     };
 
+
+    // define list columns 
     const columns = [
         {
             name: 'Semester',
@@ -234,6 +251,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
         },
     ];
 
+    // define table styles 
     const customStyles = {
         rows: {
             style: {
@@ -259,6 +277,8 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
         },
     };
 
+
+    // handle search input results 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = courseOfferings.filter(
@@ -276,6 +296,8 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
 
     return (
         <div>
+
+            {/* show error, if there any  */}
             {error && (
                 <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                     <i className="bi bi-x-octagon-fill"> </i>
@@ -284,17 +306,18 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
                 </div>
             )}
 
+            {/* filter options  */}
             <div className="mb-3 me-5 input-group">
                 <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
                     Filter:
                 </label>
                 <select id="filter" className="rounded bg-darkblue text-beige p-1" onChange={handleSearch}>
                     <option value="">No Filter</option>
-                    <option value="Running">Running Courses</option>
-                    <option value="Completed">Completed Courses</option>
+                    <option value=""></option>
                 </select>
             </div>
 
+            {/* take search input  */}
             <div className="my-5 mx-md-5">
                 <input
                     type="text"
@@ -304,6 +327,7 @@ const CourseList = ({ courseOfferView, courseOfferings }) => {
                 />
             </div>
 
+            {/* show course offers list  */}
             <div className="rounded-4">
                 <DataTable
                     columns={columns}
@@ -327,7 +351,9 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     const [isRetake, setIsRetake] = useState(false);
     const [isDisenroll, setIsDisenroll] = useState(false);
     const [takenBefore, setTakenBefore] = useState(false);
+    const [prerequisitesCleared, setPrerequisitesCleared] = useState(true);
     const [enrollment, setEnrollment] = useState('');
+    const [prerequisites, setPrerequisites] = useState([]);
     const [prevEnrollments, setPrevEnrollments] = useState([]);
     const [enrollmentChecked, setEnrollmentChecked] = useState(false);
     const [enrollmentMessage, setEnrollmentMessage] = useState('');
@@ -339,9 +365,34 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
         capacity
     } = courseOffer;
 
-    const prerequisites = getPrerequisites(course.prerequisites);
+
+    // get prerequisite courses 
+    useEffect(() => {
+        const prerequisites = getPrerequisites(course.prerequisites);
+        setPrerequisites(prerequisites);
+    }, [course.prerequisites]);
 
 
+    // check and set Prerequisites Cleared status 
+    useEffect(() => {
+        prerequisites.forEach(course => {
+            const status = enrolledCourses.hasOwnProperty(course.id);
+
+            // in case, prerequisite completion is required, remove comment from below code  
+            // if (status && (enrolledCourses[course.id].is_complete === true)) {
+            //     return; // Return if course is not completed yet.
+            // } else {
+            //     setPrerequisitesCleared(false);
+            // }
+
+            if (!status) {
+                setPrerequisitesCleared(false);
+            }
+        });
+    }, [prerequisites]);
+
+
+    // get all enrolled courses for the logged student 
     const fetchEnrolledCourses = async () => {
         const config = {
             headers: {
@@ -377,6 +428,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     }, []);
 
 
+    // check if the student have taken the selected course before 
     const checkIfPreviouslyEnrolled = () => {
 
         const apiEndpoint = `${API_BASE_URL}/academy/course/check-enrollments/${courseOffer.course.id}/${studentId}/`;
@@ -408,26 +460,37 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
 
     // setup button dependencies based on prevEnrollments
-    useEffect(() => {
+    const setButtonDependencies = () => {
         if (!Array.isArray(prevEnrollments)) {
             // console.error("prevEnrollments is not an array.");
             // console.log(prevEnrollments)
             return;
         }
-        const currentSemesterCode = courseOffer.semester.code;
+
+        // check if already enrolled in selected course offer  
         const enrollment = prevEnrollments.find(
-            (enrollment) => enrollment.course_offer.semester.code === currentSemesterCode
+            (enrollment) => enrollment.course_offer.id === courseOffer.id
         );
 
+        // if already enrolled in selected course offer, trigger disenrollment and set enrollment  
         const disenroll = !!enrollment;
-        const retake = !disenroll;
-
         setIsDisenroll(disenroll);
-        setIsRetake(retake);
-        setEnrollment(enrollment);
+        if (disenroll) { setEnrollment(enrollment) }
+
+        // in case not enrolled in selected course offer, check if previously taken 
+        if (!disenroll) {
+            const retake = prevEnrollments.some(
+                (enrollment) => enrollment.course_offer.course.id === courseOffer.course.id
+            );
+            setIsRetake(retake);
+        }
+    }
+    useEffect(() => {
+        setButtonDependencies()
     }, [prevEnrollments])
 
 
+    // enroll (new/retake) to selected course offer 
     const handleEnrollment = () => {
         const enrollmentData = {
             course_offer: courseOffer.id,
@@ -449,15 +512,39 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 // console.log('Course enrollment successful.:', response.data);
                 setEnrollmentMessage('Successfully enrolled.')
                 setIsEnrolled(true);
+                setIsDisenroll(true);
+                setIsRetake(false);
                 setEnrollment(response.data);
             })
             .catch(error => {
-                setEnrollmentMessage('FAILED: An error occurred while enrolling :(')
+                if (error.response && error.response.data) {
+                    const errorMessages = Object.entries(error.response.data)
+                        .flatMap(([key, errorArray]) => {
+                            if (Array.isArray(errorArray)) {
+                                return errorArray.map(error => `${error}`);
+                            } else if (typeof errorArray === 'object') {
+                                const errorMessage = Object.values(errorArray).join(' ');
+                                return [`[${key}] ${errorMessage}`];
+                            } else {
+                                return [`[${key}] ${errorArray}`];
+                            }
+                        })
+                        .join('\n');
+
+                    if (errorMessages) {
+                        setEnrollmentMessage(`${errorMessages}`);
+                    } else {
+                        setEnrollmentMessage('FAILED: An error occurred while enrolling :(');
+                    }
+                } else {
+                    setEnrollmentMessage('FAILED: An error occurred while enrolling :(');
+                }
                 console.error('Error creating enrollment:', error);
             });
     };
 
 
+    // disenroll from current course offer 
     const handleDisenrollment = () => {
         const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/${enrollment.id}/`;
 
@@ -471,6 +558,8 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             .then(response => {
                 setEnrollmentMessage('Successfully disenrolled.')
                 setIsEnrolled(false);
+                setIsDisenroll(false);
+                setIsRetake(false);
             })
             .catch(error => {
                 setEnrollmentMessage('FAILED: An error occurred while disenrolling :(')
@@ -479,18 +568,25 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     };
 
 
+    // check if the student met the prerequisite(s)
     const checkPrerequisite = (courseId) => {
-        if (enrolledCourses.hasOwnProperty(courseId)) {
+        const status = enrolledCourses.hasOwnProperty(courseId);
+
+        if (status) {
             // Check if the course is marked as complete (is_complete is true)
             // if (enrolledCourses[courseId].is_complete === true) {
             //     return true; // Return true if found and is_complete is true
+            // } else {
+            //     return false;
             // }
 
             // in case, prerequisite completion is required, remove comment from above condition 
             // for now, return true if student is just enrolled to the prerequisite course.
             return true;
+        } else {
+            return false;
         }
-        return false;
+
     }
 
 
@@ -568,6 +664,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                     {(course.prerequisites.length > 0) && <div>
                         {prerequisites.map((course) => (
                             <div key={course.id}>
+                                {console.log(course)}
                                 <small className='d-inline-block text-secondary fw-normal m-0 px-2'>
                                     {(checkPrerequisite(course.id))
                                         ? <i className="bi bi-check-circle"> </i>
@@ -582,8 +679,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             </div>
 
             <div className="my-4 d-flex justify-content-center text-secondary">
-
-                {/* enrollment status check failed message */}
+                {/* show message with retry button if enrollment status check failed */}
                 {!enrollmentChecked && <>
                     <small className=''>
                         <i className="bi bi-exclamation-triangle"> Couldn't check enrollment status.</i>
@@ -592,7 +688,6 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                         <small><i className="bi bi-arrow-clockwise"> Retry</i></small>
                     </button>
                 </>}
-
             </div>
 
             {/* enrollment request response message  */}
@@ -603,7 +698,12 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                 </div>
             )}
 
+            {/* if prerequisites is not cleared, let the user know  */}
+            {!prerequisitesCleared && <>
+                <p className='small text-center'><i className="bi bi-exclamation-triangle px-2"></i> Prerequisite(s) not cleared. </p>
+            </>}
 
+            {/* in case the student have taken this course before, show details  */}
             {(prevEnrollments.length > 0) && <div className='text-center text-secondary'>
                 <h5><i className="bi bi-info-circle-fill px-2"></i> You have already taken this course</h5>
 
@@ -617,18 +717,18 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             <div className="my-4 d-flex justify-content-center">
                 <div>
                     {/* show enroll button if isEnrolled is false */}
-                    {!isEnrolled && <>
+                    {!isEnrolled && prerequisitesCleared && <>
                         <button
                             type="button"
                             className="btn btn-darkblue2 pt-1 m-1"
-                            disabled={!enrollmentChecked || takenBefore}
+                            disabled={!enrollmentChecked || takenBefore || isRetake}
                             onClick={() => { handleEnrollment() }}
                         >
                             Enroll
                         </button>
                     </>}
                     {/* show retake button if isRetake is true */}
-                    {isRetake && <>
+                    {isRetake && prerequisitesCleared && <>
                         <button
                             type="button"
                             className="btn btn-darkblue2 pt-1 m-1 justify-content-center"
@@ -644,9 +744,9 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                         <div className="collapse" id="retakeConfirm">
                             <div className="card card-body">
                                 <div className='row'>
-                                        <div className='col-1 text-end fs-5 p-1'><i className="bi bi-exclamation-triangle p-2 rounded text-warning bg-darkblue"></i></div>
+                                    <div className='col-1 text-end fs-5 p-1'><i className="bi bi-exclamation-triangle p-2 rounded text-warning bg-darkblue"></i></div>
                                     <div className='col-11 small'>If you retake this course, then your previous enrollment grade points and credit hours will <strong>not</strong> be counted.
-                                </div>
+                                    </div>
                                 </div>
                                 <hr />
                                 <p className='text-center'>I understood and agreed, please
@@ -679,7 +779,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                                 <div className='row'>
                                     <div className='col-1 text-end fs-5 p-1'><i className="bi bi-exclamation-triangle p-2 rounded text-warning bg-darkblue"></i></div>
                                     <div className='col-11 small'>If you disenroll from this course, then your earned grade points and credit hours will be removed and cannot be recovered later.
-                                </div>
+                                    </div>
                                 </div>
                                 <hr />
                                 <p className='text-center'>I understood the risk and agreed, please
