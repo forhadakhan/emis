@@ -666,10 +666,8 @@ const StudentRecords = ({ studentData }) => {
                         <div className="ms-5">
                             {studentData.user && <>
                                 <h4 className="">{`${studentData.user.first_name} ${studentData.user.middle_name} ${studentData.user.last_name}`}</h4>
-                                <h5 className="fs-6 text-body-secondary"><i className="bi bi-person-fill"></i> {studentData.user.username}</h5>
-                                <h5 className="fs-6 text-body-secondary"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
+                                <h5 className="small">ID: <span className='user-select-all'>{studentData.user.username}</span></h5>
                             </>}
-                            <h5 className="fs-6 text-body-secondary"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
 
                             {/* Student Enrollment Information */}
                             {program && enrollmentId &&
@@ -683,6 +681,14 @@ const StudentRecords = ({ studentData }) => {
                                 {/* semester  */}
                                 <small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
                             </>}
+
+                            {/* student contact info  */}
+                            <div className="mt-2">
+                                {studentData.user && <>
+                                    <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
+                                </>}
+                                <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
+                            </div>
 
                             {/* {enrollmentId && <>
                                 {studentData.enrollment.enrolled_by &&
