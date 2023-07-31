@@ -460,6 +460,8 @@ const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, han
                 return <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} courseOfferView={courseOffer} handleBack={handleBack} />
             case 'CourseDetails':
                 return <CourseDetails courseOffer={courseOffer} handleBack={handleBack} />
+            case 'EnrollStudent':
+                return <EnrollStudent courseOffer={courseOffer} />
             default:
                 return <></>
         }
@@ -467,6 +469,7 @@ const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, han
 
     return (<>
 
+        {/* show error message if any  */}
         {error && (
             <div className={`alert alert-danger alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
                 <i className="bi bi-x-octagon-fill"> </i>
@@ -493,13 +496,199 @@ const CourseOfferDetail = ({ teachers, semesters, hasPrerequisites, courses, han
                     disabled={showComponent === 'CourseDetails'}
                 > Course Details
                 </button>
+                <button
+                    type="button"
+                    className="btn btn-darkblue2 pt-1"
+                    onClick={() => { setShowComponent('EnrollStudent') }}
+                    disabled={showComponent === 'EnrollStudent'}
+                > Enroll a student
+                </button>
             </div>
         </div>
 
-
+        {/* render selected component  */}
         <div>
             {renderComponent()}
         </div>
+
+    </>);
+}
+
+
+// Sub-component to CourseOfferDetail
+const EnrollStudent = ({ courseOffer }) => {
+    /** 
+     * enroll a student in the selected course offer
+     */
+    const accessToken = getAccessToken();
+    const [message, setMessage] = useState('');
+    const [student, setStudent] = useState('');
+    const [username, setUsername] = useState('');
+    const [isRetake, setIsRetake] = useState(false);
+    const [isEnrolled, setIsEnrolled] = useState(false);
+
+    // get the selected student 
+    const fetchTheStudent = () => {
+        setMessage('');
+
+        // Configure the request headers
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+        const url = `${API_BASE_URL}/student/id/${username}`;
+
+        // Make the API request to get the student 
+        axios.get(url, config)
+            .then(response => {
+                setStudent(response.data);
+                console.log(response.data);
+
+            })
+            .catch(error => {
+                if (error.response && error.response.data && error.response.data.detail) {
+                    setMessage(error.response.data.detail);
+                } else {
+                    setMessage('An error occurred while retrieving the student.');
+                    console.error(error);
+                }
+            });
+    };
+
+    const handleFindUser = (e) => {
+        e.preventDefault();
+        fetchTheStudent();
+    }
+
+
+    // enroll (new/retake) to selected course offer 
+    const handleEnrollment = (regular) => {
+        const enrollmentData = {
+            course_offer: courseOffer.id,
+            student: student.id,
+            is_complete: false,
+            regular: regular,
+        };
+
+        const apiEndpoint = `${API_BASE_URL}/academy/course-enrollment/`;
+
+        // Making the POST request
+        axios.post(apiEndpoint, enrollmentData, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                // console.log('Course enrollment successful.:', response.data);
+                setMessage('Successfully enrolled.')
+                setIsEnrolled(true);
+            })
+            .catch(error => {
+                if (error.response && error.response.data) {
+                    const errorMessages = Object.entries(error.response.data)
+                        .flatMap(([key, errorArray]) => {
+                            if (Array.isArray(errorArray)) {
+                                const e = errorArray.map(error => `${error}`);
+                                if (e[0] === "The fields course_offer, student must make a unique set.") {
+                                    return 'Already enrolled';
+                                } else if (e[0] === "Student already enrolled in this course as 'regular course'.") {
+                                    setIsRetake(true);
+                                    return `Student has taken this course before as 'regular course'.`;
+                                } return e;
+                            } else if (typeof errorArray === 'object') {
+                                const errorMessage = Object.values(errorArray).join(' ');
+                                return [`[${key}] ${errorMessage}`];
+                            } else {
+                                return [`[${key}] ${errorArray}`];
+                            }
+                        })
+                        .join('\n');
+
+                    if (errorMessages) {
+                        setMessage(`${errorMessages}`);
+                    } else {
+                        setMessage('FAILED: An error occurred while enrolling :(');
+                    }
+                } else {
+                    setMessage('FAILED: An error occurred while enrolling :(');
+                }
+                console.error('Error creating enrollment:', error);
+            });
+    };
+
+    return (<>
+
+        {/* form to find a student */}
+        <div>
+            <form onSubmit={handleFindUser}>
+                <div className="mb-3 my-5 mx-md-5">
+                    <label htmlFor="usernameInput" className="form-label"><i className="bi bi-input-cursor-text"></i> Enter ID/username</label>
+                    <input
+                        className="form-control border border-darkblue text-center"
+                        type="text"
+                        placeholder="Enter the student id/username."
+                        aria-label="usernameInput"
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                </div>
+
+                <div className="mb-3 m-3 d-flex">
+                    <button className="btn btn-darkblue mx-auto pt-1" disabled={username.length < 1} type='submit'>
+                        <span><i className="bi bi-search"></i></span>  Find
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {/* show message if any  */}
+        {message &&
+            <div className="alert alert-info alert-dismissible fade show border border-darkblue mx-md-5" role="alert">
+                <strong> {message} </strong>
+                <button type="button" onClick={() => setMessage('')} className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>}
+
+
+        {/* if there student data, show some info about the student with enrollment button */}
+        {student && <>
+            <div className="col-sm-12 col-md-8 mx-auto my-5">
+                <div className="row g-0">
+                    <div className="col-md-3">
+                        <div className={`rounded-2 mx-auto ${student.photo_id ? '' : 'bg-darkblue'} text-beige`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }}>
+                            {student.photo_id ? (
+                                <img src={getFileLink(student.photo_id)} className="img-fluid rounded mx-auto d-flex border" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }} alt="..." />
+                            ) : (
+                                <i className="bi bi-person-bounding-box fs-1"></i>
+                            )}
+                        </div>
+                    </div>
+                    <div className="col-md-9 p-3">
+                        <div className="ms-5">
+                            {student.user && <>
+                                <h4 className="">{`${student.user.first_name} ${student.user.middle_name} ${student.user.last_name}`}</h4>
+                                <h5 className="fs-6 text-body-secondary">ID: {student.user.username}</h5>
+                                <h5 className="fs-6 text-body-secondary"><i className="bi bi-envelope-fill"></i> {student.user.email}</h5>
+                            </>}
+                            <h5 className="fs-6 text-body-secondary"><i className="bi bi-telephone-fill"></i> {student.phone}</h5>
+                        </div>
+
+                        <button
+                            className='btn btn-success pt-1 fw-bold m-3 ms-5 '
+                            onClick={() => { handleEnrollment(true) }}
+                        > Enroll this student
+                        </button>
+                        {isRetake &&
+                            <button
+                                className='btn btn-success pt-1 fw-bold m-3 ms-5 '
+                                onClick={() => { handleEnrollment(false) }}
+                            > Enroll as retake
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </>}
 
     </>);
 }
@@ -512,6 +701,7 @@ const AddCourseOffer = ({ semesters, courses, teachers, hasPrerequisites, getTea
         <CourseOfferForm teachers={teachers} semesters={semesters} courses={courses} hasPrerequisites={hasPrerequisites} getTeacher={getTeacher} handleBack={handleBack} />
     );
 }
+
 
 
 // Sub-component to CourseOfferDetail and AddCourseOffer 
