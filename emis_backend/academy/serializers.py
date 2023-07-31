@@ -184,7 +184,7 @@ class StudentEnrollmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class StudentEnrollmentViewSerializer(serializers.ModelSerializer):
+class StudentEnrollmentNestedSerializer(serializers.ModelSerializer):
     batch_section = SectionSerializer(read_only=True)
     enrolled_by = UserBriefSerializer(read_only=True)
     updated_by = UserBriefSerializer(read_only=True)
