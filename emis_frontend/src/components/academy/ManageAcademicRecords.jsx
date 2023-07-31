@@ -17,7 +17,6 @@ const ManageAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
     const [showComponent, setShowComponent] = useState('FindAStudent');
     const [studnetId, setStudnetId] = useState('');
     const [studentData, setStudentData] = useState('');
-    const [selectedRecord, setSelectedRecord] = useState('');
 
     // add current component in breadcrumb 
     const updatedBreadcrumb = breadcrumb.concat(
@@ -30,13 +29,11 @@ const ManageAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
     const renderComponent = () => {
         switch (showComponent) {
             case 'ListAllStudent':
-                return <ListAllStudent setStudnetId={setStudnetId} setSelectedRecord={setSelectedRecord} setShowComponent={setShowComponent} />;
+                return <ListAllStudent setStudnetId={setStudnetId} />;
             case 'FindAStudent':
                 return <FindAStudent setStudnetId={setStudnetId} />;
             case 'StudentRecords':
-                return <StudentRecords studentData={studentData} />;
-            case 'RecordDetails':
-                return <RecordDetails record={selectedRecord} />;
+                return <StudentRecords studentData={studentData} setShowComponent={setShowComponent} />;
             default:
                 return <><p className='text-center m-5'>Something went wrong while rendering component!</p></>;
         }
@@ -358,9 +355,11 @@ const ListAllStudent = ({ setStudnetId }) => {
 
 
 // Sub component to StudentRecords 
-const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) => {
+const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
     const accessToken = getAccessToken();
     const [records, setRecords] = useState([]);
+    const [averageCGPA, setAverageCGPA] = useState('');
+    const [totalCreditHours, setTotalCreditHours] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [alertMessage, setAlertMessage] = useState('');
 
@@ -370,18 +369,21 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
         setAlertMessage('');
         const fetchRecords = async (id) => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/academy/academic-records/${id}/`, {
+                const response = await axios.get(`${API_BASE_URL}/academy/students/${id}/academic-records/`, {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
                 });
-                setRecords(response.data);
+                setRecords(response.data.academic_records);
+                setAverageCGPA(response.data.average_cgpa);
+                setTotalCreditHours(response.data.total_credit_hours);
             } catch (error) {
                 setAlertMessage('Error fetching student records');
                 console.error('Error fetching student records:', error);
             }
         };
         fetchRecords(studnetId);
+        setSelectedRecord('');
     }, [studnetId]);
 
 
@@ -464,9 +466,9 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
             // credit hour 
             name: 'CH',
             // In case the course enrolled as non credit, don't show CH/credit hour 
-            selector: (row) => row.course_enrollment.non_credit ? '' : row.course_enrollment.course_offer.course.credit,
+            selector: (row) => row.course_enrollment.non_credit ? 'Non Credit' : row.course_enrollment.course_offer.course.credit,
             sortable: true,
-            width: '8%'
+            width: '9%'
         },
         {
             // Grade point per credit hour 
@@ -480,7 +482,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
             name: 'LG',
             selector: (row) => row.letter_grade,
             sortable: true,
-            width: '8%'
+            width: '7%'
         },
         {
             name: 'Action',
@@ -556,7 +558,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
     // if a record selected, show details 
     const handleRecordSelect = (record) => {
         setSelectedRecord(record);
-        setShowComponent('RecordDetails');
+        setToggle(true);
     };
 
 
@@ -598,6 +600,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
                 />
             </div>
 
+
             {/* list records */}
             <div className="border border-beige">
                 <DataTable
@@ -609,6 +612,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
                     highlightOnHover
                 />
             </div>
+
         </div>
     );
 };
@@ -617,7 +621,9 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setShowComponent }) 
 // Sub Component to ManageAcademicRecords 
 const StudentRecords = ({ studentData }) => {
     const [enrollmentId, setEnrollmentId] = useState('');
-    const [program, setProgram] = useState('')
+    const [program, setProgram] = useState('');
+    const [selectedRecord, setSelectedRecord] = useState('');
+    const [toggle, setToggle] = useState(false);
 
 
 
@@ -687,7 +693,9 @@ const StudentRecords = ({ studentData }) => {
                                     Section: {studentData.enrollment.batch_section.name}
                                 </small>
                                 {/* semester  */}
-                                <small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
+                                {studentData.enrollment.semester && studentData.enrollment.semester.term &&
+                                    < small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
+                                }
                             </>}
 
                             {/* student contact info  */}
@@ -712,7 +720,20 @@ const StudentRecords = ({ studentData }) => {
         </>}
 
         <div>
-            <AcademicRecordList studnetId={studentData.id} />
+            {toggle && <div className="">
+                {/* records list link  */}
+                <a className="icon-link icon-link-hover" href="#" onClick={() => { setToggle(false) }}>
+                    <small>
+                        <i className="bi bi-arrow-bar-left"></i> Goto Record List
+                    </small>
+                </a>
+            </div>}
+            {toggle
+                // if toggle is true, then show a record details 
+                ? <RecordDetails record={selectedRecord} setToggle={setToggle} />
+                // if toggle is false, show all records / list 
+                : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
+            }
         </div>
 
     </>);
@@ -724,7 +745,7 @@ const RecordDetails = ({ record }) => {
 
 
     return (<>
-    
+
     </>);
 }
 
