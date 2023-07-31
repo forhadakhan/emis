@@ -613,6 +613,51 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
                 />
             </div>
 
+
+            {/* total credit and cgpa info  */}
+            <div className='my-5 card p-3'>
+                <h6 className='fs-6'> Credit completed: <strong>{totalCreditHours}</strong> </h6>
+                <h6 className='fs-6'> CGPA: <strong>{averageCGPA}</strong> </h6>
+            </div>
+
+
+            {/* faq or information  */}
+            <div class="accordion my-5" id="accordionFAQ">
+                <h5><i className='bi bi-question-circle-fill px-1'></i>   FAQ   </h5>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            What is CH/GP/LG?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                        <div class="accordion-body">
+                            <ul>
+                                <li>CH: Credit Hour(s)</li>
+                                <li>GP: Grade Point(s)</li>
+                                <li>LG: Letter Grade</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseOne">
+                            Why CH/GP/LG is not appearing?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                        <div class="accordion-body">
+                            CH/GP/LG may not appear if -
+                            <ul>
+                                <li>Enrolled course marked as 'non credit'.</li>
+                                <li>Enrolled course is not marked as completed (running).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 };
@@ -692,49 +737,49 @@ const StudentRecords = ({ studentData }) => {
                                     Batch: {getOrdinal(studentData.enrollment.batch_section.batch_data.number)};
                                     Section: {studentData.enrollment.batch_section.name}
                                 </small>
-                                {/* semester  */}
-                                {studentData.enrollment.semester && studentData.enrollment.semester.term &&
+                                {/* semester  */} 
+                                {studentData.enrollment.semester && studentData.enrollment.semester.term && 
                                     < small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
                                 }
+                        </>}
+
+                        {/* student contact info  */}
+                        <div className="mt-2">
+                            {studentData.user && <>
+                                <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
                             </>}
+                            <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
+                        </div>
 
-                            {/* student contact info  */}
-                            <div className="mt-2">
-                                {studentData.user && <>
-                                    <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
-                                </>}
-                                <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
-                            </div>
-
-                            {/* {enrollmentId && <>
+                        {/* {enrollmentId && <>
                                 {studentData.enrollment.enrolled_by &&
                                     <small className='d-block text-secondary'>Enrolled by: {studentData.enrollment.enrolled_by.username}</small>}
                                 {studentData.enrollment.updated_by &&
                                     <small className='d-block text-secondary'>Last updated by: {studentData.enrollment.updated_by.username}</small>}
                             </>} */}
 
-                        </div>
                     </div>
                 </div>
             </div>
-        </>}
-
-        <div>
-            {toggle && <div className="">
-                {/* records list link  */}
-                <a className="icon-link icon-link-hover" href="#" onClick={() => { setToggle(false) }}>
-                    <small>
-                        <i className="bi bi-arrow-bar-left"></i> Goto Record List
-                    </small>
-                </a>
-            </div>}
-            {toggle
-                // if toggle is true, then show a record details 
-                ? <RecordDetails record={selectedRecord} setToggle={setToggle} />
-                // if toggle is false, show all records / list 
-                : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
-            }
         </div>
+    </>}
+
+<div>
+    {toggle && <div className="">
+        {/* records list link  */}
+        <a className="icon-link icon-link-hover" href="#" onClick={() => { setToggle(false) }}>
+            <small>
+                <i className="bi bi-arrow-bar-left"></i> Goto Record List
+            </small>
+        </a>
+    </div>}
+    {toggle
+        // if toggle is true, then show a record details 
+        ? <RecordDetails record={selectedRecord} setToggle={setToggle} />
+        // if toggle is false, show all records / list 
+        : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
+    }
+</div>
 
     </>);
 }
