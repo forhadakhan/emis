@@ -300,31 +300,35 @@ class MarksheetNestedSerializer(serializers.ModelSerializer):
 
 
 
-class AcademicRecordsForStaffSerializer(serializers.ModelSerializer):
+class AcademicRecordsSerializer(serializers.ModelSerializer):
+    # Define serializer fields
     course_enrollment = CourseEnrollmentSemiNestedSerializer()
     status = serializers.SerializerMethodField()
     letter_grade = serializers.SerializerMethodField()
     grade_point = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField() 
 
     class Meta:
         model = Marksheet
         fields = '__all__'
 
     def get_letter_grade(self, obj):
+        # Check if the course enrollment is not complete or is non-credit
         if not obj.course_enrollment.course_offer.is_complete or obj.course_enrollment.non_credit:
             return None
+        # Get the CGPA entry for the given marksheet/course
         cgpa_entry = self._get_cgpa_entry(obj)
         return cgpa_entry.letter_grade if cgpa_entry else None
 
     def get_grade_point(self, obj):
+        # Check if the course enrollment is not complete or is non-credit
         if not obj.course_enrollment.course_offer.is_complete or obj.course_enrollment.non_credit:
             return None
+        # Get the CGPA entry for the given marksheet/course
         cgpa_entry = self._get_cgpa_entry(obj)
         return cgpa_entry.grade_point if cgpa_entry else None
 
     def _get_cgpa_entry(self, obj):
-    # Calculate the total marks, replacing None values with 0
+        # Calculate the total marks, replacing None values with 0
         attendance = obj.attendance if obj.attendance is not None else 0
         assignment = obj.assignment if obj.assignment is not None else 0
         mid_term = obj.mid_term if obj.mid_term is not None else 0
@@ -332,13 +336,17 @@ class AcademicRecordsForStaffSerializer(serializers.ModelSerializer):
 
         total_marks = attendance + assignment + mid_term + final
 
-        # Fetch the CGPA entry for the given total_marks
+        # Fetch the CGPA entry for the given total_marks range
         cgpa_entry = CGPATable.objects.filter(
+            # "lower_mark__lte=total_marks" means we are looking for CGPA entries where the lower_mark 
+            # value (minimum marks required for a grade) is less than or equal to the total_marks.
+            # "higher_mark__gte=total_marks" means we are looking for CGPA entries where the
+            # higher_mark value (maximum marks allowed) is greater than or equal to the total_marks.
             lower_mark__lte=total_marks, higher_mark__gte=total_marks
         ).first()
 
         return cgpa_entry
-    
+
     def get_status(self, obj):
         # Get the course offer associated with the Marksheet's course enrollment
         course_offer = obj.course_enrollment.course_offer
@@ -349,10 +357,10 @@ class AcademicRecordsForStaffSerializer(serializers.ModelSerializer):
             return 'on going'
 
         # Calculate the pass marks for each component, replacing None values with 0
-        require_percentage = 0.4 # 40% required to pass 
-        pass_marks_final = require_percentage * 40  # require_percentage of max marks for 'final': 40 
-        pass_marks_mid_term = require_percentage * 30  # require_percentage of max marks for 'mid_term': 30 
-        pass_marks_assignment = require_percentage * 20  # require_percentage of max marks for 'assignment': 20 
+        require_percentage = 0.4  # 40% required to pass
+        pass_marks_final = require_percentage * 40  # require_percentage of max marks for 'final': 40
+        pass_marks_mid_term = require_percentage * 30  # require_percentage of max marks for 'mid_term': 30
+        pass_marks_assignment = require_percentage * 20  # require_percentage of max marks for 'assignment': 20
 
         assignment = obj.assignment if obj.assignment is not None else 0
         mid_term = obj.mid_term if obj.mid_term is not None else 0
