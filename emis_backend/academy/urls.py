@@ -35,6 +35,7 @@ from .views import (
     MarksheetListByCourseOffer,
     CourseOfferCommentsView,
     AcademicRecordsForStaff,
+    AcademicRecordsForSrudent,
 )
 
 router = DefaultRouter()
@@ -79,6 +80,7 @@ urlpatterns = [
     path('course_offer/<int:course_offer_id>/students/', StudentsInCourseOfferView.as_view(), name='students_in_course_offer'),
     path('course-offer/marksheets/<int:course_offer_id>/', MarksheetListByCourseOffer.as_view(), name='marksheet-list-by-course-offer'),
     path('courseoffer/<int:course_offer_id>/comments/', CourseOfferCommentsView.as_view(), name='course_offer_discussion_comment'),
+    path('individual/<int:student_id>/academic-records/', AcademicRecordsForSrudent.as_view(), name='student_academic_records_for_satff'),
     path('students/<int:student_id>/academic-records/', AcademicRecordsForStaff.as_view(), name='student_academic_records_for_satff'),
     path('students/<int:student_id>/academic-records/<int:pk>/', AcademicRecordsForStaff.as_view(), name='student_academic_record_for_satff'),
     path('', include(router.urls)),
