@@ -27,13 +27,13 @@ export const getBasicStudentInfo = async ({ studentData }) => {
             program = response.data;
         } catch (error) {
             console.error('Error fetching program:', error);
-            // Handle the error gracefully, e.g., show a message to the user or log it for debugging.
         }
     }
+    
 
     const data = {
-        name: `Name: ${studentData.user.first_name} ${studentData.user.middle_name} ${studentData.user.last_name}`,
-        id: `ID:${studentData.user.username}`,
+        name: studentData.user ? `Name: ${studentData.user.first_name} ${studentData.user.middle_name} ${studentData.user.last_name}` : '',
+        id: studentData.user ? `ID:${studentData.user.username}` : '',
         programme: program
             ? `Programme: ${program.code} - ${program.degree_type.acronym} in ${program.name} (${program.acronym})`
             : '',
