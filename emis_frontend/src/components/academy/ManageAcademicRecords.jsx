@@ -737,62 +737,56 @@ const StudentRecords = ({ studentData }) => {
                                     Batch: {getOrdinal(studentData.enrollment.batch_section.batch_data.number)};
                                     Section: {studentData.enrollment.batch_section.name}
                                 </small>
-                                {/* semester  */} 
-                                {studentData.enrollment.semester && studentData.enrollment.semester.term && 
+                                {/* semester  */}
+                                {studentData.enrollment.semester && studentData.enrollment.semester.term &&
                                     < small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
                                 }
-                        </>}
-
-                        {/* student contact info  */}
-                        <div className="mt-2">
-                            {studentData.user && <>
-                                <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
                             </>}
-                            <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
-                        </div>
 
-                        {/* {enrollmentId && <>
+                            {/* student contact info  */}
+                            <div className="mt-2">
+                                {studentData.user && <>
+                                    <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
+                                </>}
+                                <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
+                            </div>
+
+                            {/* {enrollmentId && <>
                                 {studentData.enrollment.enrolled_by &&
                                     <small className='d-block text-secondary'>Enrolled by: {studentData.enrollment.enrolled_by.username}</small>}
                                 {studentData.enrollment.updated_by &&
                                     <small className='d-block text-secondary'>Last updated by: {studentData.enrollment.updated_by.username}</small>}
                             </>} */}
 
+                        </div>
                     </div>
                 </div>
             </div>
+        </>}
+
+        <div>
+            {toggle && <div className="">
+                {/* records list link  */}
+                <a className="icon-link icon-link-hover" href="#" onClick={() => { setToggle(false) }}>
+                    <small>
+                        <i className="bi bi-arrow-bar-left"></i> Goto Record List
+                    </small>
+                </a>
+            </div>}
+            {toggle
+                // if toggle is true, then show a record details 
+                ? <RecordDetails record={selectedRecord} setToggle={setToggle} />
+                // if toggle is false, show all records / list 
+                : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
+            }
         </div>
-    </>}
-
-<div>
-    {toggle && <div className="">
-        {/* records list link  */}
-        <a className="icon-link icon-link-hover" href="#" onClick={() => { setToggle(false) }}>
-            <small>
-                <i className="bi bi-arrow-bar-left"></i> Goto Record List
-            </small>
-        </a>
-    </div>}
-    {toggle
-        // if toggle is true, then show a record details 
-        ? <RecordDetails record={selectedRecord} setToggle={setToggle} />
-        // if toggle is false, show all records / list 
-        : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
-    }
-</div>
 
     </>);
 }
 
 
 
-const RecordDetails = ({ record }) => {
-
-
-    return (<>
-
-    </>);
-}
+const RecordDetails = ({ record }) => {}
 
 
 
