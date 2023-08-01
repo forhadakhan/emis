@@ -65,7 +65,11 @@ The 'Education Management Information System' revolutionizes educational institu
 - Email verification required for login/signin.
 - Password reset option available for forgotten passwords.
 
-
+#### Authorization
+- Administrator has unrestricted control over the system.
+- Administrator can create permission groups with related access rights (e.g., exam section, HR section).
+- Specific permission(s) or group(s) can be assigned by the administrator to staff members.
+- Staff members can only access authorized activities as per their permissions.
 
 
 ## License
