@@ -543,6 +543,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
                 getCourseCode(record).toLowerCase().includes(keyword) ||
                 getCourseName(record).toLowerCase().includes(keyword) ||
                 getSemester(record).toLowerCase().includes(keyword) ||
+                `${record.is_published ? 'Published' : 'Nublished'}`.toLowerCase().includes(keyword) ||
                 `${record.course_enrollment.non_credit ? 'non credit' : 'add credit'}`.toLowerCase().includes(keyword) ||
                 `${record.course_enrollment.regular ? 'Regular: ' : 'Retake: '}`.toLowerCase().includes(keyword) ||
                 `${record.course_enrollment.regular ? 'Regular: ' : 'Retake: '}${record.status}`.toLowerCase().includes(keyword) ||
@@ -572,6 +573,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
                 </div>
             )}
 
+            {/* reload and filter options  */}
             <div className="d-flex mx-5">
                 {/* reload all records/list  */}
                 <div className="me-auto">
@@ -585,6 +587,8 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
                     </label>
                     <select id="filter" className="rounded bg-beige text-darkblue p-1" onChange={handleSearch}>
                         <option value="">No Filter</option>
+                        <option value="Published"> Published </option>
+                        <option value="Nublished"> Not Published </option>
                         <option value="Regular"> Regular </option>
                         <option value="Retake"> Retake </option>
                         <option value="fail"> Fail </option>
