@@ -1,5 +1,5 @@
 /**
- * Calling from: ManagerialActivity.jsx
+ * Calling from: ManageAcademicRecords.jsx
  * Calling to: 
  */
 
