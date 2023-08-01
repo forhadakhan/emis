@@ -365,23 +365,23 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
 
 
     // fetch all records by student id from backend 
+    const fetchRecords = async (id) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/academy/students/${id}/academic-records/`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            setRecords(response.data.academic_records);
+            setAverageCGPA(response.data.average_cgpa);
+            setTotalCreditHours(response.data.total_credit_hours);
+        } catch (error) {
+            setAlertMessage('Error fetching student records');
+            console.error('Error fetching student records:', error);
+        }
+    };
     useEffect(() => {
         setAlertMessage('');
-        const fetchRecords = async (id) => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/academy/students/${id}/academic-records/`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-                setRecords(response.data.academic_records);
-                setAverageCGPA(response.data.average_cgpa);
-                setTotalCreditHours(response.data.total_credit_hours);
-            } catch (error) {
-                setAlertMessage('Error fetching student records');
-                console.error('Error fetching student records:', error);
-            }
-        };
         fetchRecords(studnetId);
         setSelectedRecord('');
     }, [studnetId]);
@@ -572,22 +572,29 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
                 </div>
             )}
 
-            {/* filter options  */}
-            <div className="mb-3 me-5 input-group">
-                <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
-                    Filter:
-                </label>
-                <select id="filter" className="rounded bg-beige text-darkblue p-1" onChange={handleSearch}>
-                    <option value="">No Filter</option>
-                    <option value="Regular"> Regular </option>
-                    <option value="Retake"> Retake </option>
-                    <option value="fail"> Fail </option>
-                    <option value="retake"> Retake </option>
-                    <option value="supplementary"> Supplementary </option>
-                    <option value="pass"> Pass </option>
-                    <option value="non credit"> Non Credit </option>
-                    <option value="add credit"> Credit Only </option>
-                </select>
+            <div className="d-flex mx-5">
+                {/* reload all records/list  */}
+                <div className="me-auto">
+                    <button onClick={() => { fetchRecords(studnetId) }} className='btn btn-sm btn-outline-success p-0 px-2'>Reload</button>
+                </div>
+
+                {/* filter options  */}
+                <div className="mb-3 input-group">
+                    <label htmlFor="filter" className="d-flex ms-auto me-2 p-1">
+                        Filter:
+                    </label>
+                    <select id="filter" className="rounded bg-beige text-darkblue p-1" onChange={handleSearch}>
+                        <option value="">No Filter</option>
+                        <option value="Regular"> Regular </option>
+                        <option value="Retake"> Retake </option>
+                        <option value="fail"> Fail </option>
+                        <option value="retake"> Retake </option>
+                        <option value="supplementary"> Supplementary </option>
+                        <option value="pass"> Pass </option>
+                        <option value="non credit"> Non Credit </option>
+                        <option value="add credit"> Credit Only </option>
+                    </select>
+                </div>
             </div>
 
             {/* Search input  */}
@@ -870,12 +877,12 @@ const RecordDetails = ({ record }) => {
                 ? <div className='alert bg-beige'>
                     <i className='bi bi-check-square-fill px-2'></i>
                     This record is published, which means it will appear for the student. The student will be able to see it.
-                    <button onClick={() => {handleUpdatePublish()}} className='btn btn-sm mt-2 btn-danger d-block mx-auto shadow'>Unpublish</button>
+                    <button onClick={() => { handleUpdatePublish() }} className='btn btn-sm mt-2 btn-danger d-block mx-auto shadow'>Unpublish</button>
                 </div>
                 : <div className='alert bg-beige'>
                     <i className='bi bi-x-square-fill px-2'></i>
                     This record is not published, which means it won't appear for the student. The student won't be able to see it.
-                    <button onClick={() => {handleUpdatePublish()}} className='btn btn-sm mt-2 btn-darkblue2 d-block mx-auto shadow'>Publish</button>
+                    <button onClick={() => { handleUpdatePublish() }} className='btn btn-sm mt-2 btn-darkblue2 d-block mx-auto shadow'>Publish</button>
                 </div>}
         </div>
 
