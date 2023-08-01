@@ -45,6 +45,24 @@ const AcademicRecordsFAQ = ({ setActiveComponent, breadcrumb, setReference }) =>
                     </div>
                 </div>
             </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseOne">
+                        How is the total CGPA counted?
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                    <div class="accordion-body">
+                        <em className='d-block p-2 border m-2'>CGPA = (Sum of (Credit Hours * Grade Points)) / (Total Credit Hours)</em>
+                        CH/GP/LG may not inclued in total -
+                        <ul>
+                            <li>if you failed in a course or your GP/CH is less than 2.</li>
+                            <li>if you are taking a non-credit course. </li>
+                            <li>if your course is still running. </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </>);
 };
