@@ -43,7 +43,7 @@ import ManageBatches from '../academy/ManageBatches.jsx';
 import ManageSections from '../academy/ManageSections.jsx';
 import StudentEnrollment from '../academy/ManageStudentEnrollment.jsx';
 import ManageCourseOffer from '../academy/ManageCourseOffer.jsx';
-import ManageAcademicRecords from '../academy/ManageAcademicRecords.jsx';
+import ManageAcademicRecords from '../academy/academic-records/ManageAcademicRecords.jsx';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
