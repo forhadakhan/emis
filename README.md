@@ -88,7 +88,14 @@ Authorized administrators or staff members can perform the following actions:
 - Manage Teacher Enrollment: Enroll teachers into departments and courses.
 - Manage Student Enrollment: Enroll students into programs, semesters, batches, and sections.
 - Manage Results or Academic Records: Record and manage student academic results.         
-And more features as required.
+And more features as required. 
+
+#### Teacher Activity 
+Teachers can perform the following tasks:
+- View assined courses. 
+- Communicate with students in the course discussion panel. 
+- Manage results for courses. 
+- Update course status. 
      
 
 ## License
