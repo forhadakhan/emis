@@ -56,6 +56,18 @@ The 'Education Management Information System' revolutionizes educational institu
 - CSS Framework: Bootstrap
 - LDS: Vite
 
+
+## Features 
+
+#### Authentication
+- Four user types: administrator, staff, teacher, student.
+- Unified login/signin interface for all users with automatic redirection to their respective dashboard/panel.
+- Email verification required for login/signin.
+- Password reset option available for forgotten passwords.
+
+
+
+
 ## License
 
 [MIT License](./LICENSE) © 2023 [Forhad Khan](https://github.com/forhadakhan/)
