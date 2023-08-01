@@ -57,6 +57,11 @@ The 'Education Management Information System' revolutionizes educational institu
 - LDS: Vite
 
 
+## System Structure 
+![EMIS_P400_System_Structure](https://github.com/forhadakhan/emis/assets/67508944/d596a6d1-96df-453a-aa21-245c098546ee)
+
+
+
 ## Features 
 
 #### Authentication  
