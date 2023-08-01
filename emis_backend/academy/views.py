@@ -1,5 +1,9 @@
 # academy/views.py 
 
+from authentication.models import User
+from authentication.permissions import IsAdministratorOrStaff, IsAdministratorOrStaffOrReadOnly, IsTeacher, IsStudent
+from authentication.serializers import UserSerializer
+from authentication.utils import TokenDecoderToGetUserRole 
 from comments.models import Comment
 from comments.serializers import CommentSerializer, CommentNestedSerializer
 from django.contrib.contenttypes.models import ContentType
@@ -11,12 +15,9 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from authentication.permissions import IsAdministratorOrStaff, IsAdministratorOrStaffOrReadOnly, IsTeacher
-from authentication.models import User
-from authentication.serializers import UserSerializer
 from student.models import Student
 from student.serializers import StudentNestedSerializer
-from teacher.models import Teacher
+from teacher.models import Teacher 
 
 
 
@@ -63,7 +64,8 @@ from .serializers import (
     CourseEnrollmentSemiNestedSerializer,
     MarksheetSerializer,
     MarksheetNestedSerializer,
-    AcademicRecordsForStaffSerializer,
+    AcademicRecordsSerializer,
+    AcademicRecordsForStudentSerializer,
 )
 
 
@@ -966,18 +968,34 @@ class MarksheetListByCourseOffer(ListAPIView):
 
 
 
-class AcademicRecordsForStaff(APIView):    
+class AcademicRecordsAPIView(APIView):    
     """
     Get all academic records (marksheets) for a student with details.
     Note: Serializer adds fields 'letter_grade', 'grade_point', 'remarks'. 
     """
-    permission_classes = [IsAdministratorOrStaff]
 
     
     def get(self, request, student_id):
+        permission_classes = [IsAuthenticated]
+        
+        authorization_header = request.META.get('HTTP_AUTHORIZATION')
+        role = TokenDecoderToGetUserRole.decode_token(authorization_header)
+
+        # Check if the user role is 'student' and include published records in that case
+        if role == 'student':
+            academic_records = Marksheet.objects.filter(
+                course_enrollment__student_id=student_id, 
+                is_published=True
+            )
+        else:
+            # For other roles, include all records regardless of the 'is_published' flag
+            academic_records = Marksheet.objects.filter(
+                course_enrollment__student_id=student_id
+            )
+              
         # Retrieve all academic records for the specified student
-        academic_records = Marksheet.objects.filter(course_enrollment__student_id=student_id)
-        serializer = AcademicRecordsForStaffSerializer(academic_records, many=True)
+        # academic_records = Marksheet.objects.filter(course_enrollment__student_id=student_id)
+        serializer = AcademicRecordsSerializer(academic_records, many=True)
         
         # Get total credit hours and grade points
         total_credit_hours = 0.0
@@ -1014,9 +1032,11 @@ class AcademicRecordsForStaff(APIView):
 
 
     def patch(self, request, student_id, pk):
+        permission_classes = [IsAdministratorOrStaff]
+    
         # Retrieve the specific Marksheet object based on the provided 'pk' and 'student_id'
         academic_record = get_object_or_404(Marksheet, pk=pk, course_enrollment__student_id=student_id)
-        serializer = AcademicRecordsForStaffSerializer(academic_record, data=request.data, partial=True)
+        serializer = AcademicRecordsSerializer(academic_record, data=request.data, partial=True)
         
         if serializer.is_valid():
             # Save the updated data if the serializer is valid
@@ -1026,5 +1046,5 @@ class AcademicRecordsForStaff(APIView):
             # Return errors if the serializer is not valid
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
 
