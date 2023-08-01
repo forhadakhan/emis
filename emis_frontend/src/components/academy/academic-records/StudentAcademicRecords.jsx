@@ -4,11 +4,14 @@
  */
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../../utils/config.js';
 import { getAccessToken, getUserData } from '../../../utils/auth.js';
+import { getCurrentDateTimeInSingleStr, getOrdinal } from '../../../utils/utils.js';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // Required for table support in jsPDF
 
 import AcademicRecordsFAQ from './AcademicRecordsFAQ.jsx';
 import RecordDetails from './RecordDetails.jsx';
@@ -41,7 +44,6 @@ const StudentAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
         axios.get(url, config)
             .then(response => {
                 setStudentData(response.data);
-                console.log(response.data);
             })
             .catch(error => {
                 if (error.response && error.response.data && error.response.data.detail) {
@@ -113,15 +115,18 @@ const StudentAcademicRecords = ({ setActiveComponent, breadcrumb }) => {
 }
 
 
-
 // Sub component to StudentRecords 
-const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
+const AcademicRecordList = ({ studentData, setSelectedRecord, setToggle }) => {
     const accessToken = getAccessToken();
+    const studnetId = studentData.id;
     const [records, setRecords] = useState([]);
     const [averageCGPA, setAverageCGPA] = useState('');
     const [totalCreditHours, setTotalCreditHours] = useState('');
     const [filteredData, setFilteredData] = useState([]);
+    const [studentInfo, setStudentInfo] = useState('');
     const [alertMessage, setAlertMessage] = useState('');
+    const [program, setProgram] = useState('');
+    const enrollmentId = studentData.enrollment ? studentData.enrollment.id : '';
 
 
     // fetch all records by student id from backend 
@@ -141,9 +146,11 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
         }
     };
     useEffect(() => {
-        setAlertMessage('');
-        fetchRecords(studnetId);
-        setSelectedRecord('');
+        if (studnetId) {
+            setAlertMessage('');
+            fetchRecords(studnetId);
+            setSelectedRecord('');
+        }
     }, [studnetId]);
 
 
@@ -151,6 +158,49 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
     useEffect(() => {
         setFilteredData(records);
     }, [records]);
+
+
+    // GET program if there is enrollment and 'program' is empty.
+    const getProgram = async () => {
+        try {
+            const accessToken = getAccessToken();
+            const programId = studentData.enrollment ? studentData.enrollment.batch_section.batch_data.program : '';
+
+            const response = await axios.get(
+                `${API_BASE_URL}/academy/programs/${programId}/`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                }
+            );
+            setProgram(response.data);
+        } catch (error) {
+            console.error('Error fetching program:', error);
+        }
+    }
+    if (enrollmentId && !program) {
+        getProgram();
+    }
+
+
+    // get student basic info 
+    useEffect(() => {
+        const data = {
+            name: studentData.user ? `Name: ${studentData.user.first_name} ${studentData.user.middle_name} ${studentData.user.last_name}` : '',
+            id: studentData.user ? `ID:${studentData.user.username}` : '',
+            programme: program
+                ? `Programme: ${program.code} - ${program.degree_type.acronym} in ${program.name} (${program.acronym})`
+                : '',
+            batchSection: enrollmentId
+                ? `Batch: ${getOrdinal(studentData.enrollment.batch_section.batch_data.number)}; Section: ${studentData.enrollment.batch_section.name}`
+                : '',
+            semester: enrollmentId
+                ? `Current/Last Semester: ${studentData.enrollment.semester.term.name} ${studentData.enrollment.semester.year}`
+                : '',
+        };
+        setStudentInfo(data);
+    }, [enrollmentId, program])
 
 
     // take a record and return it's course name   
@@ -275,6 +325,130 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
     };
 
 
+    // get and memorize all records, use in export pdf for efficiency 
+    const tableData = useMemo(() => {
+        // Sort the filteredData by semester code  
+        const sortedData = [...filteredData].sort((a, b) => {
+            const codeA = a.course_enrollment.course_offer.semester.code;
+            const codeB = b.course_enrollment.course_offer.semester.code;
+            if (codeA < codeB) {
+                return -1;
+            }
+            if (codeA > codeB) {
+                return 1;
+            }
+            return 0;
+        });
+
+        return sortedData.map((record) => [
+            getCourseCode(record),
+            getCourseName(record),
+            getSemester(record),
+            `${record.course_enrollment.regular ? 'Regular: ' : 'Retake: '}${record.status}`,
+            `${record.course_enrollment.non_credit ? 'Non Credit' : record.course_enrollment.course_offer.course.credit}`,
+            record.grade_point,
+            record.letter_grade,
+        ]);
+    }, [filteredData]);
+
+    // export PDF using jsPDF 
+    const exportPDF = () => {
+        const doc = new jsPDF();
+
+        const headline = 'Academic Records';
+
+        const headers = [['Code', 'Course', 'Semester', 'Status', 'CH', 'GP/CH', 'LG']];
+        const headerStyles = {
+            fillColor: [1, 1, 50],
+            textColor: [238, 212, 132],
+            lineWidth: 0.1,
+        };
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const textWidth = doc.getStringUnitWidth(headline) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+        const textX = (pageWidth - textWidth) / 2;
+        const textY = 15;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text(headline, textX, textY);
+
+
+        // Add studentInfo just after the headline
+        const infoStartX = 15;
+        let infoStartY = textY + 10;
+        const infoLineHeight = 5;
+        doc.setFont('helvetica', 'bold');
+        for (const [key, value] of Object.entries(studentInfo)) {
+            doc.setFontSize(10);
+            doc.text(`${value}`, infoStartX, infoStartY, { baseline: 'start' });
+            infoStartY += infoLineHeight;
+        }
+
+        // const tableStartY = doc.internal.getFontSize() + infoStartY;
+        const tableStartY = 5 + infoStartY;
+        const tableEndY = doc.autoTable.previous.finalY;
+        doc.setFont('helvetica', 'normal');
+
+        // Table Generation
+        doc.autoTable({
+            startY: tableStartY,
+            head: headers,
+            body: tableData,
+            didDrawCell: (data) => {
+                // Empty didDrawCell to not override styles
+            },
+            headStyles: headerStyles,
+        });
+
+        // Calculate the space required for studentInfo, and table
+        let totalRequiredSpace = tableEndY + 30; // You can adjust this value as needed
+
+        // If the required space exceeds the page height, add a new page
+        const pageHeight = doc.internal.pageSize.getHeight();
+        let currentPage = 1;
+        while (totalRequiredSpace > pageHeight) {
+            doc.addPage();
+            totalRequiredSpace -= pageHeight;
+            currentPage += 1;
+        }
+
+        // Show average cgpa and total credit hours after the table
+        const totalInfoStartX = 15;
+        const totalInfoStartY = totalRequiredSpace + 10;
+        const cgpa = `CGPA: ${averageCGPA}`;
+        const ch = `Credit completed: ${totalCreditHours}`;
+        doc.setFont('helvetica', 'bold');
+        doc.text(cgpa, totalInfoStartX, totalInfoStartY);
+        doc.text(ch, totalInfoStartX, totalInfoStartY + 5);
+
+
+        // Footer Generation
+        const totalPages = doc.internal.getNumberOfPages();
+        doc.setFont('helvetica', 'normal');
+
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+
+            // Footer note
+            const footerNote = "Note: This is a draft academic record, not an official document without an authorized seal and signature.";
+            const noteX = pageWidth - 130;
+            const noteY = doc.internal.pageSize.getHeight() - 10;
+            doc.setFontSize(8);
+            doc.text(footerNote, noteX, noteY, { align: 'center' });
+
+            // Page numbers
+            const pageNumber = `Page ${i} of ${totalPages}`;
+            const pageX = pageWidth - 20;
+            const pageY = doc.internal.pageSize.getHeight() - 10;
+            doc.text(pageNumber, pageX, pageY, { align: 'right' });
+        }
+        const timenow = getCurrentDateTimeInSingleStr();
+        const fileName = `${studentInfo.id}__Academic-Records__${timenow}.pdf`;
+        doc.save(fileName);
+    };
+
+
     // handle search input 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
@@ -293,13 +467,6 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
                 `${record.letter_grade}`.toLowerCase().includes(keyword)
         );
         setFilteredData(filteredResults);
-    };
-
-
-    // if a record selected, show details 
-    const handleRecordSelect = (record) => {
-        setSelectedRecord(record);
-        setToggle(true);
     };
 
 
@@ -370,6 +537,15 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
             </div>
 
 
+            {/* export button(s)  */}
+            <div className="d-flex justify-content-center my-5">
+                <button className="btn btn-sm btn-darkblue" onClick={exportPDF}>
+                    <i className="bi bi-file-pdf px-1"></i>
+                    Export as PDF
+                </button>
+            </div>
+
+
             {/* faq or information  */}
             <AcademicRecordsFAQ />
 
@@ -406,7 +582,7 @@ const StudentRecords = ({ studentData }) => {
                 // if toggle is true, then show a record details 
                 ? <RecordDetails record={selectedRecord} setToggle={setToggle} />
                 // if toggle is false, show all records / list 
-                : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
+                : <AcademicRecordList studentData={studentData} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
             }
         </div>
 
