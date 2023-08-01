@@ -38,8 +38,9 @@ const AcademicRecordsFAQ = ({ setActiveComponent, breadcrumb, setReference }) =>
                     <div class="accordion-body">
                         CH/GP/LG may not appear if -
                         <ul>
-                            <li>Enrolled course marked as 'non credit'.</li>
-                            <li>Enrolled course is not marked as completed (running).</li>
+                            <li>a course marked as 'non credit'.</li>
+                            <li>a course is not marked as completed (running).</li>
+                            <li>result not published for a course.</li>
                         </ul>
                     </div>
                 </div>
