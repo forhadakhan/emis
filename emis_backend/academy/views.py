@@ -5,8 +5,8 @@ from comments.serializers import CommentSerializer, CommentNestedSerializer
 from django.contrib.contenttypes.models import ContentType
 from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.exceptions import NotFound
-from rest_framework.generics import get_object_or_404, ListAPIView, GenericAPIView, CreateAPIView
+from rest_framework.exceptions import NotFound 
+from rest_framework.generics import get_object_or_404, ListAPIView, GenericAPIView, CreateAPIView, RetrieveUpdateAPIView 
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -55,7 +55,7 @@ from .serializers import (
     BatchNestedSerializer,
     SectionSerializer,
     StudentEnrollmentSerializer,
-    StudentEnrollmentViewSerializer,
+    StudentEnrollmentNestedSerializer,
     CourseOfferSerializer,
     CourseOfferNestedSerializer,
     CourseEnrollmentSerializer,
@@ -63,6 +63,7 @@ from .serializers import (
     CourseEnrollmentSemiNestedSerializer,
     MarksheetSerializer,
     MarksheetNestedSerializer,
+    AcademicRecordsForStaffSerializer,
 )
 
 
@@ -637,7 +638,7 @@ class StudentEnrollmentAPIView(APIView):
     def get(self, request, enrollment_id=None, student_id=None):
         if student_id is not None:
             enrollment = get_object_or_404(StudentEnrollment, student_id=student_id)
-            serializer = StudentEnrollmentViewSerializer(enrollment)
+            serializer = StudentEnrollmentNestedSerializer(enrollment)
             return Response(serializer.data)
         
         if enrollment_id is not None:
@@ -684,7 +685,7 @@ class StudentEnrollmentAPIView(APIView):
             if not enrollments:
                 return None
             
-            serializer = StudentEnrollmentViewSerializer(enrollments, many=True)
+            serializer = StudentEnrollmentNestedSerializer(enrollments, many=True)
 
             data = serializer.data
             return data[0]
@@ -832,6 +833,7 @@ class CourseEnrollmentView(APIView):
 
     def post(self, request):
         serializer = CourseEnrollmentSerializer(data=request.data)
+        print('serializer')
         if serializer.is_valid():
             course_enrollment = serializer.save()
             # create a marksheet instance for this enrollment automatically 
@@ -962,4 +964,67 @@ class MarksheetListByCourseOffer(ListAPIView):
         course_offer_id = self.kwargs['course_offer_id']
         return Marksheet.objects.filter(course_enrollment__course_offer_id=course_offer_id)
 
+
+
+class AcademicRecordsForStaff(APIView):    
+    """
+    Get all academic records (marksheets) for a student with details.
+    Note: Serializer adds fields 'letter_grade', 'grade_point', 'remarks'. 
+    """
+    permission_classes = [IsAdministratorOrStaff]
+
+    
+    def get(self, request, student_id):
+        # Retrieve all academic records for the specified student
+        academic_records = Marksheet.objects.filter(course_enrollment__student_id=student_id)
+        serializer = AcademicRecordsForStaffSerializer(academic_records, many=True)
+        
+        # Get total credit hours and grade points
+        total_credit_hours = 0.0
+        total_grade_points = 0.0
+        
+        for record in serializer.data:
+            # Check if the course is a credit (not a non-credit) course (non_credit is False)
+            if not record['course_enrollment']['non_credit']:
+                # Check if 'grade_point' exists and is not None, and meets the minimum requirement (grade_point >= 2)
+                if (
+                    'grade_point' in record
+                    and record['grade_point'] is not None
+                    and record['grade_point'] >= 2
+                ):
+                    # Access credit_hours from the related models
+                    credit_hours = record['course_enrollment']['course_offer']['course']['credit']
+                    total_credit_hours += credit_hours
+                    total_grade_points += float(record['grade_point']) * credit_hours
+        
+        # Calculate average CGPA
+        average_cgpa_raw = total_grade_points / total_credit_hours if total_credit_hours > 0 else 0.0
+        # Format average_cgpa_raw with up to 3 decimal places
+        average_cgpa = "{:.3f}".format(average_cgpa_raw)
+        
+        
+        # Add the average CGPA, Academic Records, and Total Credit Hours to the response data
+        response_data = {
+            'academic_records': serializer.data,
+            'average_cgpa': average_cgpa,
+            'total_credit_hours': total_credit_hours,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+    def patch(self, request, student_id, pk):
+        # Retrieve the specific Marksheet object based on the provided 'pk' and 'student_id'
+        academic_record = get_object_or_404(Marksheet, pk=pk, course_enrollment__student_id=student_id)
+        serializer = AcademicRecordsForStaffSerializer(academic_record, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            # Save the updated data if the serializer is valid
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            # Return errors if the serializer is not valid
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
 
