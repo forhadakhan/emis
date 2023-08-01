@@ -65,7 +65,6 @@ from .serializers import (
     MarksheetSerializer,
     MarksheetNestedSerializer,
     AcademicRecordsSerializer,
-    AcademicRecordsForStudentSerializer,
 )
 
 
