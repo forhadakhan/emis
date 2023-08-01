@@ -59,43 +59,58 @@ The 'Education Management Information System' revolutionizes educational institu
 
 ## Features 
 
-#### Authentication
-- Four user types: administrator, staff, teacher, student.
-- Unified login/signin interface for all users with automatic redirection to their respective dashboard/panel.
-- Email verification required for login/signin.
-- Password reset option available for forgotten passwords.
+#### Authentication  
+- Four user types: administrator, staff, teacher, student.   
+- Unified login/signin interface for all users with automatic redirection to their respective dashboard/panel.   
+- Email verification required for login/signin.    
+- Password reset option available for forgotten passwords.    
 
-#### Authorization
-- Administrator has unrestricted control over the system.
-- Administrator can create permission groups with related access rights (e.g., exam section, HR section).
-- Specific permission(s) or group(s) can be assigned by the administrator to staff members.
-- Staff members can only access authorized activities as per their permissions.
+#### Authorization    
+- Administrator has unrestricted control over the system.    
+- Administrator can create permission groups with related access rights (e.g., exam section, HR section).    
+- Specific permission(s) or group(s) can be assigned by the administrator to staff members.    
+- Staff members can only access authorized activities as per their permissions.    
 
-#### Administrator/Staff Activity 
-Authorized administrators or staff members can perform the following actions:
+#### Administrator/Staff Activities    
+Authorized administrators or staff members can perform the following actions:    
 
-- Manage Users: Add, modify, view, and remove administrators, staff, teachers, and students.
-- Manage Public Messages: View, reply, remove, and update message status.
-- Manage User Permissions: Assign and modify user access rights.
-- Manage Institutes: Handle institutes within the system.
-- Manage Departments: Organize and manage departments.
-- Manage Degree Types: Add and manage different degree types.
-- Manage Programs: Handle academic programs.
-- Manage Semesters: Organize and manage semesters.
-- Manage Courses: Add and manage courses.
-- Manage Batches and Sections: Handle batches and sections of courses.
-- Manage Course Offers: Manage the offering of courses.
-- Manage Teacher Enrollment: Enroll teachers into departments and courses.
-- Manage Student Enrollment: Enroll students into programs, semesters, batches, and sections.
-- Manage Results or Academic Records: Record and manage student academic results.         
-And more features as required. 
+- Manage Users: Add, modify, view, and remove administrators, staff, teachers, and students.    
+- Manage Public Messages: View, reply, remove, and update message status.   
+- Manage User Permissions: Assign and modify user access rights.    
+- Manage Institutes: Handle institutes within the system.    
+- Manage Departments: Organize and manage departments.   
+- Manage Degree Types: Add and manage different degree types.    
+- Manage Programs: Handle academic programs.    
+- Manage Semesters: Organize and manage semesters.    
+- Manage Courses: Add and manage courses.    
+- Manage Batches and Sections: Handle batches and sections of courses.     
+- Manage Course Offers: Manage the offering of courses.     
+- Manage Teacher Enrollment: Enroll teachers into departments and courses.  
+- Manage Student Enrollment: Enroll students into programs, semesters, batches, and sections.  
+- Manage Results or Academic Records: Record and manage student academic results.          
+And more features as required.    
 
-#### Teacher Activity 
-Teachers can perform the following tasks:
-- View assined courses. 
-- Communicate with students in the course discussion panel. 
-- Manage results for courses. 
-- Update course status. 
+#### Teacher Activities 
+Teachers can perform the following tasks:  
+- View assined courses.   
+- Communicate with students in the course discussion panel.   
+- Manage results for courses.   
+- Update course status.   
+
+#### Student Activities    
+Students can enjoy following fetures:   
+- Enroll in offered courses.    
+- View and access all enrolled courses.   
+- Communicate with teachers and other students in the course discussion panel.   
+- View and save published results or academic records.   
+
+#### Additional Features  
+In addition to the mentioned features, the system includes:  
+- Academic Calendar: Display important dates and events related to the academic year.  
+- Press: Notices, announcements, and news section for important updates.  
+- Individual Profile View: Access and view individual user profiles.  
+- Individual Profile Settings: Modify data for individual user profiles.  
+And more features as required.  
      
 
 ## License
