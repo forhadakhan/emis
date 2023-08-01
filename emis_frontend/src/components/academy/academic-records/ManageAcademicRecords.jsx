@@ -8,8 +8,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
 import API_BASE_URL from '../../../utils/config.js';
-import { getAccessToken, getFileLink } from '../../../utils/auth.js';
-import { getOrdinal } from '../../../utils/utils.js';
+import { getAccessToken } from '../../../utils/auth.js';
+
+import AcademicRecordsFAQ from './AcademicRecordsFAQ.jsx';
+import RecordDetails from './RecordDetails.jsx';
+import BasicStudentInfo from './BasicStudentInfo.jsx';
+
 
 
 // Main Component 
@@ -277,6 +281,8 @@ const StudentList = ({ studentUsers, setStudnetId }) => {
 
     return (
         <div>
+
+            {/* filter options  */}
             <div className="mb-3 me-5 input-group">
                 <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
                     Filter:
@@ -289,6 +295,8 @@ const StudentList = ({ studentUsers, setStudnetId }) => {
                     <option value="unblocked">Not Blocked</option>
                 </select>
             </div>
+
+            {/* search input field  */}
             <div className="m-5">
                 <input
                     type="text"
@@ -298,6 +306,7 @@ const StudentList = ({ studentUsers, setStudnetId }) => {
                 />
             </div>
 
+            {/* list  */}
             <DataTable
                 columns={columns}
                 data={filteredData}
@@ -633,41 +642,7 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
 
 
             {/* faq or information  */}
-            <div class="accordion my-5" id="accordionFAQ">
-                <h5><i className='bi bi-question-circle-fill px-1'></i>   FAQ   </h5>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            What is CH/GP/LG?
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                        <div class="accordion-body">
-                            <ul>
-                                <li>CH: Credit Hour(s)</li>
-                                <li>GP: Grade Point(s)</li>
-                                <li>LG: Letter Grade</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button fw-bold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseOne">
-                            Why CH/GP/LG is not appearing?
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                        <div class="accordion-body">
-                            CH/GP/LG may not appear if -
-                            <ul>
-                                <li>Enrolled course marked as 'non credit'.</li>
-                                <li>Enrolled course is not marked as completed (running).</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <AcademicRecordsFAQ />
 
         </div>
     );
@@ -676,104 +651,14 @@ const AcademicRecordList = ({ studnetId, setSelectedRecord, setToggle }) => {
 
 // Sub Component to ManageAcademicRecords 
 const StudentRecords = ({ studentData }) => {
-    const [enrollmentId, setEnrollmentId] = useState('');
-    const [program, setProgram] = useState('');
     const [selectedRecord, setSelectedRecord] = useState('');
     const [toggle, setToggle] = useState(false);
 
 
-
-    useEffect(() => {
-        if (studentData.enrollment) {
-            setEnrollmentId(studentData.enrollment.id);
-        }
-    }, [])
-
-
-    // get program details for student
-    useEffect(() => {
-        const fetchProgram = async () => {
-            try {
-                const accessToken = getAccessToken();
-                const programId = studentData.enrollment.batch_section.batch_data.program;
-
-                const response = await axios.get(
-                    `${API_BASE_URL}/academy/programs/${programId}/`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }
-                );
-
-                setProgram(response.data);
-            } catch (error) {
-                // console.error('Error fetching program:', error);
-                setProgram('');
-            }
-        }
-        fetchProgram();
-    }, [enrollmentId])
-
-
     return (<>
 
-        {/* if there student data, show some info about the student  */}
-        {studentData && <>
-            <div className="col-sm-12 col-md-8 mx-auto my-5">
-                <div className="row g-0">
-                    <div className="col-md-3">
-                        {/* student photo  */}
-                        <div className={`rounded-2 mx-auto ${studentData.photo_id ? '' : 'bg-darkblue'} text-beige`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }}>
-                            {studentData.photo_id ? (
-                                <img src={getFileLink(studentData.photo_id)} className="img-fluid rounded mx-auto d-flex border" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '200px', height: '200px', }} alt="..." />
-                            ) : (
-                                <i className="bi bi-person-bounding-box fs-1"></i>
-                            )}
-                        </div>
-                    </div>
-                    <div className="col-md-9 p-3">
-                        <div className="ms-5">
-                            {studentData.user && <>
-                                <h4 className="">{`${studentData.user.first_name} ${studentData.user.middle_name} ${studentData.user.last_name}`}</h4>
-                                <h5 className="small">ID: <span className='user-select-all'>{studentData.user.username}</span></h5>
-                            </>}
-
-                            {/* Student Enrollment Information */}
-                            {program && enrollmentId &&
-                                <small className="d-block fw-bold text-body-secondary">Programme: {program.code} - {program.degree_type.acronym} in {program.name} ({program.acronym}) </small>
-                            }
-                            {enrollmentId && <>
-                                <small className="d-block fw-bold text-body-secondary">
-                                    Batch: {getOrdinal(studentData.enrollment.batch_section.batch_data.number)};
-                                    Section: {studentData.enrollment.batch_section.name}
-                                </small>
-                                {/* semester  */}
-                                {studentData.enrollment.semester && studentData.enrollment.semester.term &&
-                                    < small className="d-block fw-bold text-body-secondary">Current/Last Semester: {studentData.enrollment.semester.term.name} {studentData.enrollment.semester.year}</small>
-                                }
-                            </>}
-
-                            {/* student contact info  */}
-                            <div className="mt-2">
-                                {studentData.user && <>
-                                    <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-envelope-fill"></i> {studentData.user.email}</h5>
-                                </>}
-                                <h5 className="fs-6 text-body-secondary user-select-all"><i className="bi bi-telephone-fill"></i> {studentData.phone}</h5>
-                            </div>
-
-                            {/* {enrollmentId && <>
-                                {studentData.enrollment.enrolled_by &&
-                                    <small className='d-block text-secondary'>Enrolled by: {studentData.enrollment.enrolled_by.username}</small>}
-                                {studentData.enrollment.updated_by &&
-                                    <small className='d-block text-secondary'>Last updated by: {studentData.enrollment.updated_by.username}</small>}
-                            </>} */}
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </>}
+        {/* display basic student info  */}
+        <BasicStudentInfo studentData={studentData} />
 
         {/* toggle between list and details  */}
         <div>
@@ -794,140 +679,6 @@ const StudentRecords = ({ studentData }) => {
                 // if toggle is false, show all records / list 
                 : <AcademicRecordList studnetId={studentData.id} setSelectedRecord={setSelectedRecord} setToggle={setToggle} />
             }
-        </div>
-
-    </>);
-}
-
-
-// Sub Component to StudentRecords 
-const RecordDetails = ({ record }) => {
-    const accessToken = getAccessToken();
-    const [selectedRecord, setSelectedRecord] = useState(record);
-    let {
-        id,
-        course_enrollment,
-        letter_grade,
-        grade_point,
-        status,
-        attendance,
-        assignment,
-        mid_term,
-        final,
-        is_published
-    } = selectedRecord;
-
-    // Calculate the total
-    const total = attendance + assignment + mid_term + final;
-    const studentId = course_enrollment.student;
-    const [alertMessage, setAlertMessage] = useState('');
-
-
-    // handle update publish 
-    const handleUpdatePublish = async () => {
-        try {
-            const response = await axios.patch(`${API_BASE_URL}/academy/students/${studentId}/academic-records/${id}/`, {
-                is_published: !is_published
-            }, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                }
-            });
-            // in case update is successful
-            setSelectedRecord(response.data);
-        } catch (error) {
-            setAlertMessage('Error updating publish status');
-            console.error('Error updating publish status:', error);
-        }
-    };
-
-
-
-    return (<>
-
-        {/* course info  */}
-        <div className="m-5">
-            <table className='table w-auto fs-5'>
-                <tr>
-                    <td className='px-2'>Course:</td>
-                    <td className='px-2 fw-bold'>{course_enrollment.course_offer.course.acronym} {course_enrollment.course_offer.course.code} - {course_enrollment.course_offer.course.name}</td>
-                </tr>
-                <tr>
-                    <td className='px-2'>Credit:</td>
-                    <td className='px-2 fw-bold'>{course_enrollment.non_credit ? 'non-credit' : course_enrollment.course_offer.course.credit}</td>
-                </tr>
-                <tr>
-                    <td className='px-2'>Status:</td>
-                    <td className='px-2 fw-bold'>{course_enrollment.course_offer.is_complete ? 'Complete' : 'Running'}</td>
-                </tr>
-            </table>
-        </div>
-
-
-        {/* show alert message, if any  */}
-        {alertMessage && (
-            <div className={`alert alert-info alert-dismissible fade show mt-3 col-sm-12 col-md-6 mx-auto`} role="alert">
-                <strong>{alertMessage}</strong>
-                <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setAlertMessage('')}></button>
-            </div>
-        )}
-
-
-        {/* publish status  */}
-        <div className="text-center m-5">
-            {is_published
-                ? <div className='alert bg-beige'>
-                    <i className='bi bi-check-square-fill px-2'></i>
-                    This record is published, which means it will appear for the student. The student will be able to see it.
-                    <button onClick={() => { handleUpdatePublish() }} className='btn btn-sm mt-2 btn-danger d-block mx-auto shadow'>Unpublish</button>
-                </div>
-                : <div className='alert bg-beige'>
-                    <i className='bi bi-x-square-fill px-2'></i>
-                    This record is not published, which means it won't appear for the student. The student won't be able to see it.
-                    <button onClick={() => { handleUpdatePublish() }} className='btn btn-sm mt-2 btn-darkblue2 d-block mx-auto shadow'>Publish</button>
-                </div>}
-        </div>
-
-
-        {/* records table  */}
-        <div className='m-5'>
-            <h2 className='fs-5'>Records</h2>
-            <table className='table table-hover table-bordered w-auto'>
-                <tbody>
-                    <tr>
-                        <td>Attendance (10)</td>
-                        <td className='fw-bold'>{attendance}</td>
-                    </tr>
-                    <tr>
-                        <td>Assignment (20)</td>
-                        <td className='fw-bold'>{assignment}</td>
-                    </tr>
-                    <tr>
-                        <td>Mid Term (30)</td>
-                        <td className='fw-bold'>{mid_term}</td>
-                    </tr>
-                    <tr>
-                        <td>Final (40)</td>
-                        <td className='fw-bold'>{final}</td>
-                    </tr>
-                    <tr>
-                        <td>Total (100)</td>
-                        <td className='fw-bold'>{total}</td>
-                    </tr>
-                    <tr>
-                        <td>Grade Point (GP)</td>
-                        <td className='fw-bold'>{grade_point}</td>
-                    </tr>
-                    <tr>
-                        <td>Letter Grade (LG)</td>
-                        <td className='fw-bold'>{letter_grade}</td>
-                    </tr>
-                    <tr>
-                        <td>Status</td>
-                        <td className='fw-bold text-capitalize'>{status}</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
 
     </>);
