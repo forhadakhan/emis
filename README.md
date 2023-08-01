@@ -71,6 +71,25 @@ The 'Education Management Information System' revolutionizes educational institu
 - Specific permission(s) or group(s) can be assigned by the administrator to staff members.
 - Staff members can only access authorized activities as per their permissions.
 
+#### Administrator/Staff Activity 
+Authorized administrators or staff members can perform the following actions:
+
+- Manage Users: Add, modify, view, and remove administrators, staff, teachers, and students.
+- Manage Public Messages: View, reply, remove, and update message status.
+- Manage User Permissions: Assign and modify user access rights.
+- Manage Institutes: Handle institutes within the system.
+- Manage Departments: Organize and manage departments.
+- Manage Degree Types: Add and manage different degree types.
+- Manage Programs: Handle academic programs.
+- Manage Semesters: Organize and manage semesters.
+- Manage Courses: Add and manage courses.
+- Manage Batches and Sections: Handle batches and sections of courses.
+- Manage Course Offers: Manage the offering of courses.
+- Manage Teacher Enrollment: Enroll teachers into departments and courses.
+- Manage Student Enrollment: Enroll students into programs, semesters, batches, and sections.
+- Manage Results or Academic Records: Record and manage student academic results.         
+And more features as required.
+     
 
 ## License
 
