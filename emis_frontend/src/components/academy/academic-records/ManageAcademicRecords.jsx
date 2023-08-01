@@ -7,9 +7,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
-import API_BASE_URL from '../../utils/config.js';
-import { getAccessToken, getFileLink } from '../../utils/auth';
-import { getOrdinal } from '../../utils/utils';
+import API_BASE_URL from '../../../utils/config.js';
+import { getAccessToken, getFileLink } from '../../../utils/auth.js';
+import { getOrdinal } from '../../../utils/utils.js';
 
 
 // Main Component 
@@ -834,9 +834,7 @@ const RecordDetails = ({ record }) => {
                 }
             });
             // in case update is successful
-            // is_published = !is_published;
             setSelectedRecord(response.data);
-            console.log(response.data);
         } catch (error) {
             setAlertMessage('Error updating publish status');
             console.error('Error updating publish status:', error);
