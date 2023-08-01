@@ -29,9 +29,6 @@ import UserPermissions from '../permissions/UserPermissions.jsx';
 // Public Messages
 import PublicMessages from '../public-messages/PublicMessages.jsx';
 
-// Access Controller
-import AccessController from '../auth/AccessController.jsx';
-
 // Academy Management
 import ManageTeacherDesignations from '../academy/ManageTeacherDesignations.jsx';
 import ManageTermChoices from '../academy/ManageTermChoices.jsx';
@@ -90,8 +87,6 @@ const ManagerialActivity = () => {
                 return <ManageStudentProfile setActiveComponent={setActiveComponent} reference={reference} breadcrumb={breadcrumb} />;
             case 'UserPermissions':
                 return <UserPermissions setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
-            case 'AccessController':
-                return <AccessController setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'PublicMessages':
                 return <PublicMessages setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageTeacherDesignations':
@@ -185,7 +180,6 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_studentenrollment', label: 'Student Enrollment', render: 'StudentEnrollment', icon: 'bi-person-vcard' },
         { id: 'view_courseoffer', label: 'Manage Course Offer', render: 'ManageCourseOffer', icon: 'bi-file-medical-fill' },
         { id: 'change_marksheet', label: 'Manage Academic Records', render: 'ManageAcademicRecords', icon: 'bi-list-columns' },
-        { id: 'change_user', label: 'Access Controller', render: 'AccessController', icon: 'bi-universal-access-circle' },
     ];
 
     let allowedElements = [];
