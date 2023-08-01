@@ -4,13 +4,15 @@ from django.db import models
 from django.apps import AppConfig
 from django.contrib.contenttypes.fields import GenericRelation  
 from django.db.models.signals import post_migrate
-from django.dispatch import receiver
+from django.dispatch import receiver 
 from authentication.models import User
 from comments.models import Comment
 from teacher.models import Teacher
 from student.models import Student
 from academy.validators import Marksheet as ms 
 
+from rest_framework import status
+from rest_framework.response import Response
 
 
 #####################################################################
@@ -254,27 +256,6 @@ class CourseEnrollment(models.Model):
 
     def __str__(self):
         return f'Course Enrollment: {self.course_offer} - {self.student}'
-
-    def save(self, *args, **kwargs):
-        # Check if the student has a previous enrollment with regular=True (as regular) for the same course.
-        previous_enrollments = CourseEnrollment.objects.filter(
-            student=self.student,
-            course_offer__course=self.course_offer.course,
-            regular=True
-        )
-        if self.regular and previous_enrollments.exists():
-            # If the student is trying to enroll in the same course with regular=True again,
-            # prevent the enrollment and raise a validation error.
-            raise ValidationError("Student already enrolled in this course as regular")
-
-        # Check if the student is re-enrolling with regular=False.
-        if not self.regular and previous_enrollments.exists():
-            # If the student is re-enrolling with regular=False, update the previous enrollments' non_credit field to True.
-            previous_enrollments.update(non_credit=True)
-
-        # Save the current enrollment.
-        super().save(*args, **kwargs)
-
 #####################################################################
 
 
