@@ -12,7 +12,7 @@ import { getEnrollmentData } from '../../utils/auth.js';
 
 import StudentCourseEnroll from '../academy/StudentCourseEnroll';
 import ManageStudentCourses from '../academy/ManageStudentCourses';
-import StudentAcademicRecords from '../academy/StudentAcademicRecords';
+import StudentAcademicRecords from '../academy/academic-records/StudentAcademicRecords';
 
 /********************************| END IMPORTS |********************************/
 /*******************************************************************************/
