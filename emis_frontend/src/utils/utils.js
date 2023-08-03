@@ -56,17 +56,42 @@ export const customDateFormat = (dateString) => {
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June', 'July',
         'August', 'September', 'October', 'November', 'December'
-      ];
-    
-      const date = new Date(localDate);
-      const day = date.getDate();
-      const month = months[date.getMonth()];
-      const year = date.getFullYear();
-      const time = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
-    
-      return `${day} ${month} ${year}, ${time}`;
+    ];
+
+    const date = new Date(localDate);
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const time = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+
+    return `${day} ${month} ${year}, ${time}`;
 }
-  
+
+
+export const customDateAndDayName = (dateString) => {
+    /**
+     *  input: 2023-10-13
+     * output: 13 October 2023 (Day Name)
+     */
+
+    const months = [
+        "January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"
+    ];
+
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    const dateObject = new Date(dateString);
+    const day = dateObject.getDate();
+    const month = months[dateObject.getMonth()];
+    const year = dateObject.getFullYear();
+    const dayName = days[dateObject.getDay()];
+
+    const formattedDate = `${day} ${month} ${year} (${dayName})`;
+    return formattedDate;
+};
+
+
 
 export const getCurrentDateTimeInSingleStr = () => {
     const currentDate = new Date();
@@ -76,8 +101,8 @@ export const getCurrentDateTimeInSingleStr = () => {
     const hours = String(currentDate.getHours()).padStart(2, '0');
     const minutes = String(currentDate.getMinutes()).padStart(2, '0');
     const seconds = String(currentDate.getSeconds()).padStart(2, '0');
-  
+
     return `${year}${month}${day}-${hours}${minutes}${seconds}`;
     // 20230801-203557
-  }
+}
 
