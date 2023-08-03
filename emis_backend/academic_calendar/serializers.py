@@ -11,3 +11,9 @@ class DefaultCalendarActivitySerializer(ModelSerializer):
 
 
 
+class UserCalendarActivitySerializer(ModelSerializer):
+    class Meta:
+        model = UserCalendarActivity
+        fields = '__all__'
+
+
