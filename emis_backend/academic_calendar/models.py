@@ -38,3 +38,13 @@ class UserCalendarActivity(models.Model):
         return self.title
 
 
+class Weekend(models.Model):
+    """
+        This model will contain weekends (day names).
+    """
+    day = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.title
+
+
