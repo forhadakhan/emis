@@ -46,6 +46,7 @@ CUSTOM_APPS = [
     'miscellaneous',
     'academy',
     'comments',
+    'academic_calendar',
 ]
 INSTALLED_PACKAGES = [
     'rest_framework',
