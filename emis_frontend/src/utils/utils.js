@@ -2,6 +2,10 @@
 
 
 export const formatDateTime = (dateTimeString, timeZone = "Asia/Dhaka") => {
+    /**
+     *  input: 2023-07-05T21:56:21.355782Z 
+     * output: July 6, 2023 at 3:56:21 AM GMT+6 
+     */
     const dateTime = new Date(dateTimeString);
 
     const options = {
@@ -23,7 +27,7 @@ export const formatDateTime = (dateTimeString, timeZone = "Asia/Dhaka") => {
 export const getOrdinal = (number) => {
     /**
      * Take a number and return ordinal. for example: 
-     * input: 2     output: 2nd 
+     * input: 2      output: 2nd 
      * input: 44     output: 44th
      */
     const parsedNumber = parseInt(number, 10);
@@ -52,6 +56,11 @@ export const getOrdinal = (number) => {
 
 
 export const customDateFormat = (dateString) => {
+    /**
+     *  input: "2023-08-03T13:03:50.631279Z"
+     * output: "3 August 2023, 7:03:50 PM"
+     */
+
     const localDate = new Date(dateString).toLocaleString()
     const months = [
         'January', 'February', 'March', 'April', 'May', 'June', 'July',
@@ -94,6 +103,9 @@ export const customDateAndDayName = (dateString) => {
 
 
 export const getCurrentDateTimeInSingleStr = () => {
+    /**
+     * return current time in format: yyyymmdd-hhmmss
+     */
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
