@@ -1,6 +1,6 @@
 # academic_calendar/views.py
 
-from rest_framework import filters
+from rest_framework.filters import OrderingFilter
 from rest_framework.viewsets import ModelViewSet 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,7 +15,7 @@ class DefaultCalendarActivityViewSet(ModelViewSet):
     # permission_classes = [IsAdministratorOrStaff]
     queryset = DefaultCalendarActivity.objects.all()
     serializer_class = DefaultCalendarActivitySerializer
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [OrderingFilter]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -38,6 +38,24 @@ class UserCalendarActivityViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = UserCalendarActivity.objects.all()
     serializer_class = UserCalendarActivitySerializer
+    filter_backends = [OrderingFilter]
+
+
+    def get_queryset(self):
+        queryset = self.queryset
+        date = self.request.query_params.get('date')  # Filter by date if provided
+        year = self.request.query_params.get('year')  # Filter by year if provided
+        month = self.request.query_params.get('month')  # Filter by month if provided
+
+        if date:
+            queryset = queryset.filter(date=date)
+        elif year and month:
+            queryset = queryset.filter(date__year=year, date__month=month)
+        elif year:
+            queryset = queryset.filter(date__year=year)
+
+        return queryset
+    
 
     @action(detail=False, methods=['post'])
     def create_user_activity(self, request):
