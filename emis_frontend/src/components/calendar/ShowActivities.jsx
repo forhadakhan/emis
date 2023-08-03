@@ -11,7 +11,7 @@ import { customDateAndDayName } from '../../utils/utils.js';
 
 const ShowActivities = ({ activities }) => {
     const [responseMsg, setResponseMsg] = useState('');
-    const [sortOrder, setSortOrder] = useState('desc'); // 'desc' for descending, 'asc' for ascending
+    const [sortOrder, setSortOrder] = useState('asc'); // 'desc' for descending, 'asc' for ascending
 
 
     // toggle the sorting order
@@ -64,7 +64,7 @@ const ShowActivities = ({ activities }) => {
                 </div>
 
                 {/* show all activities in accordion  */}
-                <div className="accordion" id="ActivitiesAccordionPanelsStayOpen">
+                <div className="accordion" id="ActivitiesAccordionPanels">
                     {sortedActivities.map((activity) => (
                         <div className="accordion-item" key={activity.id}>
                             <h2 className="accordion-header">
@@ -81,7 +81,7 @@ const ShowActivities = ({ activities }) => {
                                     {activity.status && <span className='badge p-1 bg-dark text-light mx-2'>{activity.status}</span>}
                                 </button>
                             </h2>
-                            <div id={`panelsStayOpen-collapse-${activity.id}`} className="accordion-collapse collapse show">
+                            <div id={`panelsStayOpen-collapse-${activity.id}`} className="accordion-collapse collapse">
                                 <div className="accordion-body">
                                     <p>{activity.description}</p>
                                     <p className='text-end'><small>{customDateAndDayName(activity.date)}</small></p>
