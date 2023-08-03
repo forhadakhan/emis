@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
-import { formatDateTime } from '../../utils/utils';
+import { customDateFormat } from '../../utils/utils';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth';
 
@@ -19,6 +19,7 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
     const url = `${API_BASE_URL}/contact-messages/`;
 
 
+    // get all messages from api when this component loads/mounts 
     useEffect(() => {
         const fetchData = async () => {
             const config = {
@@ -39,15 +40,14 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
         fetchData();
     }, []);
 
+
+    // initially set all messages to filteredData, used for searching 
     useEffect(() => {
         setFilteredData(messages);
     }, [messages]);
 
-    const handleViewMessage = (message) => {
-        setMessage(message);
-        setMessageComponent('ViewMessage');
-    }
 
+    // handle searching based on keyword input 
     const handleSearch = (e) => {
         const keyword = e.target.value.toLowerCase();
         const filteredResults = messages.filter(
@@ -64,28 +64,37 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
         setFilteredData(filteredResults);
     };
 
+    
+    // when a message is selected, show details 
+    const handleViewMessage = (message) => {
+        setMessage(message);
+        setMessageComponent('ViewMessage');
+    }
+
+
+    // define datatable columns 
     const columns = [
         {
-            name: 'Name',
-            selector: 'name',
+            name: 'Name',           
+            selector: (row) => row.name,
             sortable: true,
         },
         {
             name: 'Message',
-            selector: 'message',
+            selector: (row) => row.message,
             sortable: true,
             cell: (row) =>
                 row.message.length > 18 ? `${row.message.slice(0, 18)}...` : row.message,
         },
         {
             name: 'Received at',
-            selector: 'received_at',
+            selector: (row) => row.received_at,
             sortable: true,
-            cell: (row) => (formatDateTime(row.received_at)),
+            cell: (row) => (customDateFormat(row.received_at)),
         },
         {
             name: 'View',
-            selector: 'is_read',
+            selector: (row) => row.is_read,
             cell: (row) => (<>
                 <div className="mx-auto">
                     {(row.is_read ? <i className="bi bi-envelope-open mx-1"></i> : <i className="bi bi-envelope-fill mx-1"></i>)}
@@ -99,14 +108,15 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
                     </button>
                 </div>
             </>),
-            // button: true,
+            width: '15%',
         },
     ];
 
+    // define datatable custom styles 
     const customStyles = {
         rows: {
             style: {
-                minHeight: '72px',
+                minHeight: '60px',
                 fontSize: '16px',
             },
         },
@@ -129,8 +139,11 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
         },
     };
 
+
     return (
         <div className="px-4 py-5">
+
+            {/* show breadcrumb list  */}
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     {breadcrumb.map((item, index) => (
@@ -139,8 +152,12 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
                 </ol>
             </nav>
 
+
+            {/* page title  */}
             <h1 className='my-4'>Public Messages</h1>
 
+
+            {/* filter options  */}
             <div className="mb-3 me-5 input-group">
                 <label htmlFor="filter" className="d-flex me-2 ms-auto p-1">
                     Filter:
@@ -154,6 +171,8 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
                 </select>
             </div>
 
+
+            {/* search input field  */}
             <div className="m-5">
                 <input
                     type="text"
@@ -163,15 +182,20 @@ const MessageList = ({ setMessage, setMessageComponent, breadcrumb }) => {
                 />
             </div>
 
+
+            {/* show messages in a list  */}
             <div className="rounded-top-4">
                 <DataTable
                     columns={columns}
                     data={filteredData}
                     pagination
                     customStyles={customStyles}
+                    highlightOnHover
                 />
             </div>
 
+
+            {/* show error if any  */}
             {error && (
                 <div className="alert alert-warning alert-dismissible fade show border border-darkblue" role="alert">
                     <i className="bi bi-exclamation-octagon-fill"> </i> <strong> {error} </strong>
