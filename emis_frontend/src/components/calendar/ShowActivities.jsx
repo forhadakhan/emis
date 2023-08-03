@@ -50,9 +50,9 @@ const ShowActivities = ({ activities }) => {
         {(sortedActivities.length > 0) && <>
             <div>
                 {/* heading and sort button  */}
-                <div className="d-flex justify-content-between m-2">
+                <div className="d-flex justify-content-between m-1">
                     <div>
-                        <h4>Activities</h4>
+                        <h4><i class="bi bi-calendar2-check pe-2"></i> Activities</h4>
                     </div>
 
                     <div>
