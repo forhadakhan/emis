@@ -5,8 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from authentication.permissions import IsAdministratorOrStaff 
 from rest_framework.permissions import IsAuthenticated 
-from .models import DefaultCalendarActivity, UserCalendarActivity
-from .serializers import DefaultCalendarActivitySerializer, UserCalendarActivitySerializer
+from .models import DefaultCalendarActivity, UserCalendarActivity, Weekend 
+from .serializers import DefaultCalendarActivitySerializer, UserCalendarActivitySerializer, WeekendSerializer 
 
 
 
@@ -38,5 +38,12 @@ class UserCalendarActivityViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+
+
+
+class WeekendViewSet(ModelViewSet):
+    permission_classes = [IsAdministratorOrStaff]
+    queryset = Weekend.objects.all()
+    serializer_class = WeekendSerializer
 
 
