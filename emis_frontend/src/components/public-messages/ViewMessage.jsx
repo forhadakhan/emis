@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken, hasPermission, getUserRole } from '../../utils/auth';
-import { formatDateTime } from '../../utils/utils';
+import { customDateFormat } from '../../utils/utils';
 
 
 const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
@@ -19,14 +19,16 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
     const [serverResponse, setServerResponse] = useState('');
     const accessToken = getAccessToken();
     const loggedUserRole = getUserRole();
+    console.log(message.received_at);
 
-
+    // add current component to breadcrumb list 
     const updatedBreadcrumb = breadcrumb.concat(
         <button className='btn p-0 m-0' onClick={() => setMessageComponent('ViewMessage')}>
             <i className="bi bi-chat-right-quote"></i> Message Details
         </button>
     );
 
+    // mark the message as read 
     const handleMarkAsRead = async () => {
         const config = {
             headers: {
@@ -43,6 +45,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
         }
     };
 
+    // mark the message as unread 
     const handleMarkAsUnread = async () => {
         const config = {
             headers: {
@@ -59,6 +62,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
         }
     };
 
+    // mark the message as answered  
     const handleAnswered = async () => {
         const config = {
             headers: {
@@ -75,10 +79,12 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
         }
     };
 
+    // catch the reply message 
     const handleReplyChange = (e) => {
         setReply(e.target.value);
     };
 
+    // send a reply to the message sender 
     const handleSendReply = () => {
         const config = {
             headers: {
@@ -110,7 +116,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
             });
     };
 
-
+    // remove the message from the system 
     const handleMessageDelete = async () => {
         const config = {
             headers: {
@@ -126,8 +132,11 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
         }
     }
 
+    // get ui 
     return (
         <div className="px-4 py-5">
+
+            {/* show breadcrumb list  */}
             <nav aria-label="breadcrumb">
                 <ol className="breadcrumb">
                     {updatedBreadcrumb.map((item, index) => (
@@ -136,10 +145,12 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                 </ol>
             </nav>
 
-            <h1 className='my-4'>Message Details</h1>
+            {/* show page title  */}
+            <h2 className='my-4 text-center'><i className="bi bi-chat-right-quote"></i> Message Details</h2>
 
             <div className='mw-750 mx-auto my-5'>
 
+                {/* action buttons  */}
                 <div className="d-flex justify-content-center my-4">
 
                     {(loggedUserRole === 'administrator' || hasPermission('change_contactmessage')) && <>
@@ -170,6 +181,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                     </>}
                 </div>
 
+                {/* delete confirmation  */}
                 {isDelete &&
                     <div className="container d-flex align-items-center justify-content-center">
                         <div className="alert alert-info" role="alert">
@@ -181,6 +193,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                         </div>
                     </div>}
 
+                {/* show message details  */}
                 <form action="">
                     <div className="py-5">
                         <div className="row mt-2">
@@ -200,7 +213,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                         <div className="row mt-2">
                             <div className="col-md-12">
                                 <h6 className='text-secondary px-3 fw-normal'>Received at</h6>
-                                <p className="fs-5 bg-white p-3 rounded-3 border"> {formatDateTime(message.received_at)} </p>
+                                <p className="fs-5 bg-white p-3 rounded-3 border"> {customDateFormat(message.received_at)} </p>
                             </div>
                         </div>
 
@@ -213,6 +226,7 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                     </div>
                 </form>
 
+                {/* if authorized, show reply option  */}
                 {(loggedUserRole === 'administrator' || hasPermission('change_contactmessage')) && <>
                     <h6 className='my-2 px-3'>Reply</h6>
                     <textarea
@@ -224,12 +238,16 @@ const ViewMessage = ({ message, setMessageComponent, breadcrumb }) => {
                         placeholder="Enter your reply here"
                         className='d-block w-100 my-2 rounded-3 p-3 border border-beige'
                     ></textarea>
+
+                    {/* show reply request to backend api response (if any)  */}
                     {serverResponse && (
                         <div className="alert alert-info alert-dismissible fade show border border-darkblue" role="alert">
                             <i className="bi bi-check-square-fill"> </i> <strong> {serverResponse} </strong>
                             <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={() => setServerResponse(false)} ></button>
                         </div>
                     )}
+
+                    {/* show send reply button  */}
                     <button className="btn btn-darkblue d-block w-100 my-3" onClick={handleSendReply} disabled={reply.length < 2}>
                         {isLoading ? <>
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
