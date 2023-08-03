@@ -41,13 +41,13 @@ const ManageCalendarActivity = ({ }) => {
         }
     };
     useEffect(() => {
-        if(date){
+        if (date) {
             fetchActivities(date);
         }
     }, [date])
 
     useEffect(() => {
-        if(activities.length > 0){
+        if (activities.length > 0) {
             setShowComponent('ShowActivities');
         }
     }, [activities])
@@ -137,16 +137,18 @@ const ManageCalendarActivity = ({ }) => {
             </div>
 
             {/* reload activities */}
-            <div className="d-flex justify-content-center my-5">
-                <button
-                type='button'
-                className='btn btn-sm btn-light' 
-                onClick={() => {fetchActivities(date)}}
-                >
-                    <i className="bi bi-arrow-clockwise px-1"></i>
-                    Reload Activities
-                </button>
-            </div>
+            {date &&
+                <div className="d-flex justify-content-center my-5">
+                    <button
+                        type='button'
+                        className='btn btn-sm btn-light'
+                        onClick={() => { fetchActivities(date) }}
+                    >
+                        <i className="bi bi-arrow-clockwise px-1"></i>
+                        Reload Activities
+                    </button>
+                </div>
+            }
         </>
     );
 }
