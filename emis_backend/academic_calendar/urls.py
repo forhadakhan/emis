@@ -8,6 +8,7 @@ from .views import DefaultCalendarActivityViewSet, UserCalendarActivityViewSet
 
 router = DefaultRouter()
 router.register(r'calendar-activity', DefaultCalendarActivityViewSet)
+router.register(r'user-calendar-activity', UserCalendarActivityViewSet)
 
 
 urlpatterns = [
