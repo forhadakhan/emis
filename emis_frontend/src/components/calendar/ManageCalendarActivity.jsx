@@ -8,6 +8,8 @@ import React, { useState } from 'react';
 import { getAccessToken } from '../../utils/auth.js';
 import { customDateAndDayName } from '../../utils/utils.js';
 
+import AddAcademicCalendarActivity from './AddAcademicCalendarActivity.jsx';
+
 
 
 const ManageCalendarActivity = ({ }) => {
@@ -83,6 +85,21 @@ const ManageCalendarActivity = ({ }) => {
                             Add Activity
                         </button>
                     </div>
+                </div>
+            }
+
+            {/* add activity form  */}
+            {date && showAddActivityForm &&
+                <div className="w-100">
+                    <div className="text-center">
+                        <button
+                            className="btn badge btn-secondary"
+                            type='button'
+                            onClick={() => setShowAddActivityForm(!showAddActivityForm)}
+                        > Hide Form
+                        </button>
+                    </div>
+                    <AddAcademicCalendarActivity date={date} />
                 </div>
             }
 
