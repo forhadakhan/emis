@@ -5,6 +5,10 @@ from django.db import models
 
 
 class DefaultCalendarActivity(models.Model):
+    """
+        This model will contain calendar activity that will be 
+        applicable to everyone.
+    """
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     date = models.DateField()
@@ -21,6 +25,10 @@ class DefaultCalendarActivity(models.Model):
 
 
 class UserCalendarActivity(models.Model):
+    """
+        This model will contain calendar activity that will be 
+        applicable to specific user.
+    """
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
