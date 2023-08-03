@@ -1,3 +1,14 @@
-from django.shortcuts import render
+# academic_calendar/views.py
 
-# Create your views here.
+from rest_framework.viewsets import ModelViewSet
+from .models import DefaultCalendarActivity, UserCalendarActivity
+from .serializers import DefaultCalendarActivitySerializer
+
+
+
+class DefaultCalendarActivityViewSet(ModelViewSet):
+    queryset = DefaultCalendarActivity.objects.all()
+    serializer_class = DefaultCalendarActivitySerializer
+
+
+
