@@ -18,6 +18,14 @@ Filter by month - list view __: .../academic-activity/?year=2023&month=8
 """
 
 router.register(r'user-activity', UserCalendarActivityViewSet)
+"""
+List view ____________________: .../user-activity/
+Detail view __________________: .../user-activity/<pk>/
+Filter by date - list view ___: .../user-activity/?date=YYYY-MM-DD
+Filter by year - list view ___: .../user-activity/?year=YYYY
+Filter by month - list view __: .../user-activity/?year=2023&month=8
+"""
+
 router.register(r'weekends', WeekendViewSet)
 
 
