@@ -29,6 +29,9 @@ import UserPermissions from '../permissions/UserPermissions.jsx';
 // Public Messages
 import PublicMessages from '../public-messages/PublicMessages.jsx';
 
+// Calendar
+import ManageAcademicCalendar from '../calendar/ManageAcademicCalendar.jsx';
+
 // Academy Management
 import ManageTeacherDesignations from '../academy/ManageTeacherDesignations.jsx';
 import ManageTermChoices from '../academy/ManageTermChoices.jsx';
@@ -71,6 +74,8 @@ const ManagerialActivity = () => {
                 return <AddTeacher setActiveComponent={setActiveComponent} />;
             case 'AddStudent':
                 return <AddStudent setActiveComponent={setActiveComponent} />;
+            case 'ManageAcademicCalendar':
+                return <ManageAcademicCalendar setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             case 'ManageAdministrator':
                 return <ManageAdministrator setActiveComponent={setActiveComponent} setReference={setReference} setUserType={setUserType} />;
             case 'ManageStaff':
@@ -180,6 +185,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_studentenrollment', label: 'Student Enrollment', render: 'StudentEnrollment', icon: 'bi-person-vcard' },
         { id: 'view_courseoffer', label: 'Manage Course Offer', render: 'ManageCourseOffer', icon: 'bi-file-medical-fill' },
         { id: 'change_marksheet', label: 'Manage Academic Records', render: 'ManageAcademicRecords', icon: 'bi-list-columns' },
+        { id: 'change_defaultcalendaractivity', label: 'Manage Academic Calendar', render: 'ManageAcademicCalendar', icon: 'bi-calendar3' },
     ];
 
     let allowedElements = [];
