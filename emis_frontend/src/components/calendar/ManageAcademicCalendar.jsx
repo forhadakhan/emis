@@ -6,10 +6,12 @@
 
 import React, { useState } from 'react';
 
+import ManageCalendarActivity from './ManageCalendarActivity.jsx'
+
 
 const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
     const [error, setError] = useState('');
-    const [showComponent, setShowComponent] = useState('');
+    const [showComponent, setShowComponent] = useState('ManageCalendarActivity');
 
 
     // add current component to the breadcrumb list 
@@ -22,6 +24,8 @@ const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
 
     const renderComponent = () => {
         switch (showComponent) {
+            case 'ManageCalendarActivity':
+                return <ManageCalendarActivity />
             default:
                 return ''
         }
