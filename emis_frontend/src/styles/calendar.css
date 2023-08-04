@@ -81,3 +81,17 @@
     width: 360px;
 }
 
+.opacity-10 {
+    opacity: .1;
+}
+
+.highlight {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 33px;
+    border-radius: 50%;
+    padding: 1px;
+}
+
