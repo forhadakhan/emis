@@ -80,5 +80,21 @@ class WeekendViewSet(ModelViewSet):
     permission_classes = [IsAdministratorOrStaff]
     queryset = Weekend.objects.all()
     serializer_class = WeekendSerializer
+    filter_backends = [OrderingFilter]
+
+    def get_queryset(self):
+        queryset = self.queryset
+        status = self.request.query_params.get('status')
+
+        """
+        Filter by status if provided.
+        status=True means weekends.
+        status=False means regular day.
+        """
+        if status:
+            queryset = queryset.filter(status=status)
+
+        return queryset
+
 
 
