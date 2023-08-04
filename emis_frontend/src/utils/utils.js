@@ -118,3 +118,18 @@ export const getCurrentDateTimeInSingleStr = () => {
     // 20230801-203557
 }
 
+
+export const dateShortener = (inputDate) => {
+    /**
+     *  input: "Sat Aug 05 2023 00:00:00 GMT+0600 (Bangladesh Standard Time)" 
+     * output: "2023-08-05"
+     */
+
+    const dateObj = new Date(inputDate);
+
+    const year = dateObj.getFullYear();
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const day = dateObj.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+}
