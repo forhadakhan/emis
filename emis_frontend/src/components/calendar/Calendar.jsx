@@ -4,20 +4,76 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import API_BASE_URL from '../../utils/config.js';
+import { getAccessToken } from '../../utils/auth.js';
 import '../../styles/calendar.css';
 
 const CalendarComponent = ({ componentController }) => {
+    const accessToken = getAccessToken();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
+    const [checkWeekends, setCheckWeekends] = useState(false);
+    const [weekends, setWeekends] = useState([]);
+    const [error, setError] = useState('');
 
-    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const daysOfWeek = {
+        Sun: 'Sunday',
+        Mon: 'Monday',
+        Tue: 'Tuesday',
+        Wed: 'Wednesday',
+        Thu: 'Thursday',
+        Fri: 'Friday',
+        Sat: 'Saturday'
+    };
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     useEffect(() => {
         setCurrentMonth(selectedDate.getMonth());
         setCurrentYear(selectedDate.getFullYear());
     }, [selectedDate]);
+
+
+    // fetch all from Weekends model  
+    const fetchWeekends = async () => {
+        setError('');
+
+        const url = `${API_BASE_URL}/calendar/weekends/?status=1`;
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(url, config);
+            setWeekends(response.data);
+            setError('');
+            setCheckWeekends(true); // in case there is no weekends
+        } catch (error) {
+            setError(' Failed to fetch Weekends data.');
+            console.error('Error fetching Weekends data:', error);
+        }
+    };
+    // fetch only if weekends is empty 
+    useEffect(() => {
+        if (!checkWeekends && (weekends.length < 1)) {
+            fetchWeekends()
+        }
+    }, [weekends]);
+
+    // check if a day is weekend 
+    const isWeekend = (day) => {
+        for (const weekend of weekends) {
+            if (weekend.day === day) {
+                return weekend.status;
+            }
+        }
+        return false;
+    }
+
 
     // const handleMonthChange = (e) => {
     //     setCurrentMonth(e.target.value);
@@ -90,12 +146,14 @@ const CalendarComponent = ({ componentController }) => {
             calendarDays.push(
                 <button
                     key={`day-${day}`}
-                    className={`btn ${classNames} ${isCurrentDay ? 'selected' : ''} cal-day`}
+                    className={`btn ${classNames} ${isCurrentDay ? 'selected' : ''} cal-day p-1`}
                     onClick={() => handleDayClick(dateId)}
                     type="button"
                     id={dateId}
                 >
-                    {day}
+                    <span className='highlight  has-activity w-100 py-1'>
+                        <span className="circle-content">{day}</span>
+                    </span>
                 </button>
             );
         }
@@ -110,8 +168,10 @@ const CalendarComponent = ({ componentController }) => {
 
                 <div className="p-2">
                     <div className="row">
+
+                        {/* month  */}
                         <div className="col-12 col-md-4 d-flex justify-content-center justify-content-md-start">
-                            <div id="month" className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-340px h-100">
+                            <div id="month" className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-360px h-100">
                                 <div className="cal">
                                     <div className="cal-month d-flex">
                                         <button id="previous-year" className="btn cal-btn flex-grow-1" onClick={handlePreviousYear} type="button">
@@ -133,14 +193,14 @@ const CalendarComponent = ({ componentController }) => {
                                     <div className="d-grid">
                                         <button className="btn btn-sm btn-darkblue" onClick={handleResetDate} type="button"><i className="bi bi-clock-history"></i></button>
                                     </div>
-                                    <div id="day-name" className="cal-weekdays text-body-secondary">
-                                        {daysOfWeek.map((day) => (
-                                            <div key={day} className="cal-weekday">
+                                    <div id="day-name" className="cal-weekdays text-body-secondary gap-1 my-1">
+                                        {Object.keys(daysOfWeek).map((day) => (
+                                            <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'weekend' : ''}`}>
                                                 {day}
                                             </div>
                                         ))}
                                     </div>
-                                    <div id="day-number" className="cal-days">
+                                    <div id="day-number" className="cal-days gap-1">
                                         {generateCalendarDays()}
                                     </div>
                                     <div className="d-grid pt-2">
@@ -155,6 +215,7 @@ const CalendarComponent = ({ componentController }) => {
 
                         <hr className="d-block d-md-none m-3 border-0" />
 
+                        {/* day and activity  */}
                         <div className="col-md-8">
                             <div id="day" className="bg-light p-3 mx-0 overflow-auto shadow border border-beige rounded-3 h-100">
                                 <div className="d-flex align-items-center border-bottom pb-2">
@@ -167,7 +228,7 @@ const CalendarComponent = ({ componentController }) => {
                                     </button>
                                 </div>
 
-                                <div className="my-2">
+                                <div className="my-2 overflow-scroll" style={{ maxHeight: '350px' }}>
                                     <ul id="day-event-list">
                                         <li id="day-event-1">Todays event: 1</li>
                                         <li id="day-event-2">Todays event: 2</li>
