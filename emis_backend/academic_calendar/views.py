@@ -77,7 +77,7 @@ class UserCalendarActivityViewSet(ModelViewSet):
 
 
 class WeekendViewSet(ModelViewSet):
-    permission_classes = [IsAdministratorOrStaff]
+    permission_classes = [IsAuthenticated]
     queryset = Weekend.objects.all()
     serializer_class = WeekendSerializer
     filter_backends = [OrderingFilter]
