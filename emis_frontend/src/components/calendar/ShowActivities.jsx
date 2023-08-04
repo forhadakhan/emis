@@ -52,13 +52,17 @@ const ShowActivities = ({ activities }) => {
                 {/* heading and sort button  */}
                 <div className="d-flex justify-content-between m-1">
                     <div>
-                        <h4><i class="bi bi-calendar2-check pe-2"></i> Activities</h4>
+                        <h5 className='text-secondary'><i class="bi bi-calendar2-check pe-2"></i> Activities</h5>
                     </div>
 
                     <div>
-                        <button type='button' className='btn btn-sm btn-light' onClick={toggleSortOrder}>
-                            <i className="bi bi-arrow-down-up pe-2"></i>
-                            {sortOrder === 'desc' ? 'Sort Ascending' : 'Sort Descending'}
+                        <button 
+                        type='button' 
+                        className='btn btn-sm btn-light' 
+                        onClick={toggleSortOrder}
+                        title={sortOrder === 'desc' ? 'Sort Ascending' : 'Sort Descending'}
+                        >
+                            <i className="bi bi-arrow-down-up"></i>                            
                         </button>
                     </div>
                 </div>
