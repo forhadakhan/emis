@@ -76,6 +76,30 @@ const ManageCalendarActivity = ({ }) => {
             )}
 
 
+            {/* Activity Tab Info */}
+            <div>
+                <p className="">
+                    <a
+                        className="btn btn-light"
+                        data-bs-toggle="collapse"
+                        href="#collapseActivityTabInfo"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="collapseActivityTabInfo"
+                    >
+                        <i className='bi bi-info-circle'></i>
+                    </a>
+                </p>
+                <div className="collapse mb-5" id="collapseActivityTabInfo">
+                    <div className="card card-body">
+                        <p className="text-center mt-2 lead">
+                            Pick a date to manage academic calendar activity for a that day.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
             {/* input: pick a date  */}
             <div className="d-flex justify-content-center">
                 <div className="mb-3 w-25 w-sm-100">
