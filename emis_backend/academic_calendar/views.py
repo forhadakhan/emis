@@ -85,14 +85,20 @@ class WeekendViewSet(ModelViewSet):
     def get_queryset(self):
         queryset = self.queryset
         status = self.request.query_params.get('status')
+        day = self.request.query_params.get('day')
 
-        """
-        Filter by status if provided.
-        status=True means weekends.
-        status=False means regular day.
-        """
         if status:
+            """
+            Filter by status if provided.
+            status=True means weekends.
+            status=False means regular day.
+            """
             queryset = queryset.filter(status=status)
+        elif day:
+            """
+            Filter by day name if provided.
+            """
+            queryset = queryset.filter(day=day)
 
         return queryset
 
