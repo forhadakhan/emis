@@ -19,14 +19,19 @@ const ShowActivities = ({ activities }) => {
         setSortOrder((prevSortOrder) => (prevSortOrder === 'desc' ? 'asc' : 'desc'));
     };
 
-    // sort the list of activities based on the date and current sorting order
-    const sortedActivities = activities.sort((a, b) => {
-        if (sortOrder === 'desc') {
-            return new Date(b.date) - new Date(a.date);
-        } else {
-            return new Date(a.date) - new Date(b.date);
-        }
-    });
+
+    // sort the list of activities based on the date and current sorting order 
+    // sort only if there are multiple elements in the activities array
+    const sortedActivities = (activities.length > 1)
+        ? activities.sort((a, b) => {
+            if (sortOrder === 'desc') {
+                return new Date(b.date) - new Date(a.date);
+            } else {
+                return new Date(a.date) - new Date(b.date);
+            }
+        })
+        : activities;
+
 
 
     return (<>
@@ -52,17 +57,17 @@ const ShowActivities = ({ activities }) => {
                 {/* heading and sort button  */}
                 <div className="d-flex justify-content-between m-1">
                     <div>
-                        <h5 className='text-secondary'><i class="bi bi-calendar2-check pe-2"></i> Activities</h5>
+                        <h5 className='text-secondary'><i className="bi bi-calendar2-check pe-2"></i> Activities</h5>
                     </div>
 
                     <div>
-                        <button 
-                        type='button' 
-                        className='btn btn-sm btn-light' 
-                        onClick={toggleSortOrder}
-                        title={sortOrder === 'desc' ? 'Sort Ascending' : 'Sort Descending'}
+                        <button
+                            type='button'
+                            className='btn btn-sm btn-light'
+                            onClick={toggleSortOrder}
+                            title={sortOrder === 'desc' ? 'Sort Ascending' : 'Sort Descending'}
                         >
-                            <i className="bi bi-arrow-down-up"></i>                            
+                            <i className="bi bi-arrow-down-up"></i>
                         </button>
                     </div>
                 </div>
