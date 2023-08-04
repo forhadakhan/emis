@@ -8,6 +8,8 @@ import axios from 'axios';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
 import '../../styles/calendar.css';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { dateShortener } from '../../utils/utils.js';
 
 
@@ -123,6 +125,23 @@ const AcademicCalendar = () => {
     }
 
 
+    // save calendar as image 
+    const saveAsImage = () => {
+        const divToSave = document.getElementById("myAcademicCalender");
+
+        // Use html2canvas to capture the content and convert it to an image
+        html2canvas(divToSave).then(function (canvas) {
+            // Convert canvas to base64 image data
+            const imageData = canvas.toDataURL("image/png"); // use "image/jpeg" for JPEG format
+
+            // Create a temporary link and trigger the download
+            const link = document.createElement("a");
+            link.href = imageData;
+            link.download = "academic_calender.png"; // Change the file name and extension as per imageData
+            link.click();
+        });
+    };
+
 
     // handle previous year request 
     const handlePreviousYear = () => {
@@ -194,81 +213,90 @@ const AcademicCalendar = () => {
 
     return (
         <div>
-            <h2 className="text-center h-4 pb-4 text-darkblue border-bottom border-darkblue">
-                <i className="bi bi-calendar3 pe-2"></i> Academic Calendar
-            </h2>
+            <div id='myAcademicCalender'>
+                <h2 className="text-center h-4 pb-4 text-darkblue border-bottom border-darkblue">
+                    <i className="bi bi-calendar3 pe-2"></i> Academic Calendar
+                </h2>
 
-            {/* change and display year  */}
-            <div className="d-flex justify-content-center font-merriweather">
-                <div className="btn btn-group border border-0 gap-3">
+                {/* change and display year  */}
+                <div className="d-flex justify-content-center font-merriweather">
+                    <div className="btn btn-group border border-0 gap-3">
 
-                    {/* go to previous year  */}
+                        {/* go to previous year  */}
+                        <button
+                            className='btn btn-lg fs-1 border border-0 btn-light'
+                            onClick={() => { handlePreviousYear() }}
+                        >
+                            <i className="bi bi-chevron-compact-left"></i>
+                        </button>
+
+                        {/* display current year  */}
+                        <button className='btn btn-lg fs-1 border border-0' >
+                            {currentYear}
+                        </button>
+
+                        {/* go to next year  */}
+                        <button
+                            className='btn btn-lg fs-1 border border-0 btn-light'
+                            onClick={() => { handleNextYear() }}
+                        >
+                            <i className="bi bi-chevron-compact-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {/* show reload activities button  */}
+                <div className="d-flex justify-content-center font-merriweather">
                     <button
-                        className='btn btn-lg fs-1 border border-0 btn-light'
-                        onClick={() => { handlePreviousYear() }}
-                    >
-                        <i className="bi bi-chevron-compact-left"></i>
-                    </button>
-
-                    {/* display current year  */}
-                    <button className='btn btn-lg fs-1 border border-0' >
-                        {currentYear}
-                    </button>
-
-                    {/* go to next year  */}
-                    <button
-                        className='btn btn-lg fs-1 border border-0 btn-light'
-                        onClick={() => { handleNextYear() }}
-                    >
-                        <i className="bi bi-chevron-compact-right"></i>
+                        className='btn btn-sm btn-light text-secondary'
+                        onClick={() => { fetchActivities(currentYear) }}
+                    > <i className="bi bi-arrow-clockwise pe-1"></i> re/load activities
                     </button>
                 </div>
-            </div>
-
-            {/* show reload activities button  */}
-            <div className="d-flex justify-content-center font-merriweather">
-                <button
-                    className='btn btn-sm btn-light text-secondary'
-                    onClick={() => { fetchActivities(currentYear) }}
-                > <i className="bi bi-arrow-clockwise pe-1"></i> re/load activities
-                </button>
-            </div>
 
 
-            <div id="full-cal" className="container">
-                <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 py-4">
-                    {months.map((month, index) => (
-                        <div key={index} id="month" className="col">
-                            <div className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-350px h-100 mx-auto">
-                                <div className="cal">
+                <div id="full-cal" className="container">
+                    <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 py-4">
+                        {months.map((month, index) => (
+                            <div key={index} id="month" className="col">
+                                <div className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-350px h-100 mx-auto">
+                                    <div className="cal">
 
-                                    {/* show month name  */}
-                                    <div className="cal-month d-block text-center">
-                                        <button className={`btn btn-sm cal-btn w-100 flex-grow-1 ${index == currentMonth ? 'cal-today' : ''}`} type='button'>
-                                            <strong className='fs-4'>{month}</strong>
-                                        </button>
-                                    </div>
+                                        {/* show month name  */}
+                                        <div className="cal-month d-block text-center">
+                                            <button className={`btn btn-sm cal-btn w-100 flex-grow-1 ${index == currentMonth ? 'cal-today' : ''}`} type='button'>
+                                                <strong className='fs-4'>{month}</strong>
+                                            </button>
+                                        </div>
 
-                                    {/* generate day names  */}
-                                    <div id="day-name" className="cal-weekdays text-body-secondary gap-1 my-1">
-                                        {Object.keys(daysOfWeek).map((day) => (
-                                            <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'weekend' : ''}`}>
-                                                {day}
-                                            </div>
-                                        ))}
-                                    </div>
+                                        {/* generate day names  */}
+                                        <div id="day-name" className="cal-weekdays text-body-secondary gap-1 my-1">
+                                            {Object.keys(daysOfWeek).map((day) => (
+                                                <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'weekend' : ''}`}>
+                                                    {day}
+                                                </div>
+                                            ))}
+                                        </div>
 
-                                    {/* generate month dates  */}
-                                    <div id="day-number" className="cal-days gap-1">
-                                        {generateCalendarDays(index + 1)}
+                                        {/* generate month dates  */}
+                                        <div id="day-number" className="cal-days gap-1">
+                                            {generateCalendarDays(index + 1)}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
+
+
+            {/* Buttons to trigger saving */}
+            <div className="text-center">
+                <button onClick={saveAsImage} className='btn btn-darkblue2 btn-sm'>Save as Image</button>
+            </div>
         </div>
+
     );
 };
 
