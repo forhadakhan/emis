@@ -18,6 +18,8 @@ const AcademicCalendar = () => {
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [weekends, setWeekends] = useState([]);
     const [checkWeekends, setCheckWeekends] = useState(false);
+    const [activities, setActivities] = useState([]);
+    const [checkActivity, setCheckActivity] = useState(false);
     const [error, setError] = useState('');
 
     const daysOfWeek = {
@@ -75,6 +77,46 @@ const AcademicCalendar = () => {
         }
         return false;
     }
+    
+
+    // fetch all activities by year/month 
+    const fetchActivities = async (year, month='') => {
+        const query = month ? `year=${year}&month=${month}` : `year=${year}`;
+        setError('');
+
+        const url = `${API_BASE_URL}/calendar/academic-activity/?${query}`;
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(url, config);
+            setActivities(response.data);
+            setError('');
+            setCheckActivity(true); // in case there is no activities 
+        } catch (error) {
+            setError(' Failed to fetch activities.');
+            console.error('Error fetching activities:', error);
+        }
+    };
+    // if there are no activities, try to get activities for current month through api  
+    useEffect(() => {
+        if (!checkActivity && (activities.length < 1)) {
+            fetchActivities(currentYear);
+        }
+    }, [activities])
+
+
+    // find out how many activities a date has (only for selected month) 
+    const getActivityCountByDate = (date) => {
+        const activitiesOnDate = activities.filter(activity => activity.date === date);
+        return activitiesOnDate.length;
+    }
+
+
 
     const handleDayClick = (dateId) => {
         const [day, month, year] = dateId.split('-').map(Number);
@@ -110,17 +152,20 @@ const AcademicCalendar = () => {
             const dayStr = day.toString().padStart(2, '0');
             const monthStr = (monthNumber).toString().padStart(2, '0');
             const yearStr = currentYear.toString();
-            const dateId = `${dayStr}-${monthStr}-${yearStr}`;
+            const dateId = `${dayStr}-${monthStr}-${yearStr}`; // DD-MM-YYYY
+            const date = `${yearStr}-${monthStr}-${dayStr}`; // YYYY-MM-DD
             const classNames = applyDayStyles(dateId, currentDate);
             calendarDays.push(
                 <button
                     key={`day-${day}`}
-                    className={`btn ${classNames} ${isCurrentDay ? 'selected' : ''}`}
+                    className={`btn ${classNames} ${isCurrentDay ? 'selected' : ''} cal-day p-1`}
                     onClick={() => handleDayClick(dateId)}
                     type="button"
                     id={dateId}
                 >
-                    {day}
+                    <span className={`highlight ${getActivityCountByDate(date) > 0 ? 'has-activity' : ''} w-100 py-1`}>
+                        <span className="circle-content">{day}</span>
+                    </span>
                 </button>
             );
         }
