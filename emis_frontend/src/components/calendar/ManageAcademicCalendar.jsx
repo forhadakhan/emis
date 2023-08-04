@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 
 import ManageCalendarActivity from './ManageCalendarActivity.jsx'
 import AllActivities from './AllActivities.jsx'
+import ManageWeekends from './ManageWeekends.jsx'
 
 
 const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
@@ -29,10 +30,13 @@ const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
                 return <ManageCalendarActivity />
             case 'AllActivities':
                 return <AllActivities />
+            case 'ManageWeekends':
+                return <ManageWeekends />
             default:
                 return ''
         }
     }
+
 
     return (
         <>
