@@ -2,6 +2,8 @@
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver 
 
 
 class DefaultCalendarActivity(models.Model):
@@ -40,11 +42,49 @@ class UserCalendarActivity(models.Model):
 
 class Weekend(models.Model):
     """
-        This model will contain weekends (day names).
+        This model will contain weekends (day names and status).
+        Weekend: status=True 
+        Regular Day: status=False 
     """
-    day = models.CharField(max_length=10)
+    DAY_CHOICES = [
+        ('Sunday', 'Sunday'),
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+    ]
+
+    day = models.CharField(max_length=10, choices=DAY_CHOICES)
+    status = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return self.day
 
+
+ 
+
+
+#####################################################################
+##################### populate_weekend_table:
+#####################   - dependent on: Weekend.
+@receiver(post_migrate)
+def populate_weekend_table(sender, **kwargs):
+    app_config = kwargs.get('app_config')
+    if app_config and app_config.name == 'academic_calendar':
+
+        weekend_data = [
+            ('Sunday', False),
+            ('Monday', False),
+            ('Tuesday', False),
+            ('Wednesday', False),
+            ('Thursday', False),
+            ('Friday', True),
+            ('Saturday', True),
+        ]
+
+        for day, status in weekend_data:
+            Weekend.objects.get_or_create(day=day, status=status)
+#####################################################################
 
