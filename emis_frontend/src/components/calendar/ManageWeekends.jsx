@@ -120,10 +120,103 @@ const ManageWeekends = ({ }) => {
                 </div>
             </div>
 
+
+            {/* if a day is selected / showUpdateModal is true, show update modal  */}
+            {showUpdateModal &&
+                <UpdateWeekend
+                    show={showUpdateModal}
+                    handleClose={() => setShowUpdateModal(false)}
+                    selectedDay={selectedDay}
+                    setWeekends={setWeekends}
+                />}
+
         </>
     );
 }
 
+
+
+// Sub-component to ManageWeekends 
+const UpdateWeekend = ({ show, handleClose, setWeekends, selectedDay }) => {
+    const [selected, setSelected] = useState(selectedDay);
+    const [updateMessage, setUpdateMessage] = useState('');
+    const accessToken = getAccessToken();
+    const status = selected.status;
+
+
+    const handleUpdate = async (e) => {
+        setUpdateMessage('');
+        const data = {
+            day: selected.day,
+            status: !status
+        }
+
+        const url = `${API_BASE_URL}/calendar/weekends/${selected.id}/`;
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.put(url, data, config);
+            setSelected(response.data);
+            setUpdateMessage('Updated Successfully!');
+            setWeekends([]);
+        } catch (error) {
+            setUpdateMessage(' Failed to update data.');
+            console.error('Error: failed to update data:', error);
+        }
+    };
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content border border-beige">
+
+                        <div className="modal-header bg-darkblue text-beige">
+
+                            {/* show title with day name  */}
+                            <h5 className="modal-title fs-4">
+                                <i className="bi bi-pen pe-2"></i>
+                                {status
+                                    ? <span>Unset <span className='badge bg-success'>{selected.day}</span> as weekend.</span>
+                                    : <span>Set <span className='badge bg-danger'>{selected.day}</span> as weekend.</span>
+                                }
+                            </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+
+                            {/* show update response message  */}
+                            {updateMessage ? <div className='p-3 text-center'>{updateMessage}</div> : <div className='p-3'>ㅤ</div>}
+
+                            {/* show update button, change text depending on status  */}
+                            <button
+                                type="button"
+                                className={`btn ${status ? 'btn-darkblue2 pt-1' : 'btn-danger'} rounded fw-medium d-flex mx-auto`}
+                                onClick={() => { handleUpdate() }}
+                            >
+                                <i className="bi bi-sd-card pe-2"></i>
+                                {status
+                                    ? 'Set as regular day'
+                                    : 'Set as weekend'
+                                }
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
 
 
 export default ManageWeekends;
