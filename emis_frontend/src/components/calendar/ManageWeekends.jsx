@@ -106,6 +106,7 @@ const ManageWeekends = ({ }) => {
                 <div className="px-5">
                     {Object.entries(days).map(([dayNumber, dayName]) => (
                         <button
+                            key={`${dayNumber}-${dayName}`}
                             className='btn btn-outline-danger fs-4 bg-darkblue text-beige my-3 p-3 w-100 d-flex justify-content-between'
                             onClick={() => handleWeekend(dayNumber)}
                             title={getWeekendStatus(dayName) ? 'WEEKEND' : 'REGULAR-DAY'}
