@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 
 import ManageCalendarActivity from './ManageCalendarActivity.jsx'
+import AllActivities from './AllActivities.jsx'
 
 
 const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
@@ -26,6 +27,8 @@ const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
         switch (showComponent) {
             case 'ManageCalendarActivity':
                 return <ManageCalendarActivity />
+            case 'AllActivities':
+                return <AllActivities />
             default:
                 return ''
         }
@@ -64,28 +67,37 @@ const ManageAcademicCalendar = ({ setActiveComponent, breadcrumb }) => {
             {/* show action tabs/links  */}
             <div className="">
                 <ul className="mb-5 nav nav-tabs px-sm-5 gap-1 justify-content-center">
+                    
+                    {/* manage academic activity for a specific date */}
                     <li className="nav-item text-darkblue">
                         <a
                             className={`py-1 nav-link ${showComponent === 'ManageCalendarActivity' ? 'active' : 'bg-beige'}`}
                             href="#"
+                            title='Manage activity for a specific date'
                             onClick={() => { setShowComponent('ManageCalendarActivity') }}
                         >
                             <span className="text-darkblue">Activity</span>
                         </a>
                     </li>
+
+                    {/* view all calendar activities of a month/year  */}
                     <li className="nav-item">
                         <a
                             className={`py-1 nav-link ${showComponent === 'AllActivities' ? 'active' : 'bg-beige'}`}
                             href="#"
+                            title='View all calendar activities of a month/year'
                             onClick={() => { setShowComponent('AllActivities') }}
                         >
                             <span className="text-darkblue">Get All</span>
                         </a>
                     </li>
+
+                    {/* manage weekends  */}
                     <li className="nav-item">
                         <a
                             className={`py-1 nav-link ${showComponent === 'ManageWeekends' ? 'active' : 'bg-beige'}`}
                             href="#"
+                            title='Manage weekends'
                             onClick={() => { setShowComponent('ManageWeekends') }}
                         >
                             <span className="text-darkblue">Weekends</span>
