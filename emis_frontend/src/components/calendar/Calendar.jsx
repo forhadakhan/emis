@@ -8,10 +8,14 @@ import axios from 'axios';
 import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
 import '../../styles/calendar.css';
+import { dateShortener } from '../../utils/utils.js';
+
+import ShowActivities from './ShowActivities.jsx';
 
 const CalendarComponent = ({ componentController }) => {
     const accessToken = getAccessToken();
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDateActivities, setSelectedDateActivities] = useState([]);
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
     const [activities, setActivities] = useState([]);
@@ -19,6 +23,7 @@ const CalendarComponent = ({ componentController }) => {
     const [checkWeekends, setCheckWeekends] = useState(false);
     const [weekends, setWeekends] = useState([]);
     const [error, setError] = useState('');
+
 
     const daysOfWeek = {
         Sun: 'Sunday',
@@ -60,7 +65,7 @@ const CalendarComponent = ({ componentController }) => {
             console.error('Error fetching activities:', error);
         }
     };
-    // if there are no activities, try to get through api  
+    // if there are no activities, try to get activities for current month through api  
     useEffect(() => {
         if (!checkActivity && (activities.length < 1)) {
             fetchActivities(currentYear, currentMonth + 1);
@@ -68,11 +73,27 @@ const CalendarComponent = ({ componentController }) => {
     }, [activities])
 
 
-    // find out how many activities a date has 
+    // find out how many activities a date has (only for selected month) 
     const getActivityCountByDate = (date) => {
         const activitiesOnDate = activities.filter(activity => activity.date === date);
         return activitiesOnDate.length;
     }
+
+    // get all activities for a date (only for selected month) 
+    const getActivitiesByDate = (date) => {
+        const activitiesOnDate = activities.filter(activity => activity.date === date);
+        return activitiesOnDate;
+    }
+
+    // get all activities for selected date (only for selected month) 
+    const getActivitiesForSelectedDate = () => {
+        const date = dateShortener(selectedDate);
+        const activitiesOnDate = getActivitiesByDate(date);
+        setSelectedDateActivities(activitiesOnDate);
+    }
+    useEffect(() => {
+        getActivitiesForSelectedDate();
+    }, [selectedDate])
 
 
     // fetch all from Weekends model  
@@ -264,17 +285,17 @@ const CalendarComponent = ({ componentController }) => {
                                         <span className="text-darkblue"> {selectedDate.toLocaleDateString('en-US', { weekday: 'long' })} </span>
                                         <span className="fw-light"> {selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} </span>
                                     </strong>
-                                    <button type="button" className="btn btn-darkblue rounded-5 btn-sm fw-semibold">
+
+                                    {/* <button type="button" className="btn btn-darkblue rounded-5 btn-sm fw-semibold">
                                         Add Event
-                                    </button>
+                                    </button> */}
+
                                 </div>
 
                                 <div className="my-2 overflow-scroll" style={{ maxHeight: '350px' }}>
-                                    <ul id="day-event-list">
-                                        <li id="day-event-1">Todays event: 1</li>
-                                        <li id="day-event-2">Todays event: 2</li>
-                                        <li id="day-event-3">Todays event: 3</li>
-                                    </ul>
+
+                                    <ShowActivities activities={selectedDateActivities} />
+
                                 </div>
                             </div>
                         </div>
