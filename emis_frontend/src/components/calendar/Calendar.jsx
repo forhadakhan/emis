@@ -14,6 +14,8 @@ const CalendarComponent = ({ componentController }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
     const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
+    const [activities, setActivities] = useState([]);
+    const [checkActivity, setCheckActivity] = useState(false);
     const [checkWeekends, setCheckWeekends] = useState(false);
     const [weekends, setWeekends] = useState([]);
     const [error, setError] = useState('');
@@ -33,6 +35,44 @@ const CalendarComponent = ({ componentController }) => {
         setCurrentMonth(selectedDate.getMonth());
         setCurrentYear(selectedDate.getFullYear());
     }, [selectedDate]);
+
+
+    // fetch all activities by year/month 
+    const fetchActivities = async (year, month) => {
+        const query = month ? `year=${year}&month=${month}` : `year=${year}`;
+        setError('');
+
+        const url = `${API_BASE_URL}/calendar/academic-activity/?${query}`;
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        };
+        try {
+            const response = await axios.get(url, config);
+            setActivities(response.data);
+            setError('');
+            setCheckActivity(true); // in case there is no activities 
+        } catch (error) {
+            setError(' Failed to fetch activities.');
+            console.error('Error fetching activities:', error);
+        }
+    };
+    // if there are no activities, try to get through api  
+    useEffect(() => {
+        if (!checkActivity && (activities.length < 1)) {
+            fetchActivities(currentYear, currentMonth + 1);
+        }
+    }, [activities])
+
+
+    // find out how many activities a date has 
+    const getActivityCountByDate = (date) => {
+        const activitiesOnDate = activities.filter(activity => activity.date === date);
+        return activitiesOnDate.length;
+    }
 
 
     // fetch all from Weekends model  
@@ -141,7 +181,8 @@ const CalendarComponent = ({ componentController }) => {
             const dayStr = day.toString().padStart(2, '0');
             const monthStr = (currentMonth + 1).toString().padStart(2, '0');
             const yearStr = currentYear.toString();
-            const dateId = `${dayStr}-${monthStr}-${yearStr}`;
+            const dateId = `${dayStr}-${monthStr}-${yearStr}`; //
+            const date = `${yearStr}-${monthStr}-${dayStr}`;
             const classNames = applyDayStyles(dateId, currentDate);
             calendarDays.push(
                 <button
@@ -151,7 +192,7 @@ const CalendarComponent = ({ componentController }) => {
                     type="button"
                     id={dateId}
                 >
-                    <span className='highlight  has-activity w-100 py-1'>
+                    <span className={`highlight ${getActivityCountByDate(date) > 0 ? 'has-activity' : ''} w-100 py-1`}>
                         <span className="circle-content">{day}</span>
                     </span>
                 </button>
@@ -171,7 +212,7 @@ const CalendarComponent = ({ componentController }) => {
 
                         {/* month  */}
                         <div className="col-12 col-md-4 d-flex justify-content-center justify-content-md-start">
-                            <div id="month" className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-360px h-100">
+                            <div id="month" className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-350px h-100">
                                 <div className="cal">
                                     <div className="cal-month d-flex">
                                         <button id="previous-year" className="btn cal-btn flex-grow-1" onClick={handlePreviousYear} type="button">
