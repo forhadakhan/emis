@@ -124,6 +124,17 @@ const AcademicCalendar = () => {
 
 
 
+    // handle previous year request 
+    const handlePreviousYear = () => {
+        setSelectedDate(new Date(currentYear - 1, currentMonth, 1));
+    };
+
+
+    // handle next year request 
+    const handleNextYear = () => {
+        setSelectedDate(new Date(currentYear + 1, currentMonth, 1));
+    };
+
 
     const handleDayClick = (dateId) => {
         const [day, month, year] = dateId.split('-').map(Number);
@@ -183,7 +194,46 @@ const AcademicCalendar = () => {
 
     return (
         <div>
-            <h2 className="text-center h-4 pb-4 text-darkblue border-bottom border-darkblue">Academic Calendar</h2>
+            <h2 className="text-center h-4 pb-4 text-darkblue border-bottom border-darkblue">
+                <i className="bi bi-calendar3 pe-2"></i> Academic Calendar
+            </h2>
+
+            {/* change and display year  */}
+            <div className="d-flex justify-content-center font-merriweather">
+                <div className="btn btn-group border border-0 gap-3">
+
+                    {/* go to previous year  */}
+                    <button
+                        className='btn btn-lg fs-1 border border-0 btn-light'
+                        onClick={() => { handlePreviousYear() }}
+                    >
+                        <i className="bi bi-chevron-compact-left"></i>
+                    </button>
+
+                    {/* display current year  */}
+                    <button className='btn btn-lg fs-1 border border-0' >
+                        {currentYear}
+                    </button>
+
+                    {/* go to next year  */}
+                    <button
+                        className='btn btn-lg fs-1 border border-0 btn-light'
+                        onClick={() => { handleNextYear() }}
+                    >
+                        <i className="bi bi-chevron-compact-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            {/* show reload activities button  */}
+            <div className="d-flex justify-content-center font-merriweather">
+                <button
+                    className='btn btn-sm btn-light text-secondary'
+                    onClick={() => { fetchActivities(currentYear) }}
+                > <i className="bi bi-arrow-clockwise pe-1"></i> re/load activities
+                </button>
+            </div>
+
 
             <div id="full-cal" className="container">
                 <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 py-4">
