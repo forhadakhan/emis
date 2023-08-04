@@ -81,6 +81,13 @@ const CalendarComponent = ({ componentController }) => {
         return activitiesOnDate.length;
     }
 
+    
+    // find out this is a holiday 
+    const isHoliday = (date) => {
+        const holidayActivity = activities.find(activity => activity.date === date && activity.status === "OFF-DAY");
+        return !!holidayActivity;
+    }
+
 
     // get all activities for a date (only for selected month) 
     const getActivitiesByDate = (date) => {
@@ -236,7 +243,7 @@ const CalendarComponent = ({ componentController }) => {
                     type="button"
                     id={dateId}
                 >
-                    <span className={`highlight ${getActivityCountByDate(date) > 0 ? 'has-activity' : ''} w-100 py-1`}>
+                    <span className={`highlight ${getActivityCountByDate(date) > 0 ? 'has-activity' : ''} ${isHoliday(date) ? 'weekend' : ''} w-100 py-1`}>
                         <span className="circle-content">{day}</span>
                     </span>
                 </button>
