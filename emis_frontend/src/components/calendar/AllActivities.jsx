@@ -145,7 +145,7 @@ const AllActivities = ({ }) => {
                                 className={`form-control ${isValidYear ? '' : 'is-invalid'} d-block w-100 my-2 rounded-3 p-3 pe-5 border border-beige`}
                             />
                             {!isValidYear &&
-                                <div id="validationYearFeedback" class="invalid-feedback">
+                                <div id="validationYearFeedback" className="invalid-feedback">
                                     Please input valid year ({minYear} - {maxYear})
                                 </div>
                             }
