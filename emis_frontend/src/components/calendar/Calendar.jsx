@@ -12,6 +12,7 @@ import { dateShortener } from '../../utils/utils.js';
 
 import ShowActivities from './ShowActivities.jsx';
 
+
 const CalendarComponent = ({ componentController }) => {
     const accessToken = getAccessToken();
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -35,6 +36,7 @@ const CalendarComponent = ({ componentController }) => {
         Sat: 'Saturday'
     };
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 
     useEffect(() => {
         setCurrentMonth(selectedDate.getMonth());
@@ -79,11 +81,13 @@ const CalendarComponent = ({ componentController }) => {
         return activitiesOnDate.length;
     }
 
+
     // get all activities for a date (only for selected month) 
     const getActivitiesByDate = (date) => {
         const activitiesOnDate = activities.filter(activity => activity.date === date);
         return activitiesOnDate;
     }
+
 
     // get all activities for selected date (only for selected month) 
     const getActivitiesForSelectedDate = () => {
@@ -94,6 +98,7 @@ const CalendarComponent = ({ componentController }) => {
     useEffect(() => {
         getActivitiesForSelectedDate();
     }, [selectedDate])
+
 
 
     // fetch all from Weekends model  
@@ -146,36 +151,52 @@ const CalendarComponent = ({ componentController }) => {
     //     setSelectedDate(new Date(e.target.value, currentMonth, 1));
     // };
 
+
+    // show full academic calender component if requested 
     const handleAcademicCalendar = () => {
         componentController('academic_calendar');
     };
 
+
+    // handle previous month request 
     const handlePreviousMonth = () => {
         setSelectedDate(new Date(currentYear, currentMonth - 1, 1));
     };
 
+
+    // handle next month request 
     const handleNextMonth = () => {
         setSelectedDate(new Date(currentYear, currentMonth + 1, 1));
     };
 
+
+    // handle previous year request 
     const handlePreviousYear = () => {
         setSelectedDate(new Date(currentYear - 1, currentMonth, 1));
     };
 
+
+    // handle next year request 
     const handleNextYear = () => {
         setSelectedDate(new Date(currentYear + 1, currentMonth, 1));
     };
 
+
+    // set selected date to current date 
     const handleResetDate = () => {
         setSelectedDate(new Date());
     };
 
+
+    // handle actions when a day is selected 
     const handleDayClick = (dateId) => {
         const [day, month, year] = dateId.split('-').map(Number);
         const newSelectedDate = new Date(year, month - 1, day); // month is 0 indexed 
         setSelectedDate(newSelectedDate);
     };
 
+
+    // set styles for a day in the month
     const applyDayStyles = (dateId, currentDate) => {
         const classNames = ['cal-btn'];
         if (dateId === currentDate) {
@@ -184,6 +205,8 @@ const CalendarComponent = ({ componentController }) => {
         return classNames.join(' ');
     };
 
+
+    // generate days for selected month 
     const generateCalendarDays = () => {
         const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -202,8 +225,8 @@ const CalendarComponent = ({ componentController }) => {
             const dayStr = day.toString().padStart(2, '0');
             const monthStr = (currentMonth + 1).toString().padStart(2, '0');
             const yearStr = currentYear.toString();
-            const dateId = `${dayStr}-${monthStr}-${yearStr}`; //
-            const date = `${yearStr}-${monthStr}-${dayStr}`;
+            const dateId = `${dayStr}-${monthStr}-${yearStr}`; // DD-MM-YYYY
+            const date = `${yearStr}-${monthStr}-${dayStr}`; // YYYY-MM-DD
             const classNames = applyDayStyles(dateId, currentDate);
             calendarDays.push(
                 <button
@@ -235,26 +258,42 @@ const CalendarComponent = ({ componentController }) => {
                         <div className="col-12 col-md-4 d-flex justify-content-center justify-content-md-start">
                             <div id="month" className="bg-light p-2 mx-0 shadow border border-beige rounded-3 w-350px h-100">
                                 <div className="cal">
+
+                                    {/* calendar header  */}
                                     <div className="cal-month d-flex">
+
+                                        {/* go to previous year button  */}
                                         <button id="previous-year" className="btn cal-btn flex-grow-1" onClick={handlePreviousYear} type="button">
                                             <i className="bi bi-chevron-double-left"></i>
                                         </button>
+
+                                        {/* go to previous month button  */}
                                         <button id="previous-month" className="btn btn-sm cal-btn flex-grow-1" onClick={handlePreviousMonth} type="button">
                                             <i className="bi bi-chevron-left"></i>
                                         </button>
+
+                                        {/* show current month and year  */}
                                         <button className="btn btn-sm cal-btn flex-grow-1">
                                             <strong>{months[currentMonth]} {currentYear}</strong>
                                         </button>
+
+                                        {/* go to next month button  */}
                                         <button id="next-month" className="btn cal-btn flex-grow-1" onClick={handleNextMonth} type="button">
                                             <i className="bi bi-chevron-right"></i>
                                         </button>
+
+                                        {/* go to next year button  */}
                                         <button id="next-year" className="btn cal-btn flex-grow-1" onClick={handleNextYear} type="button">
                                             <i className="bi bi-chevron-double-right"></i>
                                         </button>
                                     </div>
+
+                                    {/* reset to current date button  */}
                                     <div className="d-grid">
                                         <button className="btn btn-sm btn-darkblue" onClick={handleResetDate} type="button"><i className="bi bi-clock-history"></i></button>
                                     </div>
+
+                                    {/* generate day names  */}
                                     <div id="day-name" className="cal-weekdays text-body-secondary gap-1 my-1">
                                         {Object.keys(daysOfWeek).map((day) => (
                                             <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'weekend' : ''}`}>
@@ -262,9 +301,13 @@ const CalendarComponent = ({ componentController }) => {
                                             </div>
                                         ))}
                                     </div>
+
+                                    {/* generate month dates  */}
                                     <div id="day-number" className="cal-days gap-1">
                                         {generateCalendarDays()}
                                     </div>
+
+                                    {/* go to full 'Academic Calendar' button  */}
                                     <div className="d-grid pt-2">
                                         <a href="#" onClick={handleAcademicCalendar} className="text-decoration-none btn btn-sm btn-darkblue">
                                             Academic Calendar &nbsp;
@@ -277,10 +320,12 @@ const CalendarComponent = ({ componentController }) => {
 
                         <hr className="d-block d-md-none m-3 border-0" />
 
-                        {/* day and activity  */}
+                        {/* day and activity panel  */}
                         <div className="col-md-8">
                             <div id="day" className="bg-light p-3 mx-0 overflow-auto shadow border border-beige rounded-3 h-100">
                                 <div className="d-flex align-items-center border-bottom pb-2">
+
+                                    {/* show day name and date in words  */}
                                     <strong id="selected-date" className="fs-5 flex-grow-1">
                                         <span className="text-darkblue"> {selectedDate.toLocaleDateString('en-US', { weekday: 'long' })} </span>
                                         <span className="fw-light"> {selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} </span>
@@ -294,6 +339,7 @@ const CalendarComponent = ({ componentController }) => {
 
                                 <div className="my-2 overflow-scroll" style={{ maxHeight: '350px' }}>
 
+                                    {/* show activities for selected date  */}
                                     <ShowActivities activities={selectedDateActivities} />
 
                                 </div>
