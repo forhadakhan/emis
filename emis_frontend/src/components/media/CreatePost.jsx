@@ -14,8 +14,10 @@ const CreatePost = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [responseMsg, setResponseMsg] = useState('');
+    const [category, setCategory] = useState('other');
+    const [published, setPublished] = useState(true);
 
-
+    
     // here we add more Quill modules as needed
     const modules = {
         toolbar: [
@@ -37,11 +39,15 @@ const CreatePost = () => {
         ],
     };
 
+
     // reset form data 
     const handleReset = () => {
         setTitle('');
         setContent('');
+        setCategory('other');
+        setPublished(true);
     }
+
 
     // track content changes 
     const handleEditorChange = (value) => {
@@ -56,7 +62,7 @@ const CreatePost = () => {
             return;
         }
 
-        const data = { title, content };
+        const data = { title, content, category, published };
         axios.post(`${API_BASE_URL}/press/`, data, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -89,18 +95,41 @@ const CreatePost = () => {
             )}
 
             <form>
-                <label htmlFor="title" className='py-2 text-secondary'>Title</label>
-                <input
-                    type="text"
-                    id='title'
-                    placeholder="Title"
-                    className='form-control py-3 fs-4 fw-bold bg-light'
-                    value={title}
-                    modules={modules}
-                    onChange={e => setTitle(e.target.value)}
-                    required
-                />
 
+                {/* Title Input */}
+                <div className="mb-3">
+                    <label htmlFor="title" className='py-2 text-secondary'>Title</label>
+                    <input
+                        type="text"
+                        id='title'
+                        placeholder="Title"
+                        className='form-control py-3 fs-4 fw-bold bg-light'
+                        value={title}
+                        modules={modules}
+                        onChange={e => setTitle(e.target.value)}
+                        required
+                    />
+                </div>
+
+
+                {/* Category Dropdown */}
+                <div className="mb-3">
+                    <label htmlFor="category" className='py-2 text-secondary'>Category</label>
+                    <select
+                        id="category"
+                        className="form-select bg-light"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                    >
+                        <option value="notice">Notice</option>
+                        <option value="news">News</option>
+                        <option value="announcement">Announcement</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+
+                {/* Content Editor  */}
                 <div className="my-4 mh-150" id='content'>
                     <label htmlFor="content" className='py-2 text-secondary'>Post content</label>
                     <ReactQuill
@@ -111,6 +140,21 @@ const CreatePost = () => {
                         modules={modules}
                         onChange={handleEditorChange}
                     />
+                </div>
+
+
+                {/* Published Checkbox */}
+                <div className="form-check mb-3">
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="published"
+                        checked={published}
+                        onChange={(e) => setPublished(e.target.checked)}
+                    />
+                    <label className="form-check-label fw-bold" htmlFor="published">
+                        Publish
+                    </label>
                 </div>
 
 
