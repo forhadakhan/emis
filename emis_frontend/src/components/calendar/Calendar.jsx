@@ -81,7 +81,7 @@ const CalendarComponent = ({ componentController }) => {
         return activitiesOnDate.length;
     }
 
-    
+
     // find out this is a holiday 
     const isHoliday = (date) => {
         const holidayActivity = activities.find(activity => activity.date === date && activity.status === "OFF-DAY");
@@ -104,7 +104,7 @@ const CalendarComponent = ({ componentController }) => {
     }
     useEffect(() => {
         getActivitiesForSelectedDate();
-    }, [selectedDate])
+    }, [selectedDate, activities])
 
 
 
@@ -303,7 +303,7 @@ const CalendarComponent = ({ componentController }) => {
                                     {/* generate day names  */}
                                     <div id="day-name" className="cal-weekdays text-body-secondary gap-1 my-1">
                                         {Object.keys(daysOfWeek).map((day) => (
-                                            <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'weekend' : ''}`}>
+                                            <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'bg-danger text-white' : ''}`}>
                                                 {day}
                                             </div>
                                         ))}
@@ -330,6 +330,8 @@ const CalendarComponent = ({ componentController }) => {
                         {/* day and activity panel  */}
                         <div className="col-md-8">
                             <div id="day" className="bg-light p-3 mx-0 overflow-auto shadow border border-beige rounded-3 h-100">
+
+                                {/* header  */}
                                 <div className="d-flex align-items-center border-bottom pb-2">
 
                                     {/* show day name and date in words  */}
@@ -344,10 +346,23 @@ const CalendarComponent = ({ componentController }) => {
 
                                 </div>
 
+                                {/* body  */}
                                 <div className="my-2 overflow-scroll" style={{ maxHeight: '350px' }}>
 
                                     {/* show activities for selected date  */}
                                     <ShowActivities activities={selectedDateActivities} />
+
+                                    {/* show reload activities button for selected day  */}
+                                    {(selectedDateActivities.length < 1) &&
+                                        <div className="d-flex justify-content-center font-merriweather">
+                                            <button
+                                                className='btn btn-sm btn-light text-secondary'
+                                                onClick={() => { getActivitiesForSelectedDate() }}
+                                                title='try reload activities for selected date'
+                                            > <i className="bi bi-arrow-clockwise"></i> 
+                                            </button>
+                                        </div>
+                                    }
 
                                 </div>
                             </div>
