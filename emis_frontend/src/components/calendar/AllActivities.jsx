@@ -17,6 +17,9 @@ import ShowActivities from './ShowActivities.jsx';
 
 const AllActivities = ({ }) => {
     const accessToken = getAccessToken();
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [currentMonth, setCurrentMonth] = useState(selectedDate.getMonth());
+    const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
     const [error, setError] = useState('');
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
@@ -37,7 +40,6 @@ const AllActivities = ({ }) => {
         11: 'November',
         12: 'December',
     };
-    const currentYear = new Date().getFullYear();
     const minYear = 1900;
     const maxYear = currentYear; // Limit the range to the current year
 
@@ -51,13 +53,14 @@ const AllActivities = ({ }) => {
     // set and validate year on input change 
     const handleYearChange = (e) => {
         const inputYear = e.target.value;
-        setYear(inputYear)
-        if (validateYear(inputYear)) {
-            setIsValidYear(true);
-        } else {
-            setIsValidYear(false);
-        }
+        setYear(inputYear);
     };
+
+
+    // validate year on change 
+    useEffect(() => {  
+        setIsValidYear(validateYear(year) ? true : false);     
+    }, [year]);
 
 
     // fetch all activities for selected year/month 
@@ -134,7 +137,15 @@ const AllActivities = ({ }) => {
                     {/* year input field, show error if input fails validateYear() */}
                     <div className="row my-2">
                         <div className="col-md-12">
-                            <h6 className='text-secondary fw-normal'>Year *</h6>
+                            <h6 className='text-secondary fw-normal'>
+                                Year *
+                                <button
+                                    type='button'
+                                    className='btn btn-sm btn-light mx-2'
+                                    onClick={() => { setYear(currentYear) }}
+                                >   [current year]
+                                </button>
+                            </h6>
                             <input
                                 type="number"
                                 value={year}
@@ -156,7 +167,15 @@ const AllActivities = ({ }) => {
                     {/* month input field  */}
                     <div className="row my-4">
                         <div className="col-md-12">
-                            <h6 className='text-secondary fw-normal'>Select a month (optional)</h6>
+                            <h6 className='text-secondary fw-normal'>
+                                Select a month (optional)
+                                <button
+                                    type='button'
+                                    className='btn btn-sm btn-light mx-2'
+                                    onClick={() => { setMonth(currentMonth+1) }}
+                                >   [current month]
+                                </button>
+                            </h6>
                             <select
                                 className="form-select d-block w-100 my-2 rounded-3 p-3 border border-beige"
                                 aria-label="Month select"
