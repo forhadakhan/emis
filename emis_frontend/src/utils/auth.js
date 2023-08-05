@@ -106,25 +106,6 @@ export const setProfileData = (profile) => {
 };
 
 
-// Function to check if logged user has a permission
-export const hasPermission = (codename) => {
-    // Retrieve stored permissions from localStorage
-    const encryptedPermissions = localStorage.getItem('permissions');
-
-    // Check if permissions are stored
-    if (!encryptedPermissions) {
-        return false;
-    }
-
-    // Decrypt retrieved encryptedPermissions 
-    const decryptedPermissions = decryptData(encryptedPermissions);
-    const storedPermissions = JSON.parse(decryptedPermissions);
-
-    // Check if the passed codename exists in stored permissions
-    return storedPermissions.some((permission) => permission.codename === codename);
-};
-
-
 // Function to get the user data from localStorage
 export const getUserData = () => {
     const encryptedUser = localStorage.getItem('user');
@@ -239,6 +220,29 @@ export const getUserId = () => {
         console.error('Error parsing user data:', error);
     }
     return null;
+};
+
+
+// Function to check if logged user has a permission
+export const hasPermission = (codename) => {
+    const role = getUserRole(); 
+    if(role === 'administrator') {
+        return true;
+    }
+    // Retrieve stored permissions from localStorage
+    const encryptedPermissions = localStorage.getItem('permissions');
+
+    // Check if permissions are stored
+    if (!encryptedPermissions) {
+        return false;
+    }
+
+    // Decrypt retrieved encryptedPermissions 
+    const decryptedPermissions = decryptData(encryptedPermissions);
+    const storedPermissions = JSON.parse(decryptedPermissions);
+
+    // Check if the passed codename exists in stored permissions
+    return storedPermissions.some((permission) => permission.codename === codename);
 };
 
 
