@@ -19,5 +19,6 @@ urlpatterns = [
     path('api/academy/', include('academy.urls', namespace='academy')),
     path('api/', include('comments.urls', namespace='comments')),
     path('api/calendar/', include('academic_calendar.urls', namespace='academic_calendar')),
+    path('api/press/', include('press.urls', namespace='press')),
 ]
 
