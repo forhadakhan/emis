@@ -54,11 +54,14 @@ const LandingComponent = ({ onLogoutSuccess }) => {
                 <div className="px-3 py-2">
                     <div className="container content-sm-75">
                         <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                            
+                            {/* site logo  */}
                             <a href="/" className="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-beige text-decoration-none">
                                 <img className="ms-2" src={Logo64} alt="EMIS Logo" height="64" />
                                 <h1 className='display-4 px-2 header-beige'>EMIS</h1>
                             </a>
 
+                            {/* page options  */}
                             <ul className="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
                                 <li>
                                     <a id="home" className={`btn nav-link text-beige ${activeComponent === 'home' ? 'active-beige' : 'active-beige-hidden'}`} onClick={() => componentController('home')}>
@@ -94,6 +97,8 @@ const LandingComponent = ({ onLogoutSuccess }) => {
                         </div>
                     </div>
                 </div>
+
+                {/* search and user role  */}
                 <div className="container mb-3">
                     <div className="d-flex px-2 py-2 flex-wrap justify-content-center">
                         {/* <form className="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
