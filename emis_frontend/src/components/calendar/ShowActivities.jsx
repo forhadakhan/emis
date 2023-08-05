@@ -17,6 +17,7 @@ const ShowActivities = ({ activities }) => {
     const [responseMsg, setResponseMsg] = useState('');
     const [sortOrder, setSortOrder] = useState('asc'); // 'desc' for descending, 'asc' for ascending
     const [isDelete, setIsDelete] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState({});
 
 
@@ -38,8 +39,16 @@ const ShowActivities = ({ activities }) => {
         })
         : activities;
 
+
+    // handle edit request/click 
+    const handleEditClick = (activity) => {
+        setSelectedActivity(activity);
+        setIsEdit(!isEdit);
+    }
+
+
     // handle delete request/click 
-    const handleDelete = (activity) => {
+    const handleDeleteClick = (activity) => {
         setSelectedActivity(activity);
         setIsDelete(!isDelete);
     }
@@ -118,8 +127,8 @@ const ShowActivities = ({ activities }) => {
                                         <span>
                                             {/* if the user is authorized, show edit and delete button  */}
                                             {hasPermission('change_defaultcalendaractivity') && <>
-                                                <button className='btn btn-sm btn-outline-primary border border-0 mx-1 p-0 px-1'>edit</button>
-                                                <button className='btn btn-sm btn-outline-danger border border-0 mx-1 p-0 px-1' onClick={() => { handleDelete(activity) }}>delete</button>
+                                                <button className='btn btn-sm btn-outline-primary border border-0 mx-1 p-0 px-1' onClick={() => { handleEditClick(activity) }}>edit</button>
+                                                <button className='btn btn-sm btn-outline-danger border border-0 mx-1 p-0 px-1' onClick={() => { handleDeleteClick(activity) }}>delete</button>
                                             </>}
                                         </span>
                                         {/* show date  */}
@@ -137,8 +146,17 @@ const ShowActivities = ({ activities }) => {
         <div className="">
 
             {/* if user request delete, show delete modal  */}
+            {isEdit && <>
+                <EditModal
+                    show={isEdit}
+                    handleClose={() => { setIsEdit(false) }}
+                    activity={selectedActivity}
+                />
+            </>}
+
+            {/* if user request delete, show delete modal  */}
             {isDelete && <>
-                <DeleteTermModal
+                <DeleteModal
                     show={isDelete}
                     handleClose={() => { setIsDelete(false) }}
                     activity={selectedActivity}
@@ -149,8 +167,142 @@ const ShowActivities = ({ activities }) => {
 }
 
 
+
 // Sub-component to ShowActivities  
-const DeleteTermModal = ({ show, handleClose, activity }) => {
+const EditModal = ({ show, handleClose, activity }) => {
+    const accessToken = getAccessToken();
+    const [status, setStatus] = useState(activity.status);
+    const [title, setTitle] = useState(activity.title);
+    const [description, setDescription] = useState(activity.description);
+    const [updateMessage, setUpdateMessage] = useState('');
+
+
+    // send a put/update activity request to backend 
+    const handleUpdate = () => {
+        setUpdateMessage('');
+
+        // create object to send to api 
+        const updateData = {
+            status: status,
+            title: title,
+            description: description,
+            date: activity.date,
+        };
+
+        // make a put request to backend api 
+        axios.put(`${API_BASE_URL}/calendar/academic-activity/${activity.id}/`, updateData, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                // Request success: handle the response from the backend
+                setUpdateMessage("Activity/event updated successfully.");
+            })
+            .catch(error => {
+                // Request failed: handle any errors
+                console.error('Error:', error);
+                setUpdateMessage("ERROR: Failed to update activity/event.");
+            });
+    };
+
+
+    return (<>
+        {/* edit modal  */}
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered modal-fullscreen-md-down modal-lg" role="document">
+                    <div className="modal-content border border-beige">
+
+                        {/* modal title  */}
+                        <div className="modal-header bg-darkblue text-beige">
+                            <h5 className="modal-title fs-4"><i className="bi bi-pen"></i> Edit activity/event </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        {/* modal body  */}
+                        <div className="modal-body">
+                            <div className="d-flex justify-content-center">
+                                <form action='' className='w-100'>
+
+                                    {/* title input field  */}
+                                    <div className="row mt-2">
+                                        <div className="col-md-12">
+                                            <h6 className='text-secondary fw-normal'>Title *</h6>
+                                            <input
+                                                value={title}
+                                                required
+                                                onChange={(e) => setTitle(e.target.value)}
+                                                placeholder="Enter the activity title"
+                                                className='d-block w-100 my-2 fw-bold rounded-3 p-3 border border-beige'
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* day status/type  */}
+                                    <div className="row mt-2">
+                                        <div className="col-md-12">
+                                            <h6 className='text-secondary fw-normal'>Day Type</h6>
+                                            <select
+                                                className="form-select d-block w-100 my-2 rounded-3 p-3 border border-beige"
+                                                aria-label="Default select example"
+                                                value={status}
+                                                onChange={(e) => setStatus(e.target.value)}
+                                            >
+                                                <option value="REGULAR">Regular</option>
+                                                <option value="OFF-DAY">Off-day</option>
+                                                <option value="WEEKEND">Weekend</option>
+                                                <option value="SPECIAL">Special</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* description input field  */}
+                                    <div className="row mt-2">
+                                        <div className="col-md-12">
+                                            <h6 className='text-secondary fw-normal '>Description</h6>
+                                            <textarea
+                                                rows={5}
+                                                value={description}
+                                                name='description'
+                                                onChange={(e) => setDescription(e.target.value)}
+                                                placeholder="Enter the activity description (optional)"
+                                                className='d-block w-100 my-2 rounded-3 p-3 border border-beige'
+                                            ></textarea>
+                                        </div>
+                                    </div>
+
+                                    {/* update button  */}
+                                    <div className="d-flex justify-content-center py-2 gap-3">
+                                        <button
+                                            className="btn btn-sm btn-beige border border-darkblue fw-bold px-3"
+                                            type='button'
+                                            onClick={handleUpdate}
+                                            title="Create new activity for selected day"
+                                        >
+                                            <i className="bi bi-calendar-plus pe-2"></i>
+                                            Update
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
+                            {/* display update message upon request  */}
+                            {updateMessage && <div className='p-3 text-center'>{updateMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
+
+
+// Sub-component to ShowActivities  
+const DeleteModal = ({ show, handleClose, activity }) => {
     const [deleteMessage, setDeleteMessage] = useState('');
     const [deleted, setDeleted] = useState(false);
     const accessToken = getAccessToken();
