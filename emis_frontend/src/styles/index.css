@@ -60,7 +60,7 @@ a.text-beige:hover {
     border-radius: 1.5em;
     padding: 1em;
     pointer-events: none;
-    box-shadow:2px 2px 4px 0 rgba(0,0,0,.25);
+    box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, .25);
     background-color: beige;
 }
 
@@ -90,6 +90,7 @@ a.text-beige:hover {
 .hover-bg-beige {
     border-color: rgb(1, 1, 50);
 }
+
 .hover-bg-beige:hover {
     color: rgb(1, 1, 50) !important;
     background-color: rgb(238, 212, 132) !important;
@@ -100,6 +101,7 @@ a.text-beige:hover {
 .hover-bg-darkblue {
     border-color: rgb(238, 212, 132);
 }
+
 .hover-bg-darkblue:hover {
     color: rgb(238, 212, 132) !important;
     background-color: rgb(1, 1, 50) !important;
@@ -178,6 +180,10 @@ a.text-beige:hover {
 
 .w-350 {
     width: 350px;
+}
+
+.ql-editor {
+    min-height: 20em !important;
 }
 
 .bg-blur {
