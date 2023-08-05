@@ -9,13 +9,17 @@ import API_BASE_URL from '../../utils/config.js';
 import { getAccessToken } from '../../utils/auth.js';
 import '../../styles/calendar.css';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import { dateShortener } from '../../utils/utils.js';
+import { dateShortener, customDateAndDayName } from '../../utils/utils.js';
+
+import ShowActivities from './ShowActivities.jsx'
 
 
 const AcademicCalendar = () => {
+    "use strict";
     const accessToken = getAccessToken();
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDateActivities, setSelectedDateActivities] = useState([]);
+    const [showActivities, setShowActivities] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [weekends, setWeekends] = useState([]);
@@ -125,6 +129,24 @@ const AcademicCalendar = () => {
     }
 
 
+    // get all activities for a date (only for selected month) 
+    const getActivitiesByDate = (date) => {
+        const activitiesOnDate = activities.filter(activity => activity.date === date);
+        return activitiesOnDate;
+    }
+
+
+    // get all activities for selected date (only for selected month) 
+    const getActivitiesForSelectedDate = () => {
+        const date = dateShortener(selectedDate);
+        const activitiesOnDate = getActivitiesByDate(date);
+        setSelectedDateActivities(activitiesOnDate);
+    }
+    useEffect(() => {
+        getActivitiesForSelectedDate();
+    }, [selectedDate])
+
+
     // save calendar as image 
     const saveAsImage = () => {
         const divToSave = document.getElementById("myAcademicCalender");
@@ -155,13 +177,24 @@ const AcademicCalendar = () => {
     };
 
 
+    // select the date when a day is clicked 
     const handleDayClick = (dateId) => {
         const [day, month, year] = dateId.split('-').map(Number);
-        // const newSelectedDate = new Date(currentYear, currentMonth, day);
         const newSelectedDate = new Date(year, month - 1, day); // month is 0 indexed 
         setSelectedDate(newSelectedDate);
     };
 
+
+    // if a selected date has activities, show them 
+    useEffect(() => {
+        if(selectedDateActivities.length > 0) {
+            setShowActivities(true);
+        }
+    }, [selectedDateActivities])
+
+
+
+    // set styles for calendar day 
     const applyDayStyles = (dateId, currentDate) => {
         const classNames = ['btn', 'cal-btn'];
         if (dateId === currentDate) {
@@ -170,6 +203,8 @@ const AcademicCalendar = () => {
         return classNames.join(' ');
     };
 
+
+    // generate days of a month 
     const generateCalendarDays = (monthNumber) => {
         const daysInMonth = new Date(currentYear, monthNumber, 0).getDate();
         const firstDayOfMonth = new Date(currentYear, monthNumber - 1, 1).getDay();
@@ -272,7 +307,7 @@ const AcademicCalendar = () => {
                                         {/* generate day names  */}
                                         <div id="day-name" className="cal-weekdays text-body-secondary gap-1 my-1">
                                             {Object.keys(daysOfWeek).map((day) => (
-                                                <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'weekend' : ''}`}>
+                                                <div key={day} className={`cal-weekday fw-bold rounded ${isWeekend(daysOfWeek[day]) ? 'bg-danger text-white' : ''}`}>
                                                     {day}
                                                 </div>
                                             ))}
@@ -295,9 +330,62 @@ const AcademicCalendar = () => {
             <div className="text-center">
                 <button onClick={saveAsImage} className='btn btn-darkblue2 btn-sm'>Save as Image</button>
             </div>
+
+            {/* show activities for selected date  */}
+            <div className="">
+                {showActivities && <>
+                    <ActivityModal 
+                        selectedDate={selectedDate} 
+                        selectedDateActivities={selectedDateActivities} 
+                        handleClose={() => {setShowActivities(false)}}
+                        show={showActivities}
+                    />
+                </>}
+            </div>
         </div>
 
     );
 };
+
+
+
+
+
+// Sub-component to AcademicCalendar  
+const ActivityModal = ({ selectedDate, selectedDateActivities, handleClose, show }) => {
+    const date = dateShortener(selectedDate);
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-xl modal-fullscreen-lg-down" role="document">
+                    <div className="modal-content border border-beige">
+
+                        <div className="modal-header bg-darkblue text-beige">
+
+                            {/* show title with day name  */}
+                            <h5 className="modal-title fs-4">
+                                <i className="bi bi-calendar-event pe-2"></i>
+                                {customDateAndDayName(date)}
+                            </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <div className="modal-body">
+
+                            <ShowActivities activities={selectedDateActivities} />
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
+
+
 
 export default AcademicCalendar;
