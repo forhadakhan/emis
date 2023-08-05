@@ -32,6 +32,9 @@ import PublicMessages from '../public-messages/PublicMessages.jsx';
 // Calendar
 import ManageAcademicCalendar from '../calendar/ManageAcademicCalendar.jsx';
 
+// Media
+import ManageMedia from '../media/ManageMedia.jsx';
+
 // Academy Management
 import ManageTeacherDesignations from '../academy/ManageTeacherDesignations.jsx';
 import ManageTermChoices from '../academy/ManageTermChoices.jsx';
@@ -122,6 +125,8 @@ const ManagerialActivity = () => {
                 return <ManageCourseOffer setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
             case 'ManageAcademicRecords':
                 return <ManageAcademicRecords setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} setReference={setReference} />;
+            case 'ManageMedia':
+                return <ManageMedia setActiveComponent={setActiveComponent} breadcrumb={breadcrumb} />;
             default:
                 return (
                     <div className='m-5 text-center'>
@@ -186,6 +191,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_courseoffer', label: 'Manage Course Offer', render: 'ManageCourseOffer', icon: 'bi-file-medical-fill' },
         { id: 'change_marksheet', label: 'Manage Academic Records', render: 'ManageAcademicRecords', icon: 'bi-list-columns' },
         { id: 'change_defaultcalendaractivity', label: 'Manage Academic Calendar', render: 'ManageAcademicCalendar', icon: 'bi-calendar3' },
+        { id: 'change_defaultcalendaractivity', label: 'Manage Media', render: 'ManageMedia', icon: 'bi-megaphone' },
     ];
 
     let allowedElements = [];
