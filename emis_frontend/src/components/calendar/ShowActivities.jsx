@@ -5,8 +5,10 @@
  */
 
 
+import axios from 'axios';
 import React, { useState } from 'react';
-import { hasPermission } from '../../utils/auth.js';
+import API_BASE_URL from '../../utils/config.js';
+import { getAccessToken, hasPermission } from '../../utils/auth.js';
 import { customDateAndDayName } from '../../utils/utils.js';
 
 
@@ -14,6 +16,7 @@ const ShowActivities = ({ activities }) => {
     const [responseMsg, setResponseMsg] = useState('');
     const [sortOrder, setSortOrder] = useState('asc'); // 'desc' for descending, 'asc' for ascending
     const [isDelete, setIsDelete] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState({});
 
 
     // toggle the sorting order
@@ -34,6 +37,11 @@ const ShowActivities = ({ activities }) => {
         })
         : activities;
 
+
+    const handleDelete = (activity) => {
+        setSelectedActivity(activity);
+        setIsDelete(!isDelete);
+    }
 
 
     return (<>
@@ -105,7 +113,7 @@ const ShowActivities = ({ activities }) => {
                                         <span>
                                             {hasPermission('change_defaultcalendaractivity') && <>
                                                 <button className='btn btn-sm btn-outline-primary border border-0 mx-1 p-0 px-1'>edit</button>
-                                                <button className='btn btn-sm btn-outline-danger border border-0 mx-1 p-0 px-1' onClick={() => { setIsDelete(!isDelete) }}>delete</button>
+                                                <button className='btn btn-sm btn-outline-danger border border-0 mx-1 p-0 px-1' onClick={() => { handleDelete(activity) }}>delete</button>
                                             </>}
                                         </span>
                                         <span><small>{customDateAndDayName(activity.date)}</small></span>
@@ -121,9 +129,93 @@ const ShowActivities = ({ activities }) => {
 
         <div className="">
 
+            {isDelete && <>
+                <DeleteTermModal
+                    show={isDelete}
+                    handleClose={() => { setIsDelete(false) }}
+                    activity={selectedActivity}
+                />
+            </>}
         </div>
     </>);
 }
+
+
+
+const DeleteTermModal = ({ show, handleClose, activity }) => {
+    const [deleteMessage, setDeleteMessage] = useState('');
+    const [deleted, setDeleted] = useState(false);
+    const accessToken = getAccessToken();
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        setDeleteMessage('');
+
+        try {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            const response = await axios.delete(
+                `${API_BASE_URL}/calendar/academic-activity/${activity.id}/`,
+                config
+            );
+
+            setDeleted(true);
+        } catch (error) {
+            setDeleteMessage('Deletion failed, an error occurred.');
+            console.error(error);
+        }
+    };
+
+    return (<>
+
+        <div className="bg-blur">
+            <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
+                <div className="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down" role="document">
+                    <div className="modal-content border border-beige">
+                        <div className="modal-header bg-danger text-beige">
+                            <h5 className="modal-title fs-4">
+                                <i className="bi bi-trash"></i>
+                                <span className='text-light'>Delete Activity/Event</span>
+                            </h5>
+                            <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
+                                <i className="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div className="modal-body text-center bg-light">
+
+                            <h5 className='my-4'>{activity.title}</h5>
+                            <strong className='p-1 bg-beige text-darkblue ms-2'>{activity.date}</strong>
+                            {activity.status && <span className='p-1 bg-dark text-light mx-2'>{activity.status}</span>}
+
+
+                            <form onSubmit={handleDelete}>
+                                <div className="m-3 fw-bold">
+                                    {deleted ?
+                                        `Deleted Successfully` :
+                                        `Are you sure to delete?`
+                                    }
+                                </div>
+                                {!deleted &&
+                                    <div className="btn-group">
+                                        <button type="submit" className="btn btn-danger fw-medium m-1">Delete</button>
+                                        <button type="button" className="btn btn-secondary fw-medium m-1" onClick={handleClose} data-dismiss="modal" aria-label="Close">Cancel</button>
+                                    </div>}
+                            </form>
+                            {deleteMessage && <div className='p-3'>{deleteMessage}</div>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </>);
+};
+
+
 
 export default ShowActivities;
 
