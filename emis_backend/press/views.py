@@ -1,9 +1,10 @@
 # press/views.py
 
+from django.http import Http404
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from django.http import Http404
+from rest_framework.permissions import IsAuthenticated
 from .models import Media
 from .serializers import MediaSerializer
 
@@ -11,6 +12,8 @@ from .serializers import MediaSerializer
 
 # Custom API view for listing and creating media content
 class MediaListCreateView(APIView):
+    permission_classes=[IsAuthenticated]
+    
     # Handle GET request to retrieve a list of all media content
     def get(self, request):
         media = Media.objects.all()
@@ -19,6 +22,9 @@ class MediaListCreateView(APIView):
 
     # Handle POST request to create new media content
     def post(self, request):
+        # Add the authenticated user (author) to the request data before serializing
+        request.data['author'] = request.user.id
+        
         serializer = MediaSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -29,6 +35,8 @@ class MediaListCreateView(APIView):
 
 # Custom API view for retrieving, updating, and deleting media content
 class MediaRetrieveUpdateDeleteView(APIView):
+    permission_classes=[IsAuthenticated]
+    
     # Helper function to get the media object by primary key
     def get_object(self, pk):
         try:
