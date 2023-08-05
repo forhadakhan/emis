@@ -70,9 +70,14 @@ const CalendarComponent = ({ componentController }) => {
     // if there are no activities, try to get activities for current month through api  
     useEffect(() => {
         if (!checkActivity && (activities.length < 1)) {
-            fetchActivities(currentYear, currentMonth + 1);
+            fetchActivities(currentYear, currentMonth + 1); // month is 0 indexed
         }
     }, [activities])
+
+
+    const reloadActivities = () => {
+        fetchActivities(currentYear, currentMonth + 1); // month is 0 indexed
+    }
 
 
     // find out how many activities a date has (only for selected month) 
@@ -340,6 +345,16 @@ const CalendarComponent = ({ componentController }) => {
                                         <span className="fw-light"> {selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} </span>
                                     </strong>
 
+                                    {/* reload activities button  */}
+                                    <div className="d-flex justify-content-center font-merriweather">
+                                        <button
+                                            className='btn btn-sm btn-light text-secondary'
+                                            onClick={() => { reloadActivities() }}
+                                            title='reload all activities'
+                                        > <i className="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
+
                                     {/* <button type="button" className="btn btn-darkblue rounded-5 btn-sm fw-semibold">
                                         Add Event
                                     </button> */}
@@ -359,7 +374,7 @@ const CalendarComponent = ({ componentController }) => {
                                                 className='btn btn-sm btn-light text-secondary'
                                                 onClick={() => { getActivitiesForSelectedDate() }}
                                                 title='try reload activities for selected date'
-                                            > <i className="bi bi-arrow-clockwise"></i> 
+                                            > <i className="bi bi-arrow-clockwise"></i> retry 
                                             </button>
                                         </div>
                                     }
