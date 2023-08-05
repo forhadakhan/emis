@@ -12,6 +12,7 @@ import { getAccessToken, hasPermission } from '../../utils/auth.js';
 import { customDateAndDayName } from '../../utils/utils.js';
 
 
+// Main component 
 const ShowActivities = ({ activities }) => {
     const [responseMsg, setResponseMsg] = useState('');
     const [sortOrder, setSortOrder] = useState('asc'); // 'desc' for descending, 'asc' for ascending
@@ -37,7 +38,7 @@ const ShowActivities = ({ activities }) => {
         })
         : activities;
 
-
+    // handle delete request/click 
     const handleDelete = (activity) => {
         setSelectedActivity(activity);
         setIsDelete(!isDelete);
@@ -92,6 +93,7 @@ const ShowActivities = ({ activities }) => {
                     {sortedActivities.map((activity) => (
                         <div className="accordion-item" key={activity.id}>
                             <h2 className="accordion-header">
+                                {/* show activit title, date, status  */}
                                 <button
                                     className="accordion-button collapsed"
                                     type="button"
@@ -101,21 +103,26 @@ const ShowActivities = ({ activities }) => {
                                     aria-controls={`panelsStayOpen-collapse-${activity.id}`}
                                 >
                                     <strong>{activity.title}</strong>
-                                    <span className='badge p-1 bg-beige text-dark ms-2'>{activity.date}</span>
+                                    <span className='badge p-1 bg-beige text-darkblue ms-2'>{activity.date}</span>
                                     {activity.status && <span className='badge p-1 bg-dark text-light mx-2'>{activity.status}</span>}
                                 </button>
                             </h2>
+
                             <div id={`panelsStayOpen-collapse-${activity.id}`} className="accordion-collapse collapse">
                                 <div className="accordion-body">
+
+                                    {/* show activity description  */}
                                     <p>{activity.description}</p>
 
                                     <p className='d-flex justify-content-between mb-0'>
                                         <span>
+                                            {/* if the user is authorized, show edit and delete button  */}
                                             {hasPermission('change_defaultcalendaractivity') && <>
                                                 <button className='btn btn-sm btn-outline-primary border border-0 mx-1 p-0 px-1'>edit</button>
                                                 <button className='btn btn-sm btn-outline-danger border border-0 mx-1 p-0 px-1' onClick={() => { handleDelete(activity) }}>delete</button>
                                             </>}
                                         </span>
+                                        {/* show date  */}
                                         <span><small>{customDateAndDayName(activity.date)}</small></span>
                                     </p>
                                 </div>
@@ -129,6 +136,7 @@ const ShowActivities = ({ activities }) => {
 
         <div className="">
 
+            {/* if user request delete, show delete modal  */}
             {isDelete && <>
                 <DeleteTermModal
                     show={isDelete}
@@ -141,12 +149,13 @@ const ShowActivities = ({ activities }) => {
 }
 
 
-
+// Sub-component to ShowActivities  
 const DeleteTermModal = ({ show, handleClose, activity }) => {
     const [deleteMessage, setDeleteMessage] = useState('');
     const [deleted, setDeleted] = useState(false);
     const accessToken = getAccessToken();
 
+    // delete activity/event from db through backend api 
     const handleDelete = async (e) => {
         e.preventDefault();
         setDeleteMessage('');
@@ -172,27 +181,33 @@ const DeleteTermModal = ({ show, handleClose, activity }) => {
     };
 
     return (<>
-
+        {/* delete modal  */}
         <div className="bg-blur">
             <div className={`modal ${show ? 'show' : ''}`} tabIndex="-1" role="dialog" style={{ display: show ? 'block' : 'none' }}>
                 <div className="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down" role="document">
                     <div className="modal-content border border-beige">
                         <div className="modal-header bg-danger text-beige">
+
+                            {/* show modal title  */}
                             <h5 className="modal-title fs-4">
                                 <i className="bi bi-trash"></i>
                                 <span className='text-light'>Delete Activity/Event</span>
                             </h5>
+                            {/* show modal close button  */}
                             <button type="button" className="close btn bg-beige border-2 border-beige" data-dismiss="modal" aria-label="Close" onClick={handleClose}>
                                 <i className="bi bi-x-lg"></i>
                             </button>
                         </div>
+
+                        {/* modal body  */}
                         <div className="modal-body text-center bg-light">
 
+                            {/* activity title, date, status  */}
                             <h5 className='my-4'>{activity.title}</h5>
                             <strong className='p-1 bg-beige text-darkblue ms-2'>{activity.date}</strong>
                             {activity.status && <span className='p-1 bg-dark text-light mx-2'>{activity.status}</span>}
 
-
+                            {/* delete button and related messages  */}
                             <form onSubmit={handleDelete}>
                                 <div className="m-3 fw-bold">
                                     {deleted ?
