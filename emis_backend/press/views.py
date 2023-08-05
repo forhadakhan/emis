@@ -27,4 +27,34 @@ class MediaListCreateView(APIView):
 
 
 
+# Custom API view for retrieving, updating, and deleting media content
+class MediaRetrieveUpdateDeleteView(APIView):
+    # Helper function to get the media object by primary key
+    def get_object(self, pk):
+        try:
+            return Media.objects.get(pk=pk)
+        except Media.DoesNotExist:
+            raise Http404
+
+    # Handle GET request to retrieve a specific media content by its primary key
+    def get(self, request, pk):
+        media = self.get_object(pk)
+        serializer = MediaSerializer(media)
+        return Response(serializer.data)
+
+    # Handle PUT request to update an existing media content
+    def put(self, request, pk):
+        media = self.get_object(pk)
+        serializer = MediaSerializer(media, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Handle DELETE request to delete an existing media content
+    def delete(self, request, pk):
+        media = self.get_object(pk)
+        media.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
