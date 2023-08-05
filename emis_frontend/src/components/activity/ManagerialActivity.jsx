@@ -191,7 +191,7 @@ const ActivityPanel = ({ setActiveComponent, breadcrumb }) => {
         { id: 'view_courseoffer', label: 'Manage Course Offer', render: 'ManageCourseOffer', icon: 'bi-file-medical-fill' },
         { id: 'change_marksheet', label: 'Manage Academic Records', render: 'ManageAcademicRecords', icon: 'bi-list-columns' },
         { id: 'change_defaultcalendaractivity', label: 'Manage Academic Calendar', render: 'ManageAcademicCalendar', icon: 'bi-calendar3' },
-        { id: 'change_defaultcalendaractivity', label: 'Manage Media', render: 'ManageMedia', icon: 'bi-megaphone' },
+        { id: 'view_media', label: 'Manage Media', render: 'ManageMedia', icon: 'bi-megaphone' },
     ];
 
     let allowedElements = [];
