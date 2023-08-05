@@ -66,8 +66,13 @@ const ShowActivities = ({ activities }) => {
 
         {/* in case there are no activities, let the viewer know  */}
         {(sortedActivities.length < 1) && <>
-            <p className="text-center">
-                No activity found.
+            <p className="text-center mt-5">
+                <span className="bg-white p-2 rounded border border-beige">
+                    No activity/event found.
+                </span>
+            </p>
+            <p className="text-center small text-secondary">
+                Maybe it's just a regular day.
             </p>
         </>}
 
