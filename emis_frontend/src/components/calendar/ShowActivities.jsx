@@ -6,12 +6,14 @@
 
 
 import React, { useState } from 'react';
+import { hasPermission } from '../../utils/auth.js';
 import { customDateAndDayName } from '../../utils/utils.js';
 
 
 const ShowActivities = ({ activities }) => {
     const [responseMsg, setResponseMsg] = useState('');
     const [sortOrder, setSortOrder] = useState('asc'); // 'desc' for descending, 'asc' for ascending
+    const [isDelete, setIsDelete] = useState(false);
 
 
     // toggle the sorting order
@@ -57,16 +59,21 @@ const ShowActivities = ({ activities }) => {
                 {/* heading and sort button  */}
                 <div className="d-flex justify-content-between m-1">
                     <div>
-                        <h5 className='text-secondary'><i className="bi bi-calendar2-check pe-2"></i> Activities</h5>
+                        <h5 className='text-secondary'>
+                            <i className="bi bi-calendar2-check pe-2"></i>
+                            Activities
+                        </h5>
                     </div>
 
                     <div>
+                        {/* sort button  */}
                         <button
                             type='button'
                             className='btn btn-sm btn-light'
                             onClick={toggleSortOrder}
                             title={sortOrder === 'desc' ? 'Sort Ascending' : 'Sort Descending'}
                         >
+                            {/* sort icon  */}
                             <i className="bi bi-arrow-down-up"></i>
                         </button>
                     </div>
@@ -93,7 +100,16 @@ const ShowActivities = ({ activities }) => {
                             <div id={`panelsStayOpen-collapse-${activity.id}`} className="accordion-collapse collapse">
                                 <div className="accordion-body">
                                     <p>{activity.description}</p>
-                                    <p className='text-end'><small>{customDateAndDayName(activity.date)}</small></p>
+
+                                    <p className='d-flex justify-content-between mb-0'>
+                                        <span>
+                                            {hasPermission('change_defaultcalendaractivity') && <>
+                                                <button className='btn btn-sm btn-outline-primary border border-0 mx-1 p-0 px-1'>edit</button>
+                                                <button className='btn btn-sm btn-outline-danger border border-0 mx-1 p-0 px-1' onClick={() => { setIsDelete(!isDelete) }}>delete</button>
+                                            </>}
+                                        </span>
+                                        <span><small>{customDateAndDayName(activity.date)}</small></span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
