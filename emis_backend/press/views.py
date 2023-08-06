@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Media
-from .serializers import MediaSerializer
+from .serializers import MediaSerializer, MediaNestedSerializer
 
 
 
@@ -17,7 +17,7 @@ class MediaListCreateView(APIView):
     # Handle GET request to retrieve a list of all media content
     def get(self, request):
         media = Media.objects.all()
-        serializer = MediaSerializer(media, many=True)
+        serializer = MediaNestedSerializer(media, many=True)
         return Response(serializer.data)
 
     # Handle POST request to create new media content
@@ -47,7 +47,7 @@ class MediaRetrieveUpdateDeleteView(APIView):
     # Handle GET request to retrieve a specific media content by its primary key
     def get(self, request, pk):
         media = self.get_object(pk)
-        serializer = MediaSerializer(media)
+        serializer = MediaNestedSerializer(media)
         return Response(serializer.data)
 
     # Handle PUT request to update an existing media content
