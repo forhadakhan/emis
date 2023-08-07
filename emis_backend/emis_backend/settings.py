@@ -55,6 +55,7 @@ INSTALLED_PACKAGES = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'social_django',
+    'drf_yasg',
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',
