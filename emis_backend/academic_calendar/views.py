@@ -12,9 +12,9 @@ from .serializers import DefaultCalendarActivitySerializer, UserCalendarActivity
 
 
 class DefaultCalendarActivityAPIView(APIView):
-    permission_classes = [IsAdministratorOrStaff]
 
     def get(self, request, pk=None):
+        permission_classes = [IsAuthenticated]
         if pk is not None:
             # Retrieve a specific DefaultCalendarActivity object by primary key
             try:
@@ -44,6 +44,7 @@ class DefaultCalendarActivityAPIView(APIView):
             return Response(serializer.data)
 
     def post(self, request):
+        permission_classes = [IsAdministratorOrStaff]
         # Create a new DefaultCalendarActivity object
         serializer = DefaultCalendarActivitySerializer(data=request.data)
         if serializer.is_valid():
@@ -52,6 +53,7 @@ class DefaultCalendarActivityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         # Update a DefaultCalendarActivity object by its primary key
         try:
             activity = DefaultCalendarActivity.objects.get(pk=pk)
@@ -65,6 +67,7 @@ class DefaultCalendarActivityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         # Partially update a DefaultCalendarActivity object by its primary key
         try:
             activity = DefaultCalendarActivity.objects.get(pk=pk)
@@ -78,6 +81,7 @@ class DefaultCalendarActivityAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
+        permission_classes = [IsAdministratorOrStaff]
         # Delete a DefaultCalendarActivity object by its primary key
         try:
             activity = DefaultCalendarActivity.objects.get(pk=pk)
