@@ -56,6 +56,7 @@ INSTALLED_PACKAGES = [
     'corsheaders',
     'social_django',
     'drf_yasg',
+    'django_extensions',
 ]
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -263,6 +264,15 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+
+# For ERD generations with django-extensions 
+GRAPH_MODELS = {
+#   'app_labels': ["myapp1", "myapp2", "auth"],
+  'all_applications': True,
+  'group_models': True,
+}
+
 
 """""""""""""""""""""""""""""""""""""""""
 """""""""""""""""""""""""""""""""""""""""
