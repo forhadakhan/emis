@@ -376,25 +376,6 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
     }, [course.prerequisites]);
 
 
-    // check and set Prerequisites Cleared status 
-    useEffect(() => {
-        prerequisites.forEach(course => {
-            const status = enrolledCourses.hasOwnProperty(course.id);
-
-            // in case, prerequisite completion is required, remove comment from below code  
-            // if (status && (enrolledCourses[course.id].is_complete === true)) {
-            //     return; // Return if course is not completed yet.
-            // } else {
-            //     setPrerequisitesCleared(false);
-            // }
-
-            if (!status) {
-                setPrerequisitesCleared(false);
-            }
-        });
-    }, [prerequisites]);
-
-
     // get all enrolled courses for the logged student 
     const fetchEnrolledCourses = async () => {
         const config = {
@@ -416,10 +397,11 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
             setEnrolledCourses(courseDictionary);
 
         } catch (error) {
+            console.error(error);
             if (error.response.status == 404) {
-                setError('No enrolled course(s) found for you. ');
+                // setError('No enrolled course(s) found for you. ');
             } else {
-                setError(' Failed to fetch course  list.');
+                setError(' Failed to fetch enrolled course  list.');
             }
             // console.error('Error fetching course list:', error);
         }
@@ -464,6 +446,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
     // setup button dependencies based on prevEnrollments
     const setButtonDependencies = () => {
+        // if prevEnrollments is not an array.
         if (!Array.isArray(prevEnrollments)) {
             // console.error("prevEnrollments is not an array.");
             // console.log(prevEnrollments)
@@ -495,6 +478,10 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
 
     // enroll (new/retake) to selected course offer 
     const handleEnrollment = () => {
+        if(!prerequisitesCleared) {
+            return;
+        }
+
         const enrollmentData = {
             course_offer: courseOffer.id,
             student: studentId,
@@ -589,8 +576,29 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
         } else {
             return false;
         }
-
     }
+    
+
+    // check and set Prerequisites Cleared status 
+    const checkAllPrerequisite = () => {
+        prerequisites.forEach(course => {
+            const status = enrolledCourses.hasOwnProperty(course.id);
+
+            // in case, prerequisite completion is required, remove comment from below code  
+            // if (status && (enrolledCourses[course.id].is_complete === true)) {
+            //     return; // Return if course is not completed yet.
+            // } else {
+            //     setPrerequisitesCleared(false);
+            // }
+
+            if (!status) {
+                setPrerequisitesCleared(false);
+            }
+        });
+    }; 
+    useEffect(() => {
+        checkAllPrerequisite()
+    }, [enrolledCourses])
 
 
     return (
@@ -667,7 +675,7 @@ const CourseDetails = ({ courseOffer, handleBack, studentId, getPrerequisites })
                     {(course.prerequisites.length > 0) && <div>
                         {prerequisites.map((course) => (
                             <div key={course.id}>
-                                {console.log(course)}
+                                {/* {console.log(course)} */}
                                 <small className='d-inline-block text-secondary fw-normal m-0 px-2'>
                                     {(checkPrerequisite(course.id))
                                         ? <i className="bi bi-check-circle"> </i>
