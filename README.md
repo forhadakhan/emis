@@ -2,7 +2,7 @@
 <p align="center">
 	<!-- PROJECT LOGO -->
   <a href="https://github.com/forhadakhan/emis">
-    <img src="https://github.com/forhadakhan/emis/assets/67508944/7a172714-3e12-43af-97a5-cd3456b3b966" alt="Logo" width="80" height="80">
+    <img src="https://github.com/forhadakhan/emis/assets/67508944/2729ec23-c961-4c3d-b75a-91f2e3608913" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">EMIS</h3>
@@ -11,7 +11,7 @@
     <samp>(Education Management Information System)</samp>
     <br />
     <br />
-    <a href="#"><strong>Visit Live Site</strong></a>
+    <a href="https://emisys.vercel.app/"><strong>Visit Live Site</strong></a>
     <br />
     <br />
     <a href="https://github.com/forhadakhan/emis/discussions/1">Discussions</a>
@@ -58,8 +58,7 @@ The 'Education Management Information System' revolutionizes educational institu
 
 
 ## System Structure 
-![EMIS_P400_System_Structure](https://github.com/forhadakhan/emis/assets/67508944/d596a6d1-96df-453a-aa21-245c098546ee)
-
+![EMIS_P400_System_Structure](https://github.com/forhadakhan/emis/assets/67508944/9d53a210-37a7-4552-bfe5-c8fee17b736a)
 
 
 ## Features 
