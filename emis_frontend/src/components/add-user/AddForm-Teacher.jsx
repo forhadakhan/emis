@@ -1,13 +1,13 @@
 /**
  * Calling From: AddTeacher.jsx
- * Calling To: BootstrapPhone.jsx; FileUploadForm.jsx; 
+ * Calling To: BootstrapPhone2.jsx; FileUploadForm.jsx; 
  */
 
 import React, { useState, useEffect } from 'react';
 import 'react-international-phone/style.css';
 import { deleteFile } from '../file-handler/fileUtils';
 import { getAccessToken, getUserId, getFileLink } from '../../utils/auth';
-import BootstrapPhone from '../sub-components/BootstrapPhone';
+import BootstrapPhone from '../sub-components/BootstrapPhone2';
 import FileUploadForm from '../file-handler/FileUploadForm';
 import axios from 'axios';
 
@@ -25,8 +25,10 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [uploadedFileId, setUploadedFileId] = useState('');
     const [uploadedFileLink, setUploadedFileLink] = useState('');
+    const [isPhoneValid, setIsPhoneValid] = useState(false);
 
 
+    // on change, update phone to form data 
     useEffect(() => {
         setFormData((prevFormData) => ({
             ...prevFormData,
@@ -34,36 +36,39 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
         }));
     }, [phone]);
 
+    // handle phone input 
     const handlePhoneChange = (phone) => {
         setPhone(phone);
-        setPhoneError(false); // Reset the phone error when the phone number changes
+        // setPhoneError(false); // Reset the phone error when the phone number changes
     };
 
-    const validatePhoneNumber = () => {
-        // only validate Bangladeshi numbers 
-        if (phone.startsWith('+880') || phone.startsWith('880') || phone.startsWith('0')) {
-            const pattern = /^(?:\+?880|0|88)?\s?1[3456789]\d{8}$/;
-            if (!pattern.test(phone)) {
-                setPhoneError(true);
-            } else {
-                setPhoneError(false);
-            }
-        }
-    };
+    // const validatePhoneNumber = () => {
+    //     // only validate Bangladeshi numbers 
+    //     if (phone.startsWith('+880') || phone.startsWith('880') || phone.startsWith('0')) {
+    //         const pattern = /^(?:\+?880|0|88)?\s?1[3456789]\d{8}$/;
+    //         if (!pattern.test(phone)) {
+    //             setPhoneError(true);
+    //         } else {
+    //             setPhoneError(false);
+    //         }
+    //     }
+    // };
 
+    // validate a Bangladeshi NID: basic 
     const validateNID = () => {
         const nidLength = formData.nid.length;
         setNidError(nidLength < 10 || nidLength > 17);
     }
 
-    const validatePassword = () => {
-        if (formData.user.password !== re_password) {
-            setPasswordError('Passwords do not match');
-            return;
-        }
-        setPasswordError('');
-    }
+    // const validatePassword = () => {
+    //     if (formData.user.password !== re_password) {
+    //         setPasswordError('Passwords do not match');
+    //         return;
+    //     }
+    //     setPasswordError('');
+    // }
 
+    //handle teacher related data input
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
         setFormData((prevData) => ({
@@ -72,6 +77,7 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
         }));
     };
 
+    //handle user related data input
     const handleUserChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -84,6 +90,7 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
     };
 
 
+    // handle file upoload response  
     const onFileUpload = (file_id, file_link) => {
         setUploadedFileId(file_id);
         setUploadedFileLink(file_link);
@@ -94,6 +101,7 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
     }
 
 
+    // handle data review before submission 
     const handleReview = () => {
         if (formData.photo_id && formData.photo_id.size > 300 * 1024) {
             // File size exceeds the limit
@@ -101,9 +109,9 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
             return;
         }
         validateNID();
-        validatePhoneNumber();
+        // validatePhoneNumber();
 
-        const allValid = passwordError === '' && !nidError && !phoneError;
+        const allValid = passwordError === '' && !nidError && isPhoneValid;
         if (!allValid) { return }
 
         // console.log(formData);
@@ -111,11 +119,13 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
         setEditStatus(false);
     };
 
+    // enable editing 
     const handleEdit = () => {
         setAlertMessage('')
         setEditStatus(true)
     };
 
+    // delete an uploaded file by id 
     async function deleteFileById(file_id) {
         if (file_id) {
             try {
@@ -134,12 +144,14 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
         }
     }
 
+    // reset the form 
     const handleReset = () => {
         setFormData(formFields);
         setPhone('');
         deleteFileById(uploadedFileId);
     };
 
+    // prepare form to add another teacher 
     const handleAddAnother = () => {
         handleEdit();
         handleReset();
@@ -148,6 +160,7 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
     };
 
 
+    // submit data the the backend api to save 
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -213,6 +226,7 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
             });
     };
 
+    // before review, check if all required data is given. 
     const reviewDisable = () => {
         return (formData.username === '' || formData.email === '' || formData.nid.length < 10 || formData.first_name === '')
     }
@@ -307,7 +321,8 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
                                     Please input a valid phone number.
                                 </div>
                             )}
-                            <BootstrapPhone value={phone} onChange={handlePhoneChange} onBlur={validatePhoneNumber} />
+                            {/* <BootstrapPhone value={phone} onChange={handlePhoneChange} onBlur={validatePhoneNumber} /> */}
+                            <BootstrapPhone disabled={false} value={phone} onChange={handlePhoneChange} setIsPhoneValid={setIsPhoneValid} />
                         </div>
 
 
@@ -329,7 +344,7 @@ const AddForm = ({ formFields, url, setActiveComponent }) => {
                         </div> */}
                         {passwordError && <div className="alert alert-danger">{passwordError}</div>}
                         <div className="d-grid gap-2 m-4">
-                            {!(passwordError === '' && !nidError && !phoneError) && (
+                            {!(passwordError === '' && !nidError && isPhoneValid) && (
                                 <div id="false-data" className="alert alert-warning" role="alert">
                                     You inputed invalid data, please check again.
                                 </div>

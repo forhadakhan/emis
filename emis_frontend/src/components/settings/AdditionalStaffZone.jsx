@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getProfileData, getFileLink, getUserId, getAccessToken, setProfileData, getUserRole } from '../../utils/auth';
-import BootstrapPhone from '../sub-components/BootstrapPhone';
+import BootstrapPhone from '../sub-components/BootstrapPhone2';
 import FileUploadForm from '../file-handler/FileUploadForm';
 import { deleteFile } from '../file-handler/fileUtils';
 import API_BASE_URL from '../../utils/config';
@@ -13,6 +13,7 @@ const AdditionalStaffZone = () => {
     const [profile, setProfile] = useState(initProfile);
     const [updatedProfile, setUpdatedProfile] = useState(profile);
     const [phoneError, setPhoneError] = useState(false);
+    const [isPhoneValid, setIsPhoneValid] = useState(true);
     const [nidError, setNidError] = useState(false);
     const [fileID, setFileID] = useState('');
     const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
@@ -26,8 +27,8 @@ const AdditionalStaffZone = () => {
             phone: phone
         }));
         setPhoneError(false); // Reset the phone error when the phone number changes
-        setShowUpdateSuccess(false);
-        setShowUpdateFailed(false);
+        // setShowUpdateSuccess(false);
+        // setShowUpdateFailed(false);
     };
 
     const validatePhoneNumber = () => {
@@ -215,7 +216,7 @@ const AdditionalStaffZone = () => {
                                             Please input a valid phone number.
                                         </div>
                                     )}
-                                    <BootstrapPhone value={updatedProfile.phone} onChange={handlePhoneChange} onBlur={validatePhoneNumber} />
+                                    <BootstrapPhone value={updatedProfile.phone} onChange={handlePhoneChange} setIsPhoneValid={setIsPhoneValid} />
                                 </div>
                             </div>
                             <div className="row my-4">
@@ -291,7 +292,7 @@ const AdditionalStaffZone = () => {
                                         <button type="button" className="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>}
                                 <div className="d-grid gap-2">
-                                    <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">Update</button>
+                                    <button onClick={handleUpdate} className="btn btn-darkblue pt-1 profile-button" type="button" disabled={!isPhoneValid}>Update</button>
                                     <button onClick={cancelUpdate} className="btn btn-darkblue pt-1 profile-button" type="button">Cancel</button>
                                 </div>
                             </div>

@@ -7,10 +7,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../../utils/config';
 import { getAccessToken, getUserId, getFileLink } from '../../../utils/auth';
+import { convertDate } from '../../../utils/utils';
 import { deleteFile } from '../../file-handler/fileUtils';
-import BootstrapPhone from '../../sub-components/BootstrapPhone'
+import BootstrapPhone from '../../sub-components/BootstrapPhone2'
 import FileUploadForm from '../../file-handler/FileUploadForm'
-import * as bootstrap from 'bootstrap'
 
 
 const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
@@ -19,12 +19,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
     const [isReadonly, setIsReadonly] = useState(true);
     const [uploadedFileId, setUploadedFileId] = useState('');
     const [uploadedFileLink, setUploadedFileLink] = useState('');
-
-    function convertDate(dateString) {
-        const date = new Date(dateString);
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    }
+    const [isPhoneValid, setIsPhoneValid] = useState(true);
 
     const [source, setSource] = useState({
         acronym: data.acronym,
@@ -248,7 +243,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
                     <label htmlFor="phone" className="form-label h6 me-4">
                         Phone *
                     </label>
-                    <BootstrapPhone disabled={isReadonly} value={phone} onChange={handlePhoneChange} onBlur={validatePhoneNumber} />
+                    <BootstrapPhone disabled={isReadonly} value={phone} onChange={handlePhoneChange} setIsPhoneValid={setIsPhoneValid} />
                 </div>
 
                 <div className="mb-3">
@@ -306,7 +301,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
                     </div>
                 ) : (
                     <div className="d-grid gap-2 m-5">
-                        <button type="button" className="btn btn-darkblue" onClick={handleSubmit}><i className="bi bi-person-bounding-box"></i> Update</button>
+                        <button type="button" className="btn btn-darkblue" onClick={handleSubmit} disabled={!isPhoneValid}><i className="bi bi-person-bounding-box"></i> Update</button>
                         <button type="button" className="btn btn-darkblue pt-1" onClick={handleCancel}>
                             <i className="bi bi-clipboard-x"></i> Cancel
                         </button>

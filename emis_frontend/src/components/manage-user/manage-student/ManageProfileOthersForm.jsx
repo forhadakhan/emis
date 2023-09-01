@@ -7,10 +7,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../../../utils/config';
 import { getAccessToken, getUserId, getFileLink } from '../../../utils/auth';
+import { convertDate } from '../../../utils/utils';
 import { deleteFile } from '../../file-handler/fileUtils';
-import BootstrapPhone from '../../sub-components/BootstrapPhone'
+import BootstrapPhone from '../../sub-components/BootstrapPhone2'
 import FileUploadForm from '../../file-handler/FileUploadForm'
-import * as bootstrap from 'bootstrap'
 
 
 const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
@@ -19,12 +19,9 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
     const [isReadonly, setIsReadonly] = useState(true);
     const [uploadedFileId, setUploadedFileId] = useState('');
     const [uploadedFileLink, setUploadedFileLink] = useState('');
+    const [isPhoneValid, setIsPhoneValid] = useState(true);
+    const [isGuardianPhoneValid, setIsGuardianPhoneValid] = useState(true);
 
-    function convertDate(dateString) {
-        const date = new Date(dateString);
-        const options = { day: 'numeric', month: 'long', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    }
 
     const [source, setSource] = useState({
         photo_id: data.photo_id,
@@ -50,7 +47,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
         updated_by: data.updated_by,
     });
 
-
+    // handle file upload 
     const onFileUpload = (file_id, file_link) => {
         setUploadedFileId(file_id);
         setUploadedFileLink(file_link);
@@ -60,13 +57,13 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
         }));
     }
 
-
     const [history, setHistory] = useState(data.history);
     const [phoneError, setPhoneError] = useState(false);
     const [guardianPhoneError, setGuardianPhoneError] = useState(false);
     const [phone, setPhone] = useState(formData.phone);
     const [guardianPhone, setGuardianPhone] = useState(formData.guardian_phone);
 
+    // on change, update student and guardian phone to form data 
     useEffect(() => {
         setFormData((formData) => ({
             ...formData,
@@ -75,42 +72,24 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
         }));
     }, [phone, guardianPhone]);
 
+    // track phone change 
     const handlePhoneChange = (phone) => {
         setPhone(phone);
         setPhoneError(false); // Reset the phone error when the phone number changes
     };
 
+    // track guardian phone change 
     const handleGuardianPhoneChange = (phone) => {
         setGuardianPhone(phone);
         setGuardianPhoneError(false); // Reset the phone error when the phone number changes
     };
 
-    const validatePhoneNumber = () => {
-        if (phone.startsWith('+880') || phone.startsWith('880') || phone.startsWith('0')) {
-            const pattern = /^(?:\+?880|0|88)?\s?1[3456789]\d{8}$/;
-            if (!pattern.test(phone)) {
-                setPhoneError(true);
-            } else {
-                setPhoneError(false);
-            }
-        }
-    };
-
-    const validateGuardianPhoneNumber = () => {
-        if (guardianPhone.startsWith('+880') || guardianPhone.startsWith('880') || guardianPhone.startsWith('0')) {
-            const pattern = /^(?:\+?880|0|88)?\s?1[3456789]\d{8}$/;
-            if (!pattern.test(guardianPhone)) {
-                setGuardianPhoneError(true);
-            } else {
-                setGuardianPhoneError(false);
-            }
-        }
-    };
-
+    // handle input change 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // delete a file from cloud by file id 
     async function deleteFileById(file_id) {
         if (file_id) {
             try {
@@ -129,6 +108,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
         }
     }
 
+    // cancel edit; switch to readonly mode 
     const handleCancel = () => {
         setIsReadonly(true);
         setFormData(source);
@@ -137,6 +117,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
         deleteFileById(uploadedFileId);
     }
 
+    // handle update request 
     const handleSubmit = (e) => {
         e.preventDefault();
         const accessToken = getAccessToken();
@@ -234,7 +215,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
                     <label htmlFor="phone" className="form-label h6 me-4">
                         Phone *
                     </label>
-                    <BootstrapPhone disabled={isReadonly} value={phone} onChange={handlePhoneChange} onBlur={validatePhoneNumber} />
+                    <BootstrapPhone disabled={isReadonly} value={phone} onChange={handlePhoneChange} setIsPhoneValid={setIsPhoneValid} />
                 </div>
 
                 <div className="mb-3">
@@ -357,7 +338,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
                     <label htmlFor="phone" className="form-label h6 me-4">
                         Guardian's Phone
                     </label>
-                    <BootstrapPhone disabled={isReadonly} value={guardianPhone} onChange={handleGuardianPhoneChange} onBlur={validateGuardianPhoneNumber} />
+                    <BootstrapPhone disabled={isReadonly} value={guardianPhone} onChange={handleGuardianPhoneChange} setIsPhoneValid={setIsGuardianPhoneValid} />
                 </div>
 
 
@@ -367,7 +348,7 @@ const ManageProfileOthersForm = ({ data, full_name, username, related_to }) => {
                     </div>
                 ) : (
                     <div className="d-grid gap-2 m-5">
-                        <button type="button" className="btn btn-darkblue" onClick={handleSubmit}><i className="bi bi-person-bounding-box"></i> Update</button>
+                        <button type="button" className="btn btn-darkblue" onClick={handleSubmit} disabled={!isPhoneValid || !isGuardianPhoneValid}><i className="bi bi-person-bounding-box"></i> Update</button>
                         <button type="button" className="btn btn-darkblue pt-1" onClick={handleCancel}>
                             <i className="bi bi-clipboard-x"></i> Cancel
                         </button>
