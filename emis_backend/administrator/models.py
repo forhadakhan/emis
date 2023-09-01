@@ -1,7 +1,10 @@
 # administrator/models.py  
 
 from django.db import models
-from authentication.models import User
+from authentication.models import User 
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver 
+
 
 class Administrator(models.Model):
     GENDER_CHOICES = (
@@ -26,3 +29,36 @@ class Administrator(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     designation = models.CharField(max_length=99, blank=True, null=True)
     
+
+
+#####################################################################
+##################### create_dafault_admin:
+#####################   - dependent on: Administrator, User.
+
+###     This will create a 'default-admin'. 
+###     You must disable this admin after you create a real admin 
+
+@receiver(post_migrate)
+def create_dafault_admin(sender, **kwargs):
+    app_config = kwargs.get('app_config')
+    if app_config and app_config.name == 'administrator': 
+        user_data = {
+            'username': 'default-admin',
+            'first_name': 'Default',
+            'last_name': 'Admin',
+            'email': 'defaultadmin@emis.test',
+            'role': 'administrator',
+            'email_verified': True,
+        }
+        user = User(**user_data)
+        user.set_password('Pass-default-admin')
+        user.save()
+        
+        admin_data = {
+            'user': user,
+            'nid': '01234567890123',
+        }
+        admin = Administrator(**admin_data)
+        admin.save()
+#####################################################################
+
