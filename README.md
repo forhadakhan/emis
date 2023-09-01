@@ -118,6 +118,11 @@ In addition to the mentioned features, the system includes:
 And more features as required.  
      
 
+## API Doc 
+- [EMIS API Doc (Swagger)](https://emis.up.railway.app/doc/swagger/)  
+- [EMIS API Doc (Redoc)](https://emis.up.railway.app/doc/redoc/)  
+
+
 ## License
 
 [MIT License](./LICENSE) © 2023 [Forhad Khan](https://github.com/forhadakhan/)
