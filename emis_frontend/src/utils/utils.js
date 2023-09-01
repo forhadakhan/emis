@@ -1,4 +1,4 @@
-// src/utils/config.js
+// src/utils/utils.js
 
 
 export const formatDateTime = (dateTimeString, timeZone = "Asia/Dhaka") => {
@@ -21,6 +21,17 @@ export const formatDateTime = (dateTimeString, timeZone = "Asia/Dhaka") => {
 
     const formatter = new Intl.DateTimeFormat(undefined, options);
     return formatter.format(dateTime);
+}
+
+
+export const convertDate = (dateString) => {
+    /**
+     *  input: 2023-07-05T08:36:27.299326+00:00
+     * output: July 5, 2023 
+     */
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
 }
 
 
