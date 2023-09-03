@@ -56,6 +56,11 @@ The 'Education Management Information System' revolutionizes educational institu
 - CSS Framework: Bootstrap
 - LDS: Vite
 
+#### Deployment 
+- [Railway (backend/api)](https://railway.app/) 
+- [Vercel](https://emisys.vercel.app/) 
+- [Firebase](https://emis-live.web.app/)  
+
 
 ## System Structure 
 ![EMIS_P400_System_Structure](https://github.com/forhadakhan/emis/assets/67508944/9d53a210-37a7-4552-bfe5-c8fee17b736a)
@@ -134,4 +139,5 @@ And more features as required.
 	
 	<img src="https://i.postimg.cc/7ZdXzGj1/emis-256x256.png" alt="Logo" width="80" height="80"> 
 	
+-->
 -->
