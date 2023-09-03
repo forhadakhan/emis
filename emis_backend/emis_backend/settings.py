@@ -246,6 +246,7 @@ SIMPLE_JWT = {
 
 
 FRONTEND_HOST_URL = os.getenv('FRONTEND_HOST_URL')
+FRONTEND_HOST_URL_2 = os.getenv('FRONTEND_HOST_URL_2')
 # HOST_NAME = os.getenv('HOST_NAME')
 # HOST_IP = os.getenv('HOST_IP')
 
@@ -253,6 +254,7 @@ FRONTEND_HOST_URL = os.getenv('FRONTEND_HOST_URL')
 
 CORS_ORIGIN_WHITELIST = [
     FRONTEND_HOST_URL,  # React frontend's URL
+    FRONTEND_HOST_URL_2,  # React frontend's URL 2 
 ]
 
 CORS_ALLOW_METHODS = [
