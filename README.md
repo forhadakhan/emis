@@ -13,6 +13,8 @@
     <br />
     <a href="https://emisys.vercel.app/"><strong>Visit Live Site</strong></a>
     <br />
+    <samp>⚠️ Backend currently offline.</samp>
+    <br />
     <br />
     <a href="https://github.com/forhadakhan/emis/discussions/1">Discussions</a>
     ·
@@ -21,6 +23,7 @@
     <a href="https://github.com/forhadakhan/emis/issues">Feature request</a>
   </p>
 </p>
+
 
 <br/>
 
@@ -57,7 +60,7 @@ The 'Education Management Information System' revolutionizes educational institu
 - LDS: Vite
 
 #### Deployment 
-- [Railway (backend/api)](https://railway.app/) 
+- [Railway (backend/api)](https://railway.com/)  [⚠️ Backend went offline as Railway discontinued its free tier.]
 - [Vercel](https://emisys.vercel.app/) 
 - [Firebase](https://emis-live.web.app/)  
 
